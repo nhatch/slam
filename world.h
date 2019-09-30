@@ -14,8 +14,6 @@ using trajectory_t = std::vector<transform_t>;
 using landmark_readings_t = std::vector<reading_t>;
 using bag_t = std::vector<landmark_readings_t>;
 
-vec_t toVector(trajectory_t &traj, landmark_readings_t &landmark_readings);
-
 class Car {
 public:
   bag_t bag_;

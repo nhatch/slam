@@ -12,19 +12,6 @@ transform_t toTransform(double x, double y, double theta) {
   return m;
 }
 
-vec_t toVector(trajectory_t &traj, landmark_readings_t &r) {
-  int T = traj.size()-1;
-  int L = r.size();
-  vec_t v = vec_t::Zero(T+1+L);
-  for (int i = 0; i < T+1; i++) {
-    v(i) = -traj[(size_t)i](0,2);
-  }
-  for (int i = 0; i < L; i++) {
-    v(T+1+i) = v(0) + r[(size_t)i](0); // Add the car's starting offset
-  }
-  return v;
-}
-
 reading_t project(const landmark_t &landmark, const transform_t &transform) {
   landmark_t transformed_landmark = transform * landmark;
   // If we're projecting to a 1-D camera in front of the car:
