@@ -70,6 +70,9 @@ void printRange(smoothed_t &smoothed, int start, int end) {
 }
 
 int main() {
+  std::cout.precision(3);
+  std::cout << std::fixed;
+
   World w;
   w.addLandmark(3., 0.);
   w.addLandmark(6., 0.);
