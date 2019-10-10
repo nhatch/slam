@@ -73,40 +73,44 @@ public:
   }
 };
 
-template<int N, int idx1, int idx2>
+template<int N>
 class OdomFactor : public DimDFactor<N,1> {
+  int _idx1, _idx2;
+
 public:
-  OdomFactor(double sigma, double m) : DimDFactor<N,1>(
+  OdomFactor(int idx1, int idx2, double sigma, double m) : DimDFactor<N,1>(
       covariance<1> { 1/sigma/sigma }, measurement<1> { m }
-    ) { }
+    ), _idx1(idx1), _idx2(idx2) { }
 
   virtual measurement<1> f(const values<N> &x) {
-    return measurement<1> { x(idx2) - x(idx1) };
+    return measurement<1> { x(_idx2) - x(_idx1) };
   }
 
   virtual jacobian<N,1> jf(const values<N> &/* x */) {
     jacobian<N,1> j = jacobian<N,1>::Zero();
-    j(idx2) = 1;
-    j(idx1) = -1;
+    j(_idx2) = 1;
+    j(_idx1) = -1;
     return j;
   }
 };
 
 
-template<int N, int idx>
+template<int N>
 class GPSFactor : public DimDFactor<N,1> {
+  int _idx;
+
 public:
-  GPSFactor(double sigma, double m) : DimDFactor<N,1>(
+  GPSFactor(int idx, double sigma, double m) : DimDFactor<N,1>(
       covariance<1> { 1/sigma/sigma }, measurement<1> { m }
-    ) { }
+    ), _idx(idx) { }
 
   virtual measurement<1> f(const values<N> &x) {
-    return measurement<1> { x(idx) };
+    return measurement<1> { x(_idx) };
   }
 
   virtual jacobian<N,1> jf(const values<N> &/* x */) {
     jacobian<N,1> j = jacobian<N,1>::Zero();
-    j(idx) = 1;
+    j(_idx) = 1;
     return j;
   }
 };
@@ -114,11 +118,13 @@ public:
 template <int N>
 class Graphz {
 private:
+  values<N> _x0;
   values<N> _sol;
   std::vector<AbstractFactor<N> *> _factors;
 
 public:
-  Graphz() : _sol(values<N>::Zero()), _factors({}) {}
+  Graphz() : _x0(values<N>::Zero()), _sol(values<N>::Zero()), _factors({}) {}
+
   ~Graphz() {
     for (auto f : _factors) {
       free(f);
@@ -137,6 +143,7 @@ public:
   }
 
   void solve(const values<N> &x0, double alpha=0.01, int maxiters=10000, double tol=0.001) {
+    _x0 = x0;
     values<N> x = x0;
     double error = 1.0;
     int i = 0;
@@ -150,6 +157,10 @@ public:
     }
     std::cout << "MAP took " << i << " iterations." << std::endl;
     _sol = x;
+  }
+
+  values<N> x0() {
+    return _x0;
   }
 
   values<N> solution() {
