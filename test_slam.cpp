@@ -24,7 +24,7 @@ values<N> toVector(trajectory_t &traj, landmark_readings_t &r) {
  *        list of landmark readings (of length T+1, with nLandmarks readings at each step)
  */
 template <int N>
-Graphz<N> smooth(trajectory_t &odom, bag_t &bag) {
+Graph<N> smooth(trajectory_t &odom, bag_t &bag) {
   int T = odom.size()-1;
   int nLandmarks = bag[0].size();
   double odom_std = 0.1;
@@ -32,7 +32,7 @@ Graphz<N> smooth(trajectory_t &odom, bag_t &bag) {
   landmark_readings_t r = bag[0];
   assert("whoohoo" && (N == T + nLandmarks));
   values<N> x0 = toVector<N>(odom, r);
-  Graphz<N> graph;
+  Graph<N> graph;
   for (int t=0; t < T+1; t++) {
     for (int i = 0; i < nLandmarks; i++) {
       double l_dx = bag[(size_t)t][(size_t)i](0);
@@ -61,7 +61,7 @@ void run_simulation(World &w, int T) {
 }
 
 template <int N>
-void printRange(Graphz<N> &g, int start, int end) {
+void printRange(Graph<N> &g, int start, int end) {
   for (int i = start; i < end; i++) {
     std::cout << g.solution()(i) << '\t';
     std::cout << "(std: " << sqrt(g.covariance()(i,i)) << ")\n";
@@ -84,7 +84,7 @@ int main() {
   constexpr int N = T+nLandmarks;
 
   run_simulation(w, T);
-  Graphz<N> g = smooth<N>(w.car_.odom_, w.car_.bag_);
+  Graph<N> g = smooth<N>(w.car_.odom_, w.car_.bag_);
 
   std::cout << std::endl << "Estimated trajectory:" << std::endl;
   printRange(g, 0, T);

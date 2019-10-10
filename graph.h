@@ -6,25 +6,6 @@
 #include <eigen3/Eigen/LU>
 #include <vector>
 
-constexpr int NULL_VAR = -1;
-
-// This is super inefficient so far; it explicitly represents the full Hessian etc.
-using vec_t = Eigen::Matrix<double, Eigen::Dynamic, 1>;
-using hess_t = Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic>;
-
-// -log of an actual factor
-class Factor {
-public:
-  int _v1;
-  int _v2;
-  double _sigma;
-  double _measurement;
-
-  vec_t gradient(vec_t x, int N);
-  hess_t hessian(vec_t /* x */, int N);
-  double eval(vec_t x);
-};
-
 template <int N, int D>
 using jacobian = Eigen::Matrix<double, N, D>;
 template <int N>
@@ -46,12 +27,12 @@ public:
 };
 
 template <int N, int D>
-class DimDFactor : public AbstractFactor<N> {
+class Factor : public AbstractFactor<N> {
 public:
   const covariance<D> _sigma_inv;
   const measurement<D> _measurement;
 
-  DimDFactor(const covariance<D> &sigma_inv, const measurement<D> &measurement) :
+  Factor(const covariance<D> &sigma_inv, const measurement<D> &measurement) :
       _sigma_inv(sigma_inv), _measurement(measurement) {}
 
   // To be implemented by subclasses
@@ -74,11 +55,11 @@ public:
 };
 
 template<int N>
-class OdomFactor : public DimDFactor<N,1> {
+class OdomFactor : public Factor<N,1> {
   int _idx1, _idx2;
 
 public:
-  OdomFactor(int idx1, int idx2, double sigma, double m) : DimDFactor<N,1>(
+  OdomFactor(int idx1, int idx2, double sigma, double m) : Factor<N,1>(
       covariance<1> { 1/sigma/sigma }, measurement<1> { m }
     ), _idx1(idx1), _idx2(idx2) { }
 
@@ -96,11 +77,11 @@ public:
 
 
 template<int N>
-class GPSFactor : public DimDFactor<N,1> {
+class GPSFactor : public Factor<N,1> {
   int _idx;
 
 public:
-  GPSFactor(int idx, double sigma, double m) : DimDFactor<N,1>(
+  GPSFactor(int idx, double sigma, double m) : Factor<N,1>(
       covariance<1> { 1/sigma/sigma }, measurement<1> { m }
     ), _idx(idx) { }
 
@@ -116,16 +97,16 @@ public:
 };
 
 template <int N>
-class Graphz {
+class Graph {
 private:
   values<N> _x0;
   values<N> _sol;
   std::vector<AbstractFactor<N> *> _factors;
 
 public:
-  Graphz() : _x0(values<N>::Zero()), _sol(values<N>::Zero()), _factors({}) {}
+  Graph() : _x0(values<N>::Zero()), _sol(values<N>::Zero()), _factors({}) {}
 
-  ~Graphz() {
+  ~Graph() {
     for (auto f : _factors) {
       free(f);
     }
@@ -174,15 +155,5 @@ public:
     return hess.inverse();
   }
 };
-
-using Graph = std::vector<Factor>;
-
-// Just uses gradient descent
-vec_t findMAP(Graph graph, vec_t x0, int N,
-              double alpha = 0.01, int maxiters = 10000, double tol = 0.001);
-
-hess_t findCov(Graph graph, vec_t x, int N);
-
-double eval(Graph graph, vec_t x);
 
 #endif
