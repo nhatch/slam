@@ -2,6 +2,7 @@
 #include <iostream>
 #include <cmath>
 #include "graph.h"
+#include "factors.h"
 
 constexpr int N = 3;
 constexpr int D = 1;

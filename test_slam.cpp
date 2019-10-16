@@ -2,6 +2,7 @@
 #include <math.h>
 #include <iostream>
 #include "graph.h"
+#include "factors.h"
 #include "world.h"
 
 template <int N>
