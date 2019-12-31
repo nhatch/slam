@@ -60,6 +60,8 @@ public:
       x -= alpha * grad;
       error = sqrt(grad.transpose() * grad);
       i += 1;
+      if (i%100 == 0)
+        std::cout << "Iteration " << i << ": " << error << std::endl;
     }
     std::cout << "MAP took " << i << " iterations." << std::endl;
     _sol = x;

@@ -7,6 +7,7 @@
 #include "graph.h"
 
 using transform_t = Eigen::Matrix3d;
+using shift_t = Eigen::Vector3d; // x, y, theta
 using landmark_t = Eigen::Vector3d; // the last coeff is all 1's
 using landmarks_t = std::vector<landmark_t>;
 using reading_t = landmark_t; // Assume we have a range-and-bearing sensor

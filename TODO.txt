@@ -1,5 +1,6 @@
-Update SLAM factors and testing code to handle Y and theta
 Animate the simulator graphically (and plot odom/smoothed trajectories)
 Implement some kind of *efficient* graph-based optimizer
 Read a paper to verify that this is actually how smoothing-based SLAM is implemented
   (in particular, understand why the Hessian of the potential gives the "variance")
+Remove signedness casts
+Clean up world.{h,cpp} data structures

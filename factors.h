@@ -83,4 +83,81 @@ public:
   }
 };
 
+template<int N>
+class LandmarkFactor2D : public Factor<N,2> {
+  int _lmPose, _sensorPose;
+
+public:
+  LandmarkFactor2D(int lmPose, int sensorPose, covariance<2> &sigma_inv, measurement<2> m) : Factor<N,2>(
+      sigma_inv, m
+      ), _lmPose(lmPose), _sensorPose(sensorPose) { }
+
+  virtual measurement<2> f(const values<N> &x) {
+    double px(0), py(0), theta(0);
+    if (_sensorPose >= 0) {
+      px = x(_sensorPose);
+      py = x(_sensorPose+1);
+      theta = x(_sensorPose+2);
+    }
+    return measurement<2> {
+      (x(_lmPose) - px) * cos(theta)    + (x(_lmPose+1) - py) * sin(theta),
+      (x(_lmPose) - px) * (-sin(theta)) + (x(_lmPose+1) - py) * cos(theta)
+    };
+  }
+
+  virtual jacobian<N,2> jf(const values<N> &x) {
+    jacobian<N,2> j = jacobian<N,2>::Zero();
+    double px(0), py(0), theta(0);
+    if (_sensorPose >= 0) {
+      px = x(_sensorPose);
+      py = x(_sensorPose+1);
+      theta = x(_sensorPose+2);
+    }
+    j(_lmPose+0,0) = cos(theta);
+    j(_lmPose+1,0) = sin(theta);
+    j(_lmPose+0,1) = -sin(theta);
+    j(_lmPose+1,1) = cos(theta);
+    if (_sensorPose >= 0) {
+      j(_sensorPose+0,0)   = -cos(theta);
+      j(_sensorPose+1,0)   = -sin(theta);
+      j(_sensorPose+2,0)   = (x(_lmPose) - px) * (-sin(theta)) + (x(_lmPose+1) - py) * cos(theta);
+      j(_sensorPose+0,1)   = sin(theta);
+      j(_sensorPose+1,1)   = -cos(theta);
+      j(_sensorPose+2,1)   = (x(_lmPose) - px) * (-cos(theta)) + (x(_lmPose+1) - py) * (-sin(theta));
+    }
+    return j;
+  }
+};
+
+
+template<int N>
+class OdomFactor2D : public Factor<N,3> {
+  int _pose1, _pose2;
+
+public:
+  OdomFactor2D(int pose2, int pose1, covariance<3> &sigma_inv, measurement<3> m) : Factor<N,3>(
+      sigma_inv, m
+      ), _pose1(pose1), _pose2(pose2) { }
+
+  virtual measurement<3> f(const values<N> &x) {
+    if (_pose1 >= 0)
+      return measurement<3> { x(_pose2) - x(_pose1), x(_pose2+1) -x(_pose1+1), x(_pose2+2)-x(_pose1+2) };
+    else
+      return measurement<3> { x(_pose2), x(_pose2+1), x(_pose2+2) };
+  }
+
+  virtual jacobian<N,3> jf(const values<N> &/* x */) {
+    jacobian<N,3> j = jacobian<N,3>::Zero();
+    j(_pose2,0)   = 1;
+    j(_pose2+1,1) = 1;
+    j(_pose2+2,2) = 1;
+    if (_pose1 >= 0) {
+      j(_pose1,0)   = -1;
+      j(_pose1+1,1) = -1;
+      j(_pose1+2,2) = -1;
+    }
+    return j;
+  }
+};
+
 #endif

@@ -7,16 +7,16 @@
 
 template <int N>
 values<N> toVector(trajectory_t &traj, landmark_readings_t &r) {
-  int T = traj.size()-1;
-  int L = r.size();
+  size_t T = traj.size()-1;
+  size_t L = r.size();
   assert("uh oh" && (T+L == N));
   // We don't include a variable for T=0 since we *define* that to be the origin
   values<N> v = values<N>::Zero();
-  for (int i = 0; i < T; i++) {
-    v(i) = -traj[(size_t)i+1](0,2);
+  for (size_t i = 0; i < T; i++) {
+    v((int)i) = -traj[i+1](0,2);
   }
-  for (int i = 0; i < L; i++) {
-    v(T+i) = r[(size_t)i](0);
+  for (size_t i = 0; i < L; i++) {
+    v((int)(T+i)) = r[i](0);
   }
   return v;
 }
@@ -26,8 +26,8 @@ values<N> toVector(trajectory_t &traj, landmark_readings_t &r) {
  */
 template <int N>
 Graph<N> smooth(trajectory_t &odom, bag_t &bag) {
-  int T = odom.size()-1;
-  int nLandmarks = bag[0].size();
+  int T = (int)odom.size()-1;
+  int nLandmarks = (int)bag[0].size();
   double odom_std = 0.1;
   double sensor_std = 0.1;
   landmark_readings_t r = bag[0];
@@ -35,7 +35,7 @@ Graph<N> smooth(trajectory_t &odom, bag_t &bag) {
   values<N> x0 = toVector<N>(odom, r);
   Graph<N> graph;
   for (int t=0; t < T+1; t++) {
-    for (int i = 0; i < nLandmarks; i++) {
+    for (int i=0; i < nLandmarks; i++) {
       double l_dx = bag[(size_t)t][(size_t)i](0);
       if (t==0) {
         graph.add(new GPSFactor<N>(T+i, sensor_std, l_dx));
@@ -97,5 +97,6 @@ int main() {
   std::cout << "Smoothed error: " << (ground_truth-g.solution()).norm() << std::endl;
   std::cout << "Odom potential: " << g.eval(g.x0()) << std::endl;
   std::cout << "Smoothed potential: " << g.eval(g.solution()) << std::endl;
+  std::cout << "Ground truth potential: " << g.eval(ground_truth) << std::endl;
   return 0;
 }
