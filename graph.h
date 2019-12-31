@@ -26,6 +26,7 @@ class Graph {
 private:
   values<N> _x0;
   values<N> _sol;
+  hessian<N> _sol_cov;
   std::vector<AbstractFactor<N> *> _factors;
 
 public:
@@ -51,7 +52,7 @@ public:
   void solve(const values<N> &x0, double alpha=0.01, int maxiters=10000, double tol=0.001) {
     _x0 = x0;
     values<N> x = x0;
-    double error = 1.0;
+    double error = 2*tol;
     int i = 0;
     while (error > tol && i < maxiters) {
       values<N> grad = values<N>::Zero();
@@ -65,6 +66,11 @@ public:
     }
     std::cout << "MAP took " << i << " iterations." << std::endl;
     _sol = x;
+
+    hessian<N> hess = hessian<N>::Zero();
+    for (auto f : _factors)
+      hess += f->hessian_at(_sol);
+    _sol_cov = hess.inverse();
   }
 
   values<N> x0() {
@@ -76,10 +82,7 @@ public:
   }
 
   hessian<N> covariance() {
-    hessian<N> hess = hessian<N>::Zero();
-    for (auto f : _factors)
-      hess += f->hessian_at(_sol);
-    return hess.inverse();
+    return _sol_cov;
   }
 };
 

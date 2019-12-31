@@ -77,17 +77,8 @@ Graph<N> smooth(trajectory_t &odom, bag_t &bag) {
       graph.add(new OdomFactor2D<N>(t2, t1, odom_cov_inv, om2-om1));
     }
   }
-  graph.solve(x0, 0.001, 1000);
+  graph.solve(x0, 0.0001, 10000);
   return graph;
-}
-
-void pstr(Eigen::VectorXd v) {
-  std::cout << "(";
-  int d = v.size();
-  for (int i = 0; i < d-1; i++) {
-    std::cout << v(i) << ", ";
-  }
-  std::cout << v(d-1) << ")\n";
 }
 
 void run_simulation(World &w, int T) {
@@ -98,17 +89,31 @@ void run_simulation(World &w, int T) {
     w.car_.read(w.landmarks_);
     transform_t current = w.car_.ground_truth_.back();
     shift_t current_s = toShift(current, prev_theta);
-    std::cout << "Moved to ";
-    pstr(current_s);
     prev_theta = current_s(2);
   }
 }
 
+void pstr(Eigen::VectorXd v, bool newline) {
+  std::cout << "(";
+  int d = v.size();
+  for (int i = 0; i < d-1; i++) {
+    std::cout << v(i) << ", ";
+  }
+  std::cout << v(d-1) << ")";
+  if (newline)
+    std::cout << std::endl;
+}
+
 template <int N>
-void printRange(Graph<N> &g, int start, int end, int size) {
+void printRange(Graph<N> &g, values<N> ground_truth, int start, int end, int size) {
   for (int i = start; i < end; i += size) {
-    pstr(g.solution().block(i,0,size,1));
-    std::cout << "cov:\n" << g.covariance().block(i,i,size,size) << "\n";
+    pstr(ground_truth.block(i,0,size,1), false);
+    std::cout << "   Estimated: ";
+    pstr(g.solution().block(i,0,size,1), false);
+    std::cout << "   Difference: ";
+    pstr((g.solution()-ground_truth).block(i,0,size,1), false);
+    std::cout << "   Std: ";
+    pstr(g.covariance().diagonal().block(i,0,size,1).cwiseSqrt(), true);
   }
 }
 
@@ -130,12 +135,14 @@ int main() {
   run_simulation(w, T);
   Graph<N> g = smooth<N>(w.car_.odom_, w.car_.bag_);
 
-  std::cout << std::endl << "Estimated trajectory:" << std::endl;
-  printRange(g, 0, 3*T, 3);
-  std::cout << std::endl << "Estimated landmark locations:" << std::endl;
-  printRange(g, 3*T, N, 2);
-
+  std::cout << std::showpos;
   values<N> ground_truth = toVector<N>(w.car_.ground_truth_, w.landmarks_);
+  std::cout << std::endl << "Trajectory:" << std::endl;
+  printRange(g, ground_truth, 0, 3*T, 3);
+  std::cout << std::endl << "Landmark locations:" << std::endl;
+  printRange(g, ground_truth, 3*T, N, 2);
+  std::cout << std::noshowpos;
+
   std::cout << std::endl << "Odom error: " << (ground_truth-g.x0()).norm() << std::endl;
   std::cout << "Smoothed error: " << (ground_truth-g.solution()).norm() << std::endl;
   std::cout << "Odom potential: " << g.eval(g.x0()) << std::endl;
