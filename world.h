@@ -5,37 +5,36 @@
 #include <eigen3/Eigen/Core>
 #include <eigen3/Eigen/LU>
 #include "graph.h"
+#include "utils.h"
 
-using transform_t = Eigen::Matrix3d;
-using shift_t = Eigen::Vector3d; // x, y, theta
-using landmark_t = Eigen::Vector3d; // the last coeff is all 1's
-using landmarks_t = std::vector<landmark_t>;
-using reading_t = landmark_t; // Assume we have a range-and-bearing sensor
-using trajectory_t = std::vector<transform_t>;
-using landmark_readings_t = std::vector<reading_t>;
-using bag_t = std::vector<landmark_readings_t>;
-
-class Car {
-public:
-  bag_t bag_;
-  trajectory_t ground_truth_;
-  trajectory_t odom_;
-
-  Car(transform_t tf);
-
-  void move(double d_theta, double d_x);
-
-  void read(landmarks_t landmarks);
-};
-
+template <int N>
 class World {
 public:
-  Car car_;
-  landmarks_t landmarks_;
-
-  World();
+  World(bool is_2D);
 
   void addLandmark(double x, double y);
+  // T is the number of timesteps. Will generate data for a trajectory of length T+1
+  void runSimulation(int T);
+
+  // x0 returns a concatenation of the odometry poses and the t=0 landmark readings
+  const values<N> x0();
+  // groundTruth returns a concatenation of the ground truth poses and landmark locations
+  const values<N> groundTruth();
+  // bag returns a std::vector of the landmark readings for t=0..T
+  const bag_t bag();
+
+private:
+  bool is_2D_;
+  landmarks_t landmarks_;
+  trajectory_t ground_truth_;
+  trajectory_t odom_;
+  bag_t bag_;
+
+  void moveRobot(double d_theta, double d_x);
+  void readLandmarks();
+  values<N> toVector(trajectory_t &traj, landmark_readings_t &r);
 };
+
+#include "world.inl"
 
 #endif
