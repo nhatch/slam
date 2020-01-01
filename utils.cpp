@@ -1,5 +1,6 @@
 #include <random>
 #include <chrono>
+#include <eigen3/Eigen/LU>
 #include "utils.h"
 
 transform_t toTransform(double x, double y, double theta) {

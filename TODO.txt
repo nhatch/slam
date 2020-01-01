@@ -3,8 +3,5 @@ FUNCTIONALITY:
   Implement some kind of *efficient* graph-based optimizer
   Read a paper to verify that this is actually how smoothing-based SLAM is implemented
     (in particular, understand why the Hessian of the potential gives the "variance")
-
-REFACTORING:
-  Reduce signedness casts
-  Clean up world.{h,cpp} data structures
-  Reduce code duplication between 1D_slam and 2D_slam
+  The graph size N really shouldn't be a compile-time constant.
+  Change 1D factor interface to match 2D

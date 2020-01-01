@@ -2,6 +2,7 @@
 #ifndef GRAPH_H
 #define GRAPH_H
 
+#include <iostream>
 #include <eigen3/Eigen/Core>
 #include <eigen3/Eigen/LU>
 #include <vector>

@@ -1,13 +1,9 @@
 
-#include <math.h>
-#include <iostream>
 #include "graph.h"
 #include "factors.h"
 #include "world.h"
+#include "print_results.h"
 
-/* Input: odom trajectory of length T+1 (starting at the origin)
- *        list of landmark readings (of length T+1, with nLandmarks readings at each step)
- */
 template <int N>
 Graph<N> smooth(const values<N> &x0, const bag_t &bag) {
   int T = (int) bag.size()-1;
@@ -44,34 +40,7 @@ Graph<N> smooth(const values<N> &x0, const bag_t &bag) {
   return graph;
 }
 
-void pstr(Eigen::VectorXd v, bool newline) {
-  std::cout << "(";
-  int d = v.size();
-  for (int i = 0; i < d-1; i++) {
-    std::cout << v(i) << ", ";
-  }
-  std::cout << v(d-1) << ")";
-  if (newline)
-    std::cout << std::endl;
-}
-
-template <int N>
-void printRange(Graph<N> &g, values<N> ground_truth, int start, int end, int size) {
-  for (int i = start; i < end; i += size) {
-    pstr(ground_truth.block(i,0,size,1), false);
-    std::cout << "   Estimated: ";
-    pstr(g.solution().block(i,0,size,1), false);
-    std::cout << "   Difference: ";
-    pstr((g.solution()-ground_truth).block(i,0,size,1), false);
-    std::cout << "   Std: ";
-    pstr(g.covariance().diagonal().block(i,0,size,1).cwiseSqrt(), true);
-  }
-}
-
 int main() {
-  std::cout.precision(3);
-  std::cout << std::fixed;
-
   constexpr int nLandmarks = 6;
   constexpr int T = 10;
   constexpr int N = 3*T+2*nLandmarks;
@@ -86,19 +55,7 @@ int main() {
 
   w.runSimulation(T);
   Graph<N> g = smooth<N>(w.x0(), w.bag());
+  printResults<N>(w, g, true, T);
 
-  std::cout << std::showpos;
-  values<N> ground_truth = w.groundTruth();
-  std::cout << std::endl << "Trajectory:" << std::endl;
-  printRange(g, ground_truth, 0, 3*T, 3);
-  std::cout << std::endl << "Landmark locations:" << std::endl;
-  printRange(g, ground_truth, 3*T, N, 2);
-  std::cout << std::noshowpos;
-
-  std::cout << std::endl << "Odom error: " << (ground_truth-g.x0()).norm() << std::endl;
-  std::cout << "Smoothed error: " << (ground_truth-g.solution()).norm() << std::endl;
-  std::cout << "Odom potential: " << g.eval(g.x0()) << std::endl;
-  std::cout << "Smoothed potential: " << g.eval(g.solution()) << std::endl;
-  std::cout << "Ground truth potential: " << g.eval(ground_truth) << std::endl;
   return 0;
 }
