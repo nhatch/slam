@@ -11,7 +11,7 @@ transform_t toTransform(double x, double y, double theta) {
   return m;
 }
 
-pose_t toPose(transform_t trf, double prev_theta) {
+pose_t toPose(const transform_t &trf, double prev_theta) {
   pose_t s = trf.inverse() * pose_t(0, 0, 1);
   double cos_theta = trf(0,0);
   double sin_theta = -trf(1,0);

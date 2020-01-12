@@ -1,6 +1,7 @@
 #include "graph.h"
 #include "world.h"
 #include "utils.h"
+#include "graphics.h"
 
 template <int N>
 values<N> World<N>::toVector(trajectory_t &traj, landmark_readings_t &r) {
@@ -58,6 +59,7 @@ void World<N>::moveRobot(double d_theta, double d_x) {
   double noisy_x = stdn()*true_dx_std + d_x;
   double noisy_theta = stdn()*true_dtheta_std + d_theta;
   ground_truth_.push_back(toTransform(noisy_x, 0., noisy_theta) * ground_truth_.back());
+  drawRobot(toPose(ground_truth_.back(), 0.0));
   odom_.push_back(toTransform(d_x, 0., d_theta) * odom_.back());
 }
 

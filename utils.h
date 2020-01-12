@@ -30,7 +30,7 @@ using landmarks_t = std::vector<landmark_t>;
 transform_t toTransform(double x, double y, double theta);
 
 // Inverse operation for toTransform
-pose_t toPose(transform_t trf, double prev_theta);
+pose_t toPose(const transform_t &trf, double prev_theta);
 
 landmark_reading_t project(const landmark_t &landmark, const transform_t &transform);
 
