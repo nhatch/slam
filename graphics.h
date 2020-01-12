@@ -3,6 +3,8 @@
 
 #include "utils.h"
 
-void drawRobot(const pose_t &pose);
+void draw(const landmarks_t &lms_gt, const trajectory_t &traj_gt,
+          const landmarks_t &lms_odom, const trajectory_t &traj_odom);
+void spin();
 
 #endif

@@ -4,6 +4,7 @@
 #include "graphics.h"
 
 const int WINDOW_SIDE = 500;
+const double BALL_RADIUS = 0.08;
 sf::RenderWindow window(sf::VideoMode(WINDOW_SIDE, WINDOW_SIDE), "RRT visualization");
 const double MAX_X(8), MIN_X(-2), MAX_Y(5), MIN_Y(-5);
 const double ORIGIN_X(3), ORIGIN_Y(0);
@@ -16,7 +17,7 @@ sf::Vector2f toWindowFrame(landmark_t lm) {
   return sf::Vector2f((lm(0)-ORIGIN_X)*scale_x + offset_x, (lm(1)-ORIGIN_Y)*scale_y + offset_y);
 }
 
-void clear() {
+void checkClosed() {
   if (!window.isOpen())
     exit(0);
 
@@ -26,26 +27,65 @@ void clear() {
     if (event.type == sf::Event::Closed)
         window.close();
   }
+}
 
+void clear() {
+  checkClosed();
   window.clear(sf::Color::White);
 }
 
-void drawRobot(const pose_t &pose) {
-  clear();
+void spin() {
+  while (true) {
+    checkClosed();
+    usleep(10*1000);
+  }
+}
 
-  double x(pose(0)), y(pose(1)), theta(pose(2));
-  transform_t tf = toTransform(x, y, theta).inverse();
-  landmark_t tip =        tf * landmark_t( 0.2,  0.0, 1);
-  landmark_t left_back =  tf * landmark_t(-0.1,  0.1, 1);
-  landmark_t right_back = tf * landmark_t(-0.1, -0.1, 1);
+void drawLine(const landmark_t &l1, const landmark_t &l2, sf::Color c) {
+  sf::Vertex line[2];
+  line[0] = sf::Vertex(toWindowFrame(l2), c);
+  line[1] = sf::Vertex(toWindowFrame(l1), c);
+  window.draw(line, 2, sf::Lines);
+}
+
+void drawRobot(const transform_t &tf, sf::Color c) {
+  transform_t tf_inv = tf.inverse();
+  landmark_t tip =        tf_inv * landmark_t( 0.2,  0.0, 1);
+  landmark_t left_back =  tf_inv * landmark_t(-0.1,  0.1, 1);
+  landmark_t right_back = tf_inv * landmark_t(-0.1, -0.1, 1);
   sf::ConvexShape shape;
   shape.setPointCount(3);
-  shape.setFillColor(sf::Color::Black);
+  shape.setFillColor(c);
   shape.setPoint(0, toWindowFrame(tip));
   shape.setPoint(1, toWindowFrame(left_back));
   shape.setPoint(2, toWindowFrame(right_back));
   window.draw(shape);
+}
 
+void drawTraj(const landmarks_t &lms, const trajectory_t &traj, sf::Color c) {
+  for (size_t t = 0; t < traj.size(); t++) {
+    if (t>0) {
+      drawLine(toPose(traj[t-1], 0), toPose(traj[t], 0), c);
+    }
+    drawRobot(traj[t], c);
+  }
+  for (size_t lm = 0; lm < lms.size(); lm++) {
+    double pixelRadius = BALL_RADIUS * scale_x;
+    sf::CircleShape circle(pixelRadius);
+    circle.setFillColor(c);
+    sf::Vector2f pos = toWindowFrame(lms[lm]);
+    pos.x -= pixelRadius;
+    pos.y -= pixelRadius;
+    circle.setPosition(pos);
+    window.draw(circle);
+  }
+}
+
+void draw(const landmarks_t &lms_gt, const trajectory_t &traj_gt,
+          const landmarks_t &lms_odom, const trajectory_t &traj_odom) {
+  clear();
+  drawTraj(lms_gt, traj_gt, sf::Color::Black);
+  drawTraj(lms_odom, traj_odom, sf::Color::Blue);
   window.display();
   usleep(300*1000);
 }

@@ -47,6 +47,17 @@ void World<N>::runSimulation(int T) {
   for (int i = 1; i < T+1; i++) {
     moveRobot(0., 0.5);
     readLandmarks();
+
+    landmarks_t lms_readings({});
+    // Using the ground_truth frame makes the visualization more intuitive, I think.
+    // (The intent is to show how noisy the sensor readings are.)
+    // But if we were visualizing odom information only, we should use the odom frame.
+    transform_t tf_inv = ground_truth_.back().inverse();
+    for (landmark_reading_t lm : bag_.back()) {
+      lms_readings.push_back(tf_inv * lm);
+    }
+
+    draw(landmarks_, ground_truth_, lms_readings, odom_);
   }
 }
 
@@ -59,7 +70,6 @@ void World<N>::moveRobot(double d_theta, double d_x) {
   double noisy_x = stdn()*true_dx_std + d_x;
   double noisy_theta = stdn()*true_dtheta_std + d_theta;
   ground_truth_.push_back(toTransform(noisy_x, 0., noisy_theta) * ground_truth_.back());
-  drawRobot(toPose(ground_truth_.back(), 0.0));
   odom_.push_back(toTransform(d_x, 0., d_theta) * odom_.back());
 }
 

@@ -3,6 +3,7 @@
 #include "factors.h"
 #include "world.h"
 #include "print_results.h"
+#include "graphics.h"
 
 template <int N>
 Graph<N> smooth(const values<N> &x0, const bag_t &bag) {
@@ -57,5 +58,6 @@ int main() {
   Graph<N> g = smooth<N>(w.x0(), w.bag());
   printResults<N>(w, g, true, T);
 
+  spin();
   return 0;
 }
