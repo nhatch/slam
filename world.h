@@ -2,8 +2,8 @@
 #define WORLD_H
 
 #include <vector>
-#include <eigen3/Eigen/Core>
-#include <eigen3/Eigen/LU>
+#include <Eigen/Core>
+#include <Eigen/LU>
 #include "graph.h"
 #include "utils.h"
 

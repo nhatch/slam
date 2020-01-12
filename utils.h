@@ -1,7 +1,7 @@
 #ifndef UTILS_H
 #define UTILS_H
 
-#include <eigen3/Eigen/Core>
+#include <Eigen/Core>
 
 using landmark_reading_t = Eigen::Vector3d; // Assume we have a range-and-bearing sensor: x, y, 1 in sensor frame
 using landmark_readings_t = std::vector<landmark_reading_t>;

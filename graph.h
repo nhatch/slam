@@ -3,8 +3,8 @@
 #define GRAPH_H
 
 #include <iostream>
-#include <eigen3/Eigen/Core>
-#include <eigen3/Eigen/LU>
+#include <Eigen/Core>
+#include <Eigen/LU>
 #include <vector>
 
 template <int N>
@@ -31,7 +31,8 @@ private:
   std::vector<AbstractFactor<N> *> _factors;
 
 public:
-  Graph() : _x0(values<N>::Zero()), _sol(values<N>::Zero()), _factors({}) {}
+  Graph() : _x0(values<N>::Zero()), _sol(values<N>::Zero()), _sol_cov(hessian<N>::Zero()),
+            _factors({}) {}
 
   ~Graph() {
     for (auto f : _factors) {
