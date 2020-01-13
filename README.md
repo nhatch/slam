@@ -15,6 +15,8 @@ make
 ./2D.out
 ```
 
+![alt text](slam.png "Demo screenshot")
+
 The ground truth trajectory is shown in black, odometry in blue, and the smoothed trajectory in green.
 
 You can also do a simpler version, SLAM in only one dimension:
