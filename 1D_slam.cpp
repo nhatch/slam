@@ -4,6 +4,8 @@
 #include "world.h"
 #include "print_results.h"
 
+extern const bool IS_2D { false };
+
 template <int N>
 Graph<N> smooth(const values<N>& x0, const bag_t &bag) {
   int T = (int)bag.size()-1;

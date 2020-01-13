@@ -2,6 +2,7 @@
 #include <iostream>
 #include "graph.h"
 #include "world.h"
+#include "graphics.h"
 
 void pstr(Eigen::VectorXd v, bool newline) {
   std::cout << "(";
@@ -28,6 +29,31 @@ void printRange(Graph<N> &g, values<N> ground_truth, int start, int end, int siz
 }
 
 template <int N>
+landmarks_t toLandmarks(const values<N> &x, int start, int lm_size) {
+  landmarks_t lms({});
+  for (int i = start; i < N; i += lm_size) {
+    landmark_t lm ({0, 0, 1});
+    lm.topRows(lm_size) = x.block(i, 0, lm_size, 1);
+    lms.push_back(lm);
+  }
+  return lms;
+}
+
+template <int N>
+trajectory_t toTraj(const values<N> &x, int pose_size, int T) {
+  trajectory_t tfs({});
+  tfs.push_back(toTransform(0, 0, 0));
+  for (int i = 0; i < T*pose_size; i += pose_size) {
+    if (pose_size == 3) { // 2D
+      tfs.push_back(toTransform(0, 0, x(i+2)) * toTransform(x(i), x(i+1), 0));
+    } else { // 1D
+      tfs.push_back(toTransform(x(i), 0, 0));
+    }
+  }
+  return tfs;
+}
+
+template <int N>
 void printResults(World<N> &w, Graph<N> &g, bool is_2D, int T) {
   int pose_size(1), lm_size(1);
   if (is_2D) {
@@ -51,4 +77,8 @@ void printResults(World<N> &w, Graph<N> &g, bool is_2D, int T) {
   std::cout << "Odom potential: " << g.eval(g.x0()) << std::endl;
   std::cout << "Smoothed potential: " << g.eval(g.solution()) << std::endl;
   std::cout << "Ground truth potential: " << g.eval(ground_truth) << std::endl;
+
+  drawSmoothed(toLandmarks<N>(g.solution(), T*pose_size, lm_size),
+               toTraj<N>(g.solution(), pose_size, T));
+  spin();
 }

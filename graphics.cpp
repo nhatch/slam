@@ -13,8 +13,15 @@ const double scale_y = double(WINDOW_SIDE) / -(MAX_Y - MIN_Y);
 const double offset_x = double(WINDOW_SIDE) / 2;
 const double offset_y = double(WINDOW_SIDE) / 2;
 
-sf::Vector2f toWindowFrame(landmark_t lm) {
+sf::Vector2f toWindowFrame(const landmark_t &lm) {
   return sf::Vector2f((lm(0)-ORIGIN_X)*scale_x + offset_x, (lm(1)-ORIGIN_Y)*scale_y + offset_y);
+}
+
+// Useful for 1D visualizations, which are too cluttered with everything on top of each other
+sf::Vector2f toWindowFrame(const landmark_t &lm, double vertOffset) {
+  landmark_t lm_shifted { lm };
+  lm_shifted(1) += vertOffset;
+  return toWindowFrame(lm_shifted);
 }
 
 void checkClosed() {
@@ -41,10 +48,18 @@ void spin() {
   }
 }
 
+double vertOffset(sf::Color c) {
+  if (!IS_2D && c == sf::Color::Blue)
+    return -0.3;
+  if (!IS_2D && c == sf::Color::Black)
+    return +0.3;
+  return 0.0;
+}
+
 void drawLine(const landmark_t &l1, const landmark_t &l2, sf::Color c) {
   sf::Vertex line[2];
-  line[0] = sf::Vertex(toWindowFrame(l2), c);
-  line[1] = sf::Vertex(toWindowFrame(l1), c);
+  line[0] = sf::Vertex(toWindowFrame(l2, vertOffset(c)), c);
+  line[1] = sf::Vertex(toWindowFrame(l1, vertOffset(c)), c);
   window.draw(line, 2, sf::Lines);
 }
 
@@ -56,9 +71,9 @@ void drawRobot(const transform_t &tf, sf::Color c) {
   sf::ConvexShape shape;
   shape.setPointCount(3);
   shape.setFillColor(c);
-  shape.setPoint(0, toWindowFrame(tip));
-  shape.setPoint(1, toWindowFrame(left_back));
-  shape.setPoint(2, toWindowFrame(right_back));
+  shape.setPoint(0, toWindowFrame(tip, vertOffset(c)));
+  shape.setPoint(1, toWindowFrame(left_back, vertOffset(c)));
+  shape.setPoint(2, toWindowFrame(right_back, vertOffset(c)));
   window.draw(shape);
 }
 
@@ -73,7 +88,7 @@ void drawTraj(const landmarks_t &lms, const trajectory_t &traj, sf::Color c) {
     double pixelRadius = BALL_RADIUS * scale_x;
     sf::CircleShape circle(pixelRadius);
     circle.setFillColor(c);
-    sf::Vector2f pos = toWindowFrame(lms[lm]);
+    sf::Vector2f pos = toWindowFrame(lms[lm], vertOffset(c));
     pos.x -= pixelRadius;
     pos.y -= pixelRadius;
     circle.setPosition(pos);
@@ -88,4 +103,9 @@ void draw(const landmarks_t &lms_gt, const trajectory_t &traj_gt,
   drawTraj(lms_odom, traj_odom, sf::Color::Blue);
   window.display();
   usleep(300*1000);
+}
+
+void drawSmoothed(const landmarks_t &lms, const trajectory_t &traj) {
+  drawTraj(lms, traj, sf::Color::Green);
+  window.display();
 }
