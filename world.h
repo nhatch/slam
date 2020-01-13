@@ -10,7 +10,7 @@
 template <int N>
 class World {
 public:
-  World(bool is_2D);
+  World();
 
   void addLandmark(double x, double y);
   // T is the number of timesteps. Will generate data for a trajectory of length T+1
@@ -24,7 +24,6 @@ public:
   const bag_t bag();
 
 private:
-  bool is_2D_;
   landmarks_t landmarks_;
   trajectory_t ground_truth_;
   trajectory_t odom_;

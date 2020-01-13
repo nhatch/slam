@@ -8,7 +8,7 @@ values<N> World<N>::toVector(trajectory_t &traj, landmark_readings_t &r) {
   int T = (int) traj.size()-1;
   int L = (int) r.size();
   int pose_size(1), lm_size(1);
-  if (is_2D_) {
+  if (IS_2D) {
     pose_size = 3;
     lm_size = 2;
   }
@@ -29,7 +29,7 @@ values<N> World<N>::toVector(trajectory_t &traj, landmark_readings_t &r) {
 }
 
 template <int N>
-World<N>::World(bool is_2D) : is_2D_(is_2D), landmarks_({}), ground_truth_({}), odom_({}), bag_({}) {
+World<N>::World() : landmarks_({}), ground_truth_({}), odom_({}), bag_({}) {
 }
 
 template <int N>
@@ -65,7 +65,7 @@ template <int N>
 void World<N>::moveRobot(double d_theta, double d_x) {
   double true_dx_std = 0.1; // m
   double true_dtheta_std = 0.0; // rad
-  if (is_2D_)
+  if (IS_2D)
     true_dtheta_std = 0.1;
   double noisy_x = stdn()*true_dx_std + d_x;
   double noisy_theta = stdn()*true_dtheta_std + d_theta;
@@ -77,7 +77,7 @@ template <int N>
 void World<N>::readLandmarks() {
   double true_x_std = 0.1; // m
   double true_y_std = 0.0; // m
-  if (is_2D_)
+  if (IS_2D)
     true_y_std = 0.1;
   landmark_readings_t landmark_readings;
   for (landmark_t lm : landmarks_) {

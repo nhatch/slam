@@ -47,7 +47,7 @@ int main() {
   constexpr int T = 10;
   constexpr int N = 3*T+2*nLandmarks;
 
-  World<N> w(true);
+  World<N> w;
   w.addLandmark(3., 1.);
   w.addLandmark(6., -1.);
   w.addLandmark(-1., 0.);
@@ -57,7 +57,7 @@ int main() {
 
   w.runSimulation(T);
   Graph<N> g = smooth<N>(w.x0(), w.bag());
-  printResults<N>(w, g, true, T);
+  printResults<N>(w, g, T);
 
   return 0;
 }

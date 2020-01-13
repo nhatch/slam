@@ -54,9 +54,9 @@ trajectory_t toTraj(const values<N> &x, int pose_size, int T) {
 }
 
 template <int N>
-void printResults(World<N> &w, Graph<N> &g, bool is_2D, int T) {
+void printResults(World<N> &w, Graph<N> &g, int T) {
   int pose_size(1), lm_size(1);
-  if (is_2D) {
+  if (IS_2D) {
     pose_size = 3;
     lm_size = 2;
   }
