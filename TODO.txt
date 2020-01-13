@@ -1,7 +1,8 @@
 FUNCTIONALITY:
-  Animate the simulator graphically (and plot odom/smoothed trajectories)
   Implement some kind of *efficient* graph-based optimizer
   Read a paper to verify that this is actually how smoothing-based SLAM is implemented
     (in particular, understand why the Hessian of the potential gives the "variance")
   The graph size N really shouldn't be a compile-time constant.
   Change 1D factor interface to match 2D
+  Change the toTransform interface so the format (x,y,theta) refers to an unambiguous transform
+    (currently there are two possibilities, depending whether we rotate or translate first).
