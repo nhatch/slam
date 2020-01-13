@@ -1,3 +1,13 @@
+An implementation of a simple Simultaneous Localization and Mapping algorithm, with visualization.
+
+This implementation does not address data association or loop closure issues. The optimizer is simply gradient descent, and it uses dense Jacobians. At some point I may try to speed up the optimization by taking advantage of sparsity in the graph.
+
+## Dependencies
+
+ * C++11
+ * [Eigen](http://eigen.tuxfamily.org)
+ * [SFML](https://www.sfml-dev.org/tutorials/2.5/)
+
 ## Usage
 
 ```
@@ -20,5 +30,3 @@ To try an even simpler graph (not really involving SLAM at all):
 g++ test_graph.cpp
 ./a.out
 ```
-
-This implementation does not address data association or loop closure issues. The optimizer is simply gradient descent, and it uses dense Jacobians. At some point I may try to speed up the optimization by taking advantage of sparsity in the graph.
