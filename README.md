@@ -1,4 +1,4 @@
-An implementation of a simple Simultaneous Localization and Mapping algorithm, with visualization.
+A simple factor-graph based Simultaneous Localization and Mapping solver, with visualization.
 
 This implementation does not address data association or loop closure issues. The optimizer is simply gradient descent, and it uses dense Jacobians. At some point I may try to speed up the optimization by taking advantage of sparsity in the graph.
 
