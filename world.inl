@@ -42,8 +42,8 @@ void World<N>::addLandmark(double x, double y) {
 
 template <int N>
 void World<N>::startSimulation() {
-  ground_truth_.push_back(toTransform(0., 0., 0.));
-  odom_.push_back(toTransform(0., 0., 0.));
+  ground_truth_.push_back(toTransformRotateFirst(0., 0., 0.));
+  odom_.push_back(toTransformRotateFirst(0., 0., 0.));
   readLandmarks();
 }
 
@@ -88,8 +88,8 @@ void World<N>::moveRobot(double d_theta, double d_x) {
     true_dtheta_std = 0.1;
   double noisy_x = stdn()*true_dx_std + d_x;
   double noisy_theta = stdn()*true_dtheta_std + d_theta;
-  ground_truth_.push_back(toTransform(noisy_x, 0., noisy_theta) * ground_truth_.back());
-  odom_.push_back(toTransform(d_x, 0., d_theta) * odom_.back());
+  ground_truth_.push_back(toTransformRotateFirst(noisy_x, 0., noisy_theta) * ground_truth_.back());
+  odom_.push_back(toTransformRotateFirst(d_x, 0., d_theta) * odom_.back());
   readLandmarks();
 }
 

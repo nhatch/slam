@@ -42,12 +42,12 @@ landmarks_t toLandmarks(const values<N> &x, int start, int lm_size) {
 template <int N>
 trajectory_t toTraj(const values<N> &x, int pose_size, int T) {
   trajectory_t tfs({});
-  tfs.push_back(toTransform(0, 0, 0));
+  tfs.push_back(toTransformRotateFirst(0, 0, 0));
   for (int i = 0; i < T*pose_size; i += pose_size) {
     if (pose_size == 3) { // 2D
-      tfs.push_back(toTransform(0, 0, x(i+2)) * toTransform(x(i), x(i+1), 0));
+      tfs.push_back(toTransformRotateFirst(0, 0, x(i+2)) * toTransformRotateFirst(x(i), x(i+1), 0));
     } else { // 1D
-      tfs.push_back(toTransform(x(i), 0, 0));
+      tfs.push_back(toTransformRotateFirst(x(i), 0, 0));
     }
   }
   return tfs;

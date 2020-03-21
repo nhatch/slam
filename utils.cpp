@@ -3,7 +3,7 @@
 #include <Eigen/LU>
 #include "utils.h"
 
-transform_t toTransform(double x, double y, double theta) {
+transform_t toTransformRotateFirst(double x, double y, double theta) {
   transform_t m;
   m << cos(theta),  sin(theta), -x,
        -sin(theta), cos(theta), -y,
@@ -22,6 +22,10 @@ pose_t toPose(const transform_t &trf, double prev_theta) {
     theta -= 2*M_PI;
   s(2) = theta;
   return s;
+}
+
+transform_t toTransform(const pose_t &pose) {
+  return toTransformRotateFirst(0, 0, pose(2)) * toTransformRotateFirst(pose(0), pose(1), 0);
 }
 
 landmark_reading_t project(const landmark_t &landmark, const transform_t &transform) {
