@@ -78,7 +78,9 @@ void printResults(World<N> &w, Graph<N> &g, int T) {
   std::cout << "Smoothed potential: " << g.eval(g.solution()) << std::endl;
   std::cout << "Ground truth potential: " << g.eval(ground_truth) << std::endl;
 
+  w.renderTruth();
   drawSmoothed(toLandmarks<N>(g.solution(), T*pose_size, lm_size),
                toTraj<N>(g.solution(), pose_size, T));
+  display();
   spin();
 }

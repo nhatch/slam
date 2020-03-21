@@ -1,4 +1,5 @@
 #include "world.h"
+#include "graphics.h"
 #include <iostream>
 #include <stdio.h>
 #include <unistd.h>
@@ -15,24 +16,24 @@ const double GRID_RES = 0.5;
 
 int main()
 {
-	struct termios old_tio, new_tio;
-	unsigned char c;
+  struct termios old_tio, new_tio;
+  unsigned char c;
 
   /* termios fiddling copied from https://shtrom.ssji.net/skb/getc.html */
-	/* get the terminal settings for stdin */
-	tcgetattr(STDIN_FILENO,&old_tio);
+  /* get the terminal settings for stdin */
+  tcgetattr(STDIN_FILENO,&old_tio);
 
-	/* we want to keep the old setting to restore them a the end */
-	new_tio=old_tio;
+  /* we want to keep the old setting to restore them a the end */
+  new_tio=old_tio;
 
-	/* disable canonical mode (buffered i/o) and local echo */
+  /* disable canonical mode (buffered i/o) and local echo */
   unsigned int flags = (uint32_t)~ICANON & (uint32_t)~ECHO & (uint32_t)~ISIG;
-	new_tio.c_lflag &= flags;
-	new_tio.c_cc[VTIME] = 1;
-	new_tio.c_cc[VMIN] = 0;
+  new_tio.c_lflag &= flags;
+  new_tio.c_cc[VTIME] = 1;
+  new_tio.c_cc[VMIN] = 0;
 
-	/* set the new settings immediately */
-	tcsetattr(STDIN_FILENO,TCSANOW,&new_tio);
+  /* set the new settings immediately */
+  tcsetattr(STDIN_FILENO,TCSANOW,&new_tio);
 
   constexpr int N = 1;
   World<N> w;
@@ -50,9 +51,9 @@ int main()
   bool truth = false;
 
   std::cout << "Type 'q' to quit, 'wasd' to move around, 't' to view ground truth.\n";
-	do {
+  do {
     double x_dist = diag ? 1.414*GRID_RES : GRID_RES;
-		c=getchar();
+    c=getchar();
     switch(c) {
     case 'w':
       w.moveRobot(0.0, x_dist);
@@ -75,10 +76,11 @@ int main()
       break;
     }
     truth ? w.renderTruth() : w.renderOdom();
-	} while(c!='q');
+    display();
+  } while(c!='q');
 
-	/* restore the former settings */
-	tcsetattr(STDIN_FILENO,TCSANOW,&old_tio);
+  /* restore the former settings */
+  tcsetattr(STDIN_FILENO,TCSANOW,&old_tio);
 
-	return 0;
+  return 0;
 }

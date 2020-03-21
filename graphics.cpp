@@ -16,6 +16,7 @@ const double offset_y = double(WINDOW_SIDE) / 2;
 sf::Vector2f toWindowFrame(const landmark_t &lm) {
   return sf::Vector2f((lm(0)-ORIGIN_X)*scale_x + offset_x, (lm(1)-ORIGIN_Y)*scale_y + offset_y);
 }
+bool needs_clear = true;
 
 // Useful for 1D visualizations, which are too cluttered with everything on top of each other
 sf::Vector2f toWindowFrame(const landmark_t &lm, double vertOffset) {
@@ -39,6 +40,13 @@ void checkClosed() {
 void clear() {
   checkClosed();
   window.clear(sf::Color::White);
+  needs_clear = false;
+}
+
+void display() {
+  // NB: window.display() actually just flips the double buffers (it's not idempotent!)
+  window.display();
+  clear();
 }
 
 void spin() {
@@ -60,6 +68,8 @@ void drawLine(const landmark_t &l1, const landmark_t &l2, sf::Color c) {
   sf::Vertex line[2];
   line[0] = sf::Vertex(toWindowFrame(l2, vertOffset(c)), c);
   line[1] = sf::Vertex(toWindowFrame(l1, vertOffset(c)), c);
+  if (needs_clear)
+    clear();
   window.draw(line, 2, sf::Lines);
 }
 
@@ -74,6 +84,8 @@ void drawRobot(const transform_t &tf, sf::Color c) {
   shape.setPoint(0, toWindowFrame(tip, vertOffset(c)));
   shape.setPoint(1, toWindowFrame(left_back, vertOffset(c)));
   shape.setPoint(2, toWindowFrame(right_back, vertOffset(c)));
+  if (needs_clear)
+    clear();
   window.draw(shape);
 }
 
@@ -85,6 +97,8 @@ void drawLandmark(const landmark_t &lm, sf::Color c) {
   pos.x -= pixelRadius;
   pos.y -= pixelRadius;
   circle.setPosition(pos);
+  if (needs_clear)
+    clear();
   window.draw(circle);
 }
 
@@ -102,25 +116,19 @@ void drawTraj(const landmarks_t &lms, const trajectory_t &traj, sf::Color c) {
 
 void draw(const landmarks_t &lms_gt, const trajectory_t &traj_gt,
           const landmarks_t &lms_odom, const trajectory_t &traj_odom) {
-  clear();
   drawTraj(lms_gt, traj_gt, sf::Color::Black);
   drawTraj(lms_odom, traj_odom, sf::Color::Blue);
-  window.display();
 }
 
 void draw(const landmarks_t &lms_odom, const trajectory_t &traj_odom) {
-  clear();
   drawTraj(lms_odom, traj_odom, sf::Color::Blue);
-  window.display();
 }
 
 void drawGoal(const landmark_t &goal)
 {
   drawLandmark(goal, sf::Color::Green);
-  window.display();
 }
 
 void drawSmoothed(const landmarks_t &lms, const trajectory_t &traj) {
   drawTraj(lms, traj, sf::Color::Green);
-  window.display();
 }

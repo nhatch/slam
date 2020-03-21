@@ -60,6 +60,7 @@ void World<N>::runSimulation(int T) {
   for (int i = 1; i < T+1; i++) {
     moveRobot(0., 0.5);
     renderTruth();
+    display();
     usleep(300*1000);
   }
 }
