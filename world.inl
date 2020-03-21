@@ -30,7 +30,8 @@ values<N> World<N>::toVector(trajectory_t &traj, landmark_readings_t &r) {
 }
 
 template <int N>
-World<N>::World() : landmarks_({}), ground_truth_({}), odom_({}), bag_({}) {
+World<N>::World() : landmarks_({}), goal_(0., 0., 1.), ground_truth_({}), odom_({}),
+                    gps_({}), bag_({}) {
 }
 
 template <int N>
@@ -41,9 +42,15 @@ void World<N>::addLandmark(double x, double y) {
 }
 
 template <int N>
+void World<N>::setGoal(double x, double y) {
+  goal_ << x, y, 1;
+}
+
+template <int N>
 void World<N>::startSimulation() {
   ground_truth_.push_back(toTransformRotateFirst(0., 0., 0.));
   odom_.push_back(toTransformRotateFirst(0., 0., 0.));
+  readGPS();
   readLandmarks();
 }
 
@@ -70,6 +77,8 @@ landmark_readings_t World<N>::transformReadings(const transform_t &tf) {
 template <int N>
 void World<N>::renderOdom() {
   draw(transformReadings(odom_.back()), odom_);
+  landmark_t odom_goal = odom_.back().inverse() * (gps_.back() * goal_);
+  drawGoal(odom_goal);
 }
 
 template <int N>
@@ -78,6 +87,7 @@ void World<N>::renderTruth() {
   // (The intent is to show how noisy the sensor readings are.)
   // But if we were visualizing odom information only, we should use the odom frame.
   draw(landmarks_, ground_truth_, transformReadings(ground_truth_.back()), odom_);
+  drawGoal(goal_);
 }
 
 template <int N>
@@ -91,6 +101,7 @@ void World<N>::moveRobot(double d_theta, double d_x) {
   ground_truth_.push_back(toTransformRotateFirst(noisy_x, 0., noisy_theta) * ground_truth_.back());
   odom_.push_back(toTransformRotateFirst(d_x, 0., d_theta) * odom_.back());
   readLandmarks();
+  readGPS();
 }
 
 template <int N>
@@ -108,6 +119,18 @@ void World<N>::readLandmarks() {
     landmark_readings.push_back(reading);
   }
   bag_.push_back(landmark_readings);
+}
+
+template <int N>
+void World<N>::readGPS() {
+  double gps_x_std = 0.3; // m
+  double gps_y_std = 0.3; // m
+  double gps_theta_std = M_PI/8; // rad
+  pose_t p = toPose(ground_truth_.back(), 0.);
+  pose_t noise;
+  noise << stdn()*gps_x_std, stdn()*gps_y_std, stdn()*gps_theta_std;
+  p += noise;
+  gps_.push_back(toTransform(p));
 }
 
 template <int N>

@@ -77,6 +77,17 @@ void drawRobot(const transform_t &tf, sf::Color c) {
   window.draw(shape);
 }
 
+void drawLandmark(const landmark_t &lm, sf::Color c) {
+  double pixelRadius = BALL_RADIUS * scale_x;
+  sf::CircleShape circle(pixelRadius);
+  circle.setFillColor(c);
+  sf::Vector2f pos = toWindowFrame(lm, vertOffset(c));
+  pos.x -= pixelRadius;
+  pos.y -= pixelRadius;
+  circle.setPosition(pos);
+  window.draw(circle);
+}
+
 void drawTraj(const landmarks_t &lms, const trajectory_t &traj, sf::Color c) {
   for (size_t t = 0; t < traj.size(); t++) {
     if (t>0) {
@@ -85,14 +96,7 @@ void drawTraj(const landmarks_t &lms, const trajectory_t &traj, sf::Color c) {
     drawRobot(traj[t], c);
   }
   for (size_t lm = 0; lm < lms.size(); lm++) {
-    double pixelRadius = BALL_RADIUS * scale_x;
-    sf::CircleShape circle(pixelRadius);
-    circle.setFillColor(c);
-    sf::Vector2f pos = toWindowFrame(lms[lm], vertOffset(c));
-    pos.x -= pixelRadius;
-    pos.y -= pixelRadius;
-    circle.setPosition(pos);
-    window.draw(circle);
+    drawLandmark(lms[lm], c);
   }
 }
 
@@ -107,6 +111,12 @@ void draw(const landmarks_t &lms_gt, const trajectory_t &traj_gt,
 void draw(const landmarks_t &lms_odom, const trajectory_t &traj_odom) {
   clear();
   drawTraj(lms_odom, traj_odom, sf::Color::Blue);
+  window.display();
+}
+
+void drawGoal(const landmark_t &goal)
+{
+  drawLandmark(goal, sf::Color::Green);
   window.display();
 }
 

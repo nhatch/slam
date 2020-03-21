@@ -14,7 +14,6 @@ using transform_t = Eigen::Matrix3d; // a pose in matrix form; see toTransform
 using trajectory_t = std::vector<transform_t>;
 using landmark_t = Eigen::Vector3d; // x, y, 1
 using landmarks_t = std::vector<landmark_t>;
-using gps_reading_t = transform_t;
 
 /* Left-multiplying a (map-frame) landmark_t by this matrix will give the
  * corresponding landmark_t in the frame that was rotated counterclockwise

@@ -36,6 +36,7 @@ int main()
 
   constexpr int N = 1;
   World<N> w;
+  w.setGoal(5., 3.);
   w.addLandmark(3., 1.);
   w.addLandmark(6., -1.);
   w.addLandmark(-1., 0.);
