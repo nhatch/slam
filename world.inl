@@ -2,6 +2,7 @@
 #include "world.h"
 #include "utils.h"
 #include "graphics.h"
+#include <unistd.h>
 
 template <int N>
 values<N> World<N>::toVector(trajectory_t &traj, landmark_readings_t &r) {
@@ -40,25 +41,43 @@ void World<N>::addLandmark(double x, double y) {
 }
 
 template <int N>
-void World<N>::runSimulation(int T) {
+void World<N>::startSimulation() {
   ground_truth_.push_back(toTransform(0., 0., 0.));
   odom_.push_back(toTransform(0., 0., 0.));
   readLandmarks();
+}
+
+template <int N>
+void World<N>::runSimulation(int T) {
+  startSimulation();
   for (int i = 1; i < T+1; i++) {
     moveRobot(0., 0.5);
-    readLandmarks();
-
-    landmarks_t lms_readings({});
-    // Using the ground_truth frame makes the visualization more intuitive, I think.
-    // (The intent is to show how noisy the sensor readings are.)
-    // But if we were visualizing odom information only, we should use the odom frame.
-    transform_t tf_inv = ground_truth_.back().inverse();
-    for (landmark_reading_t lm : bag_.back()) {
-      lms_readings.push_back(tf_inv * lm);
-    }
-
-    draw(landmarks_, ground_truth_, lms_readings, odom_);
+    renderTruth();
+    usleep(300*1000);
   }
+}
+
+template <int N>
+landmark_readings_t World<N>::transformReadings(const transform_t &tf) {
+  transform_t tf_inv = tf.inverse();
+  landmark_readings_t lms_readings({});
+  for (landmark_reading_t lm : bag_.back()) {
+    lms_readings.push_back(tf_inv * lm);
+  }
+  return lms_readings;
+}
+
+template <int N>
+void World<N>::renderOdom() {
+  draw(transformReadings(odom_.back()), odom_);
+}
+
+template <int N>
+void World<N>::renderTruth() {
+  // Using the ground_truth frame makes the visualization more intuitive, I think.
+  // (The intent is to show how noisy the sensor readings are.)
+  // But if we were visualizing odom information only, we should use the odom frame.
+  draw(landmarks_, ground_truth_, transformReadings(ground_truth_.back()), odom_);
 }
 
 template <int N>
@@ -71,6 +90,7 @@ void World<N>::moveRobot(double d_theta, double d_x) {
   double noisy_theta = stdn()*true_dtheta_std + d_theta;
   ground_truth_.push_back(toTransform(noisy_x, 0., noisy_theta) * ground_truth_.back());
   odom_.push_back(toTransform(d_x, 0., d_theta) * odom_.back());
+  readLandmarks();
 }
 
 template <int N>

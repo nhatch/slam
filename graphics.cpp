@@ -5,7 +5,7 @@
 
 const int WINDOW_SIDE = 500;
 const double BALL_RADIUS = 0.08;
-sf::RenderWindow window(sf::VideoMode(WINDOW_SIDE, WINDOW_SIDE), "RRT visualization");
+sf::RenderWindow window(sf::VideoMode(WINDOW_SIDE, WINDOW_SIDE), "SLAM visualization");
 const double MAX_X(8), MIN_X(-2), MAX_Y(5), MIN_Y(-5);
 const double ORIGIN_X(3), ORIGIN_Y(0);
 const double scale_x = double(WINDOW_SIDE) / (MAX_X - MIN_X);
@@ -102,7 +102,12 @@ void draw(const landmarks_t &lms_gt, const trajectory_t &traj_gt,
   drawTraj(lms_gt, traj_gt, sf::Color::Black);
   drawTraj(lms_odom, traj_odom, sf::Color::Blue);
   window.display();
-  usleep(300*1000);
+}
+
+void draw(const landmarks_t &lms_odom, const trajectory_t &traj_odom) {
+  clear();
+  drawTraj(lms_odom, traj_odom, sf::Color::Blue);
+  window.display();
 }
 
 void drawSmoothed(const landmarks_t &lms, const trajectory_t &traj) {
