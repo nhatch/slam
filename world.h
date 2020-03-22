@@ -12,7 +12,6 @@ public:
   World();
 
   void addLandmark(double x, double y);
-  void setGoal(double x, double y);
   // T is the number of timesteps. Will generate data for a trajectory of length T+1
   void runSimulation(int T);
   void startSimulation();
@@ -29,7 +28,6 @@ public:
 
 private:
   landmarks_t landmarks_;
-  landmark_t goal_;
   trajectory_t ground_truth_;
   trajectory_t odom_;
   trajectory_t gps_;

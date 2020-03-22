@@ -1,5 +1,6 @@
 #include "world.h"
 #include "graphics.h"
+#include "plan.h"
 #include <iostream>
 #include <stdio.h>
 #include <unistd.h>
@@ -36,7 +37,8 @@ int main()
   tcsetattr(STDIN_FILENO,TCSANOW,&new_tio);
 
   World w;
-  w.setGoal(5., 3.);
+  landmark_t goal;
+  goal << 5., 3., 1.;
   w.addLandmark(3., 1.);
   w.addLandmark(6., -1.);
   w.addLandmark(-1., 0.);
@@ -75,6 +77,10 @@ int main()
       break;
     }
     truth ? w.renderTruth() : w.renderOdom();
+    landmark_t odom_goal = w.odom().back().inverse() * (w.gps().back() * goal);
+    truth ? drawGoal(goal) : drawGoal(odom_goal);
+    plan_t p = plan(w, goal);
+    drawPlan(p, w.odom().back());
     display();
   } while(c!='q');
 

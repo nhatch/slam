@@ -4,7 +4,7 @@
 #include "graphics.h"
 #include <unistd.h>
 
-World::World() : landmarks_({}), goal_(0., 0., 1.), ground_truth_({}), odom_({}),
+World::World() : landmarks_({}), ground_truth_({}), odom_({}),
                     gps_({}), bag_({}) {
 }
 
@@ -12,10 +12,6 @@ void World::addLandmark(double x, double y) {
   landmark_t lm;
   lm << x, y, 1;
   landmarks_.push_back(lm);
-}
-
-void World::setGoal(double x, double y) {
-  goal_ << x, y, 1;
 }
 
 void World::startSimulation() {
@@ -46,8 +42,6 @@ landmark_readings_t World::transformReadings(const transform_t &tf) {
 
 void World::renderOdom() {
   drawTraj(transformReadings(odom_.back()), odom_, sf::Color::Blue);
-  landmark_t odom_goal = odom_.back().inverse() * (gps_.back() * goal_);
-  drawGoal(odom_goal);
 }
 
 void World::renderTruth() {
@@ -56,7 +50,6 @@ void World::renderTruth() {
   // (The intent is to show how noisy the sensor readings are.)
   // But if we were visualizing odom information only, we should use the odom frame.
   drawTraj(transformReadings(ground_truth_.back()), odom_, sf::Color::Blue);
-  drawGoal(goal_);
 }
 
 void World::moveRobot(double d_theta, double d_x) {
