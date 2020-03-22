@@ -4,30 +4,6 @@
 #include "graphics.h"
 #include <unistd.h>
 
-values World::toVector(trajectory_t &traj, landmark_readings_t &r) {
-  int T = (int) traj.size()-1;
-  int L = (int) r.size();
-  int pose_size(1), lm_size(1);
-  if (IS_2D) {
-    pose_size = 3;
-    lm_size = 2;
-  }
-  // We don't include a variable for T=0 since we *define* that to be the origin
-  int N = pose_size*T+lm_size*L;
-  values v = values::Zero(N);
-  double prev_theta = 0.;
-  for (int i = 0; i < T; i++) {
-    transform_t trf = traj[(size_t)i+1];
-    pose_t p = toPose(trf, prev_theta);
-    v.block(pose_size*i,0,pose_size,1) = p.topRows(pose_size);
-    prev_theta = p(2);
-  }
-  for (int i = 0; i < L; i++) {
-    v.block(pose_size*T+lm_size*i, 0, lm_size, 1) = r[(size_t)i].topRows(lm_size);
-  }
-  return v;
-}
-
 World::World() : landmarks_({}), goal_(0., 0., 1.), ground_truth_({}), odom_({}),
                     gps_({}), bag_({}) {
 }
@@ -126,8 +102,12 @@ const bag_t World::bag() {
   return bag_;
 }
 
-const values World::x0() {
-  return toVector(odom_, bag_[0]);
+const trajectory_t World::odom() {
+  return odom_;
+}
+
+const trajectory_t World::gps() {
+  return gps_;
 }
 
 const values World::groundTruth() {

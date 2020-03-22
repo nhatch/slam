@@ -2,6 +2,7 @@
 #include "graph.h"
 #include "factors.h"
 #include "world.h"
+#include "utils.h"
 #include "print_results.h"
 
 extern const bool IS_2D { true };
@@ -55,7 +56,9 @@ int main() {
   w.addLandmark(0.1, 1.);
 
   w.runSimulation(T);
-  Graph g = smooth(w.x0(), w.bag());
+  const bag_t bag = w.bag();
+  values x0 = toVector(w.odom(), bag[0]);
+  Graph g = smooth(x0, bag);
   printResults(w, g, T);
 
   return 0;

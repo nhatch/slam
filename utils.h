@@ -1,6 +1,7 @@
 #ifndef UTILS_H
 #define UTILS_H
 
+#include "graph.h"
 #include <Eigen/Core>
 
 extern const bool IS_2D;
@@ -14,6 +15,8 @@ using transform_t = Eigen::Matrix3d; // a pose in matrix form; see toTransform
 using trajectory_t = std::vector<transform_t>;
 using landmark_t = Eigen::Vector3d; // x, y, 1
 using landmarks_t = std::vector<landmark_t>;
+
+values toVector(const trajectory_t &traj, const landmark_readings_t &r);
 
 /* Left-multiplying a (map-frame) landmark_t by this matrix will give the
  * corresponding landmark_t in the frame that was rotated counterclockwise

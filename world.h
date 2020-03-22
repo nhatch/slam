@@ -20,8 +20,6 @@ public:
   void renderOdom();
   void moveRobot(double d_theta, double d_x);
 
-  // x0 returns a concatenation of the odometry poses and the t=0 landmark readings
-  const values x0();
   // groundTruth returns a concatenation of the ground truth poses and landmark locations
   const values groundTruth();
   // bag returns a std::vector of the landmark readings for t=0..T
@@ -40,7 +38,6 @@ private:
   void readLandmarks();
   void readGPS();
   landmark_readings_t transformReadings(const transform_t &tf);
-  values toVector(trajectory_t &traj, landmark_readings_t &r);
 };
 
 #endif
