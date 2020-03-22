@@ -26,9 +26,9 @@ make 1D
 ./1D.out
 ```
 
-To try an even simpler graph (not really involving SLAM at all):
+To try an even simpler graph (not involving navigation simulation):
 
 ```
-g++ test_graph.cpp
-./a.out
+make graph
+./graph.out
 ```

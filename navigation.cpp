@@ -35,8 +35,7 @@ int main()
   /* set the new settings immediately */
   tcsetattr(STDIN_FILENO,TCSANOW,&new_tio);
 
-  constexpr int N = 1;
-  World<N> w;
+  World w;
   w.setGoal(5., 3.);
   w.addLandmark(3., 1.);
   w.addLandmark(6., -1.);

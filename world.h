@@ -7,7 +7,6 @@
 #include "graph.h"
 #include "utils.h"
 
-template <int N>
 class World {
 public:
   World();
@@ -22,11 +21,13 @@ public:
   void moveRobot(double d_theta, double d_x);
 
   // x0 returns a concatenation of the odometry poses and the t=0 landmark readings
-  const values<N> x0();
+  const values x0();
   // groundTruth returns a concatenation of the ground truth poses and landmark locations
-  const values<N> groundTruth();
+  const values groundTruth();
   // bag returns a std::vector of the landmark readings for t=0..T
   const bag_t bag();
+  const trajectory_t odom();
+  const trajectory_t gps();
 
 private:
   landmarks_t landmarks_;
@@ -39,9 +40,7 @@ private:
   void readLandmarks();
   void readGPS();
   landmark_readings_t transformReadings(const transform_t &tf);
-  values<N> toVector(trajectory_t &traj, landmark_readings_t &r);
+  values toVector(trajectory_t &traj, landmark_readings_t &r);
 };
-
-#include "world.inl"
 
 #endif

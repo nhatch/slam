@@ -6,27 +6,26 @@
 
 extern const bool IS_2D { false };
 
-template <int N>
-Graph<N> smooth(const values<N>& x0, const bag_t &bag) {
+Graph smooth(const values& x0, const bag_t &bag) {
   int T = (int)bag.size()-1;
   int nLandmarks = (int)bag[0].size();
   double odom_std = 0.1;
   double sensor_std = 0.1;
-  assert("whoohoo" && (N == T + nLandmarks));
-  Graph<N> graph;
+  assert("whoohoo" && (x0.size() == T + nLandmarks));
+  Graph graph;
   for (int t=0; t < T+1; t++) {
     for (int i=0; i < nLandmarks; i++) {
       double l_dx = bag[(size_t)t][(size_t)i](0);
       if (t==0) {
-        graph.add(new GPSFactor<N>(T+i, sensor_std, l_dx));
+        graph.add(new GPSFactor(T+i, sensor_std, l_dx));
       } else {
-        graph.add(new OdomFactor<N>(t-1, T+i, sensor_std, l_dx));
+        graph.add(new OdomFactor(t-1, T+i, sensor_std, l_dx));
       }
     }
     if (t==1)
-      graph.add(new GPSFactor<N>(0, odom_std, x0(t-1)));
+      graph.add(new GPSFactor(0, odom_std, x0(t-1)));
     if (t>1)
-      graph.add(new OdomFactor<N>(t-2, t-1, odom_std, x0(t-1)-x0(t-2)));
+      graph.add(new OdomFactor(t-2, t-1, odom_std, x0(t-1)-x0(t-2)));
   }
   graph.solve(x0, 0.001, 100000);
   return graph;
@@ -35,9 +34,8 @@ Graph<N> smooth(const values<N>& x0, const bag_t &bag) {
 int main() {
   constexpr int nLandmarks = 6;
   constexpr int T = 10;
-  constexpr int N = T+nLandmarks;
 
-  World<N> w;
+  World w;
   w.addLandmark(3., 0.);
   w.addLandmark(6., 0.);
   w.addLandmark(-1., 0.);
@@ -46,8 +44,8 @@ int main() {
   w.addLandmark(0.1, 0.);
 
   w.runSimulation(T);
-  Graph<N> g = smooth<N>(w.x0(), w.bag());
-  printResults<N>(w, g, T);
+  Graph g = smooth(w.x0(), w.bag());
+  printResults(w, g, T);
 
   return 0;
 }
