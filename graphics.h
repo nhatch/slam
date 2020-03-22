@@ -2,11 +2,9 @@
 #define SLAM_GRAPHICS_H
 
 #include "utils.h"
+#include <SFML/Graphics.hpp>
 
-void draw(const landmarks_t &lms_gt, const trajectory_t &traj_gt,
-          const landmarks_t &lms_odom, const trajectory_t &traj_odom);
-void draw(const landmarks_t &lms_odom, const trajectory_t &traj_odom);
-void drawSmoothed(const landmarks_t &lms, const trajectory_t &traj);
+void drawTraj(const landmarks_t &lms, const trajectory_t &traj, sf::Color c);
 void drawGoal(const landmark_t &goal);
 void display();
 void spin();

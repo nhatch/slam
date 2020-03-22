@@ -76,8 +76,9 @@ void printResults(World &w, Graph &g, int T) {
   std::cout << "Ground truth potential: " << g.eval(ground_truth) << std::endl;
 
   w.renderTruth();
-  drawSmoothed(toLandmarks(g.solution(), T*pose_size, lm_size),
-               toTraj(g.solution(), pose_size, T));
+  drawTraj(toLandmarks(g.solution(), T*pose_size, lm_size),
+           toTraj(g.solution(), pose_size, T),
+           sf::Color::Green);
   display();
   spin();
 }

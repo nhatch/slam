@@ -114,21 +114,7 @@ void drawTraj(const landmarks_t &lms, const trajectory_t &traj, sf::Color c) {
   }
 }
 
-void draw(const landmarks_t &lms_gt, const trajectory_t &traj_gt,
-          const landmarks_t &lms_odom, const trajectory_t &traj_odom) {
-  drawTraj(lms_gt, traj_gt, sf::Color::Black);
-  drawTraj(lms_odom, traj_odom, sf::Color::Blue);
-}
-
-void draw(const landmarks_t &lms_odom, const trajectory_t &traj_odom) {
-  drawTraj(lms_odom, traj_odom, sf::Color::Blue);
-}
-
 void drawGoal(const landmark_t &goal)
 {
   drawLandmark(goal, sf::Color::Green);
-}
-
-void drawSmoothed(const landmarks_t &lms, const trajectory_t &traj) {
-  drawTraj(lms, traj, sf::Color::Green);
 }

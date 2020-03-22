@@ -45,16 +45,17 @@ landmark_readings_t World::transformReadings(const transform_t &tf) {
 }
 
 void World::renderOdom() {
-  draw(transformReadings(odom_.back()), odom_);
+  drawTraj(transformReadings(odom_.back()), odom_, sf::Color::Blue);
   landmark_t odom_goal = odom_.back().inverse() * (gps_.back() * goal_);
   drawGoal(odom_goal);
 }
 
 void World::renderTruth() {
+  drawTraj(landmarks_, ground_truth_, sf::Color::Black);
   // Using the ground_truth frame makes the visualization more intuitive, I think.
   // (The intent is to show how noisy the sensor readings are.)
   // But if we were visualizing odom information only, we should use the odom frame.
-  draw(landmarks_, ground_truth_, transformReadings(ground_truth_.back()), odom_);
+  drawTraj(transformReadings(ground_truth_.back()), odom_, sf::Color::Blue);
   drawGoal(goal_);
 }
 
