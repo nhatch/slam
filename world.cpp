@@ -92,18 +92,18 @@ void World::readGPS() {
   gps_.push_back(toTransform(p));
 }
 
-const bag_t World::bag() const {
+const bag_t World::bag() {
   return bag_;
 }
 
-const trajectory_t World::odom() const {
+const trajectory_t World::odom() {
   return odom_;
 }
 
-const trajectory_t World::gps() const {
+const trajectory_t World::gps() {
   return gps_;
 }
 
-const values World::groundTruth() const {
+const values World::groundTruth() {
   return toVector(ground_truth_, landmarks_);
 }

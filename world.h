@@ -20,11 +20,11 @@ public:
   void moveRobot(double d_theta, double d_x);
 
   // groundTruth returns a concatenation of the ground truth poses and landmark locations
-  const values groundTruth() const;
+  const values groundTruth();
   // bag returns a std::vector of the landmark readings for t=0..T
-  const bag_t bag() const;
-  const trajectory_t odom() const;
-  const trajectory_t gps() const;
+  const bag_t bag();
+  const trajectory_t odom();
+  const trajectory_t gps();
 
 private:
   landmarks_t landmarks_;

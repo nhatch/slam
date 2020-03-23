@@ -8,6 +8,7 @@
 constexpr double RESOLUTION = 0.5;
 constexpr double TURN_COST = 0.5;
 constexpr double GOAL_RADIUS = RESOLUTION;
+constexpr double SAFE_RADIUS = RESOLUTION;
 
 using action_t = Eigen::Vector2d;
 
@@ -76,12 +77,21 @@ public:
 
 using pqueue_t = std::priority_queue<Node*, std::vector<Node*>, NodeCompare>;
 
-bool is_valid(const Node *, const World &)
+bool is_valid(const Node *n, World &w)
 {
-  return true; // TODO
+  pose_t p(n->x * RESOLUTION, n->y * RESOLUTION, n->theta * M_PI/4);
+  transform_t tf = toTransform(p);
+  landmark_readings_t lms = w.bag().back();
+  for (landmark_t lm : lms)
+  {
+    landmark_t tf_lm = tf * lm;
+    double dist = tf_lm(0) * tf_lm(0) + tf_lm(1) * tf_lm(1);
+    if (dist < SAFE_RADIUS) return false;
+  }
+  return true;
 }
 
-plan_t getPlan(const World &w, const landmark_t &world_goal)
+plan_t getPlan(World &w, const landmark_t &world_goal)
 {
   landmark_t goal = w.gps().back() * world_goal; // in robot frame
   action_t action = action_t::Zero();
