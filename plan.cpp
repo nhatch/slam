@@ -7,7 +7,6 @@
 
 constexpr double RESOLUTION = 0.5;
 constexpr double TURN_COST = 0.5;
-constexpr double GOAL_RADIUS = RESOLUTION;
 constexpr double SAFE_RADIUS = RESOLUTION;
 
 using action_t = Eigen::Vector2d;
@@ -82,32 +81,26 @@ bool is_valid(const Node *n, World &w)
   pose_t p(n->x * RESOLUTION, n->y * RESOLUTION, n->theta * M_PI/4);
   transform_t tf = toTransform(p);
   landmark_readings_t lms = w.bag().back();
-  for (landmark_t lm : lms)
-  {
-    landmark_t tf_lm = tf * lm;
-    double dist = tf_lm(0) * tf_lm(0) + tf_lm(1) * tf_lm(1);
-    if (dist < SAFE_RADIUS) return false;
-  }
-  return true;
+  return !collides(tf, lms, SAFE_RADIUS);
 }
 
-plan_t getPlan(World &w, const landmark_t &world_goal)
+plan_t getPlan(World &w, const landmark_t &world_goal, double goal_radius)
 {
   landmark_t goal = w.gps().back() * world_goal; // in robot frame
   action_t action = action_t::Zero();
   std::vector<Node*> allocated_nodes;
   Node *start = new Node(nullptr, action, goal);
   allocated_nodes.push_back(start);
-  pqueue_t fringe;
-  fringe.push(start); // If you haven't guessed, we'll be using A*
-  Node *n;
+  pqueue_t fringe; // If you haven't guessed, we'll be using A*
+  fringe.push(start);
+  Node *n = start;
   plan_t valid_actions(3,2);
   valid_actions << 0., 0., M_PI/4, 0., -M_PI/4, 0.;
   while (fringe.size() > 0)
   {
     n = fringe.top();
     fringe.pop();
-    if (n->heuristic_to_goal < GOAL_RADIUS)
+    if (n->heuristic_to_goal < goal_radius)
     {
       break;
     }

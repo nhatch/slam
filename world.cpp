@@ -3,6 +3,9 @@
 #include "utils.h"
 #include "graphics.h"
 #include <unistd.h>
+#include <iostream>
+
+constexpr double COLLISION_RADIUS = 0.2;
 
 World::World() : landmarks_({}), ground_truth_({}), odom_({}),
                     gps_({}), bag_({}) {
@@ -60,6 +63,9 @@ void World::moveRobot(double d_theta, double d_x) {
   double noisy_x = stdn()*true_dx_std + d_x;
   double noisy_theta = stdn()*true_dtheta_std + d_theta;
   ground_truth_.push_back(toTransformRotateFirst(noisy_x, 0., noisy_theta) * ground_truth_.back());
+  if (collides(ground_truth_.back(), landmarks_, COLLISION_RADIUS)) {
+    std::cout << "You crashed into a landmark" << std::endl;
+  }
   odom_.push_back(toTransformRotateFirst(d_x, 0., d_theta) * odom_.back());
   readLandmarks();
   readGPS();

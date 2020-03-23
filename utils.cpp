@@ -3,6 +3,17 @@
 #include <Eigen/LU>
 #include "utils.h"
 
+bool collides(const transform_t &tf, const landmarks_t &lms, double radius)
+{
+  for (landmark_t lm : lms)
+  {
+    landmark_t tf_lm = tf * lm;
+    double dist = tf_lm(0) * tf_lm(0) + tf_lm(1) * tf_lm(1);
+    if (dist < radius) return true;
+  }
+  return false;
+}
+
 values toVector(const trajectory_t &traj, const landmark_readings_t &r) {
   int T = (int) traj.size()-1;
   int L = (int) r.size();

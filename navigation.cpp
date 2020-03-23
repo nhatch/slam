@@ -52,11 +52,12 @@ int main()
 
   std::cout << "Type 'q' to quit, 'wasd' to move around, 't' to view ground truth.\n";
   unsigned char c = 0;
+  plan_t plan;
   do {
     if (int(c) != 255)
     {
-      plan_t p = getPlan(w, goal);
-      drawPlan(p, w.odom().back());
+      plan = getPlan(w, goal, 1.0);
+      drawPlan(plan, w.odom().back());
       truth ? w.renderTruth() : w.renderOdom();
       landmark_t odom_goal = w.odom().back().inverse() * (w.gps().back() * goal);
       truth ? drawGoal(goal) : drawGoal(odom_goal);
@@ -80,6 +81,13 @@ int main()
     case 'd':
       w.moveRobot(-M_PI/4, 0.0);
       diag = !diag;
+      break;
+    case 'r':
+      if (plan.size() > 0) {
+        w.moveRobot(plan(0,0), plan(0,1)); // Execute first action of plan
+      } else {
+        std::cout << "There is no plan to execute\n";
+      }
       break;
     case 't':
       truth = !truth;
