@@ -4,8 +4,9 @@
 #include <Eigen/Core>
 #include <queue>
 #include <iostream>
+#include <set>
 
-constexpr double RESOLUTION = 0.5;
+constexpr double RESOLUTION = 0.1;
 constexpr double TURN_COST = 0.5;
 constexpr double SAFE_RADIUS = RESOLUTION;
 
@@ -58,10 +59,28 @@ struct Node
       {
         x = p->x;
         y = p->y;
-        theta = (p->theta + ((action(0) > 0.0) ? 1 : -1)) % 8;
+        theta = (p->theta + ((action(0) > 0.0) ? 1 : 7)) % 8;
       }
     }
     heuristic_to_goal = heuristic(x, y, goal);
+  }
+};
+
+std::ostream& operator<< (std::ostream &out, const Node &n)
+{
+  out <<"("<< n.x << " " << n.y << " " << n.theta <<") ";
+  return out;
+}
+
+class NodeEqualityCompare
+{
+public:
+  bool operator() (const Node *lhs, const Node *rhs) const
+  {
+    bool res = lhs->x <  rhs->x ||
+               (lhs->x == rhs->x && lhs->y <  rhs->y) ||
+               (lhs->x == rhs->x && lhs->y == rhs->y && lhs->theta < rhs->theta);
+    return res;
   }
 };
 
@@ -75,6 +94,7 @@ public:
 };
 
 using pqueue_t = std::priority_queue<Node*, std::vector<Node*>, NodeCompare>;
+using set_t = std::set<Node*, NodeEqualityCompare>;
 
 bool is_valid(const Node *n, World &w)
 {
@@ -86,18 +106,23 @@ bool is_valid(const Node *n, World &w)
 
 plan_t getPlan(World &w, const landmark_t &world_goal, double goal_radius)
 {
+  std::cout << "Planning... ";
   landmark_t goal = w.gps().back() * world_goal; // in robot frame
   action_t action = action_t::Zero();
   std::vector<Node*> allocated_nodes;
   Node *start = new Node(nullptr, action, goal);
   allocated_nodes.push_back(start);
   pqueue_t fringe; // If you haven't guessed, we'll be using A*
+  set_t visited_set;
   fringe.push(start);
+  visited_set.insert(start);
   Node *n = start;
   plan_t valid_actions(3,2);
   valid_actions << 0., 0., M_PI/4, 0., -M_PI/4, 0.;
+  int counter = 0;
   while (fringe.size() > 0)
   {
+    counter++;
     n = fringe.top();
     fringe.pop();
     if (n->heuristic_to_goal < goal_radius)
@@ -113,10 +138,12 @@ plan_t getPlan(World &w, const landmark_t &world_goal, double goal_radius)
         action = valid_actions.row(i);
         Node *next = new Node(n, action, goal);
         allocated_nodes.push_back(next);
-        // Because the heuristic is consistent, I think we don't need to check
-        // if we've visited these neighboring locations already.
-        // Although if the goal is in fact unreachable, this may make us loop forever....
-        if (is_valid(next, w)) fringe.push(next);
+        if (is_valid(next, w) && visited_set.count(next) == 0)
+        {
+          visited_set.insert(next);
+          int c = visited_set.count(next);
+          fringe.push(next);
+        }
       }
     }
   }
@@ -129,6 +156,8 @@ plan_t getPlan(World &w, const landmark_t &world_goal, double goal_radius)
     n = n->parent;
   }
 
+  std::cout << "finished in " << counter << " iterations (";
+  std::cout << allocated_nodes.size() << " visited nodes)\n";
   for (Node *p : allocated_nodes)
   {
     free(p);
