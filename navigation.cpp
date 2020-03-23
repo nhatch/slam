@@ -18,7 +18,6 @@ const double GRID_RES = 0.5;
 int main()
 {
   struct termios old_tio, new_tio;
-  unsigned char c;
 
   /* termios fiddling copied from https://shtrom.ssji.net/skb/getc.html */
   /* get the terminal settings for stdin */
@@ -52,9 +51,21 @@ int main()
   bool truth = false;
 
   std::cout << "Type 'q' to quit, 'wasd' to move around, 't' to view ground truth.\n";
+  unsigned char c = 0;
   do {
-    double x_dist = diag ? 1.414*GRID_RES : GRID_RES;
+    if (int(c) != 255)
+    {
+      plan_t p = getPlan(w, goal);
+      drawPlan(p, w.odom().back());
+      truth ? w.renderTruth() : w.renderOdom();
+      landmark_t odom_goal = w.odom().back().inverse() * (w.gps().back() * goal);
+      truth ? drawGoal(goal) : drawGoal(odom_goal);
+      display();
+    }
+    if (checkClosed()) break;
     c=getchar();
+
+    double x_dist = diag ? 1.414*GRID_RES : GRID_RES;
     switch(c) {
     case 'w':
       w.moveRobot(0.0, x_dist);
@@ -76,12 +87,6 @@ int main()
     default:
       break;
     }
-    truth ? w.renderTruth() : w.renderOdom();
-    landmark_t odom_goal = w.odom().back().inverse() * (w.gps().back() * goal);
-    truth ? drawGoal(goal) : drawGoal(odom_goal);
-    plan_t p = plan(w, goal);
-    drawPlan(p, w.odom().back());
-    display();
   } while(c!='q');
 
   /* restore the former settings */

@@ -9,7 +9,7 @@
 // Sequence of controls. Each control is a (x distance, theta distance) pair.
 using plan_t = Eigen::Matrix<double, Eigen::Dynamic, 2>;
 
-plan_t plan(const World &w, const landmark_t &goal);
+plan_t getPlan(const World &w, const landmark_t &goal);
 void drawPlan(const plan_t &p, const transform_t &transform);
 
 #endif

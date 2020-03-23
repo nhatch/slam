@@ -25,9 +25,9 @@ sf::Vector2f toWindowFrame(const landmark_t &lm, double vertOffset) {
   return toWindowFrame(lm_shifted);
 }
 
-void checkClosed() {
+bool checkClosed() {
   if (!window.isOpen())
-    exit(0);
+    return true;
 
   sf::Event event;
   while (window.pollEvent(event))
@@ -35,6 +35,8 @@ void checkClosed() {
     if (event.type == sf::Event::Closed)
         window.close();
   }
+
+  return false;
 }
 
 void clear() {
@@ -50,8 +52,7 @@ void display() {
 }
 
 void spin() {
-  while (true) {
-    checkClosed();
+  while (!checkClosed()) {
     usleep(10*1000);
   }
 }
