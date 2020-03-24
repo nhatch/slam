@@ -61,11 +61,10 @@ void World::moveRobot(double d_theta, double d_x) {
   double d_l = d_x - 0.5*WHEEL_BASE*d_theta;
   double true_wheel_std = 0.1; // m
   // Larger distance means more noise
-  double noisy_r = d_r + stdn() * true_wheel_std * sqrt(d_r);
-  double noisy_l = d_l + stdn() * true_wheel_std * sqrt(d_l);
+  double noisy_r = d_r + stdn() * true_wheel_std * sqrt(abs(d_r));
+  double noisy_l = d_l + stdn() * true_wheel_std * sqrt(abs(d_l));
   double noisy_x = 0.5*(noisy_r + noisy_l);
   double noisy_theta = (noisy_r - noisy_l) / WHEEL_BASE;
-  std::cout << noisy_x <<  " "  << noisy_theta << std::endl;
   ground_truth_.push_back(toTransformRotateFirst(noisy_x, 0., noisy_theta) * ground_truth_.back());
   if (collides(ground_truth_.back(), landmarks_, COLLISION_RADIUS)) {
     std::cout << "You crashed into a landmark" << std::endl;
