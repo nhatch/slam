@@ -6,9 +6,9 @@
 #include <iostream>
 #include <set>
 
-constexpr double RESOLUTION = 0.1;
+constexpr double RESOLUTION = 0.3;
 constexpr double TURN_COST = 0.5;
-constexpr double SAFE_RADIUS = RESOLUTION;
+constexpr double SAFE_RADIUS = 0.4;
 
 using action_t = Eigen::Vector2d;
 
@@ -98,6 +98,8 @@ using set_t = std::set<Node*, NodeEqualityCompare>;
 
 bool is_valid(const Node *n, World &w)
 {
+  // To get away from obstacles, turning is always allowed.
+  if (n->action(1) == 0.0) return true;
   pose_t p(n->x * RESOLUTION, n->y * RESOLUTION, n->theta * M_PI/4);
   transform_t tf = toTransform(p);
   landmark_readings_t lms = w.bag().back();
@@ -106,7 +108,7 @@ bool is_valid(const Node *n, World &w)
 
 plan_t getPlan(World &w, const landmark_t &world_goal, double goal_radius)
 {
-  std::cout << "Planning... ";
+  std::cout << "Planning... " << std::flush;
   landmark_t goal = w.gps().back() * world_goal; // in robot frame
   action_t action = action_t::Zero();
   std::vector<Node*> allocated_nodes;
