@@ -6,7 +6,7 @@ SFML=-lsfml-graphics -lsfml-window -lsfml-system
 SLAM_DEPS=$(GRAPH_DEPS) $(SIMULATOR_DEPS) print_results.o
 NAV_DEPS=$(SIMULATOR_DEPS) plan.o
 
-target: 2D
+target: 2D 1D nav graph
 
 2D: 2D_slam.o $(SLAM_DEPS)
 	$(CC) 2D_slam.o $(SLAM_DEPS) $(SFML) -o 2D.out
