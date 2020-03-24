@@ -45,21 +45,28 @@ int main()
   w.addLandmark(3.1, 1.);
   w.addLandmark(0.1, 1.);
   w.startSimulation();
-  w.renderOdom();
 
   bool diag = false;
   bool truth = false;
+  bool autonomous = false;
 
-  std::cout << "Type 'q' to quit, 'wasd' to move around, 't' to view ground truth.\n";
+  std::cout << "Type 'q' to quit, 'wasd' to move around, 't' to view ground truth, 'r' to start autonomous mode.\n";
   unsigned char c = 0;
   plan_t plan;
   do {
-    if (int(c) != 255)
+    if (int(c) != 255 || autonomous)
     {
-      plan = getPlan(w, goal, 1.0);
-      drawPlan(plan, w.odom().back());
-      truth ? w.renderTruth() : w.renderOdom();
       landmark_t odom_goal = w.odom().back().inverse() * (w.gps().back() * goal);
+      transform_t viz_tf = truth ? w.truth().back() : w.odom().back();
+
+      truth ? w.renderTruth() : w.renderOdom(false);
+      truth ? drawGoal(goal) : drawGoal(odom_goal);
+      display();
+
+      plan = getPlan(w, goal, 1.0);
+      drawPlan(plan, viz_tf);
+
+      truth ? w.renderTruth() : w.renderOdom(false);
       truth ? drawGoal(goal) : drawGoal(odom_goal);
       display();
     }
@@ -83,17 +90,21 @@ int main()
       diag = !diag;
       break;
     case 'r':
-      if (plan.size() > 0) {
-        w.moveRobot(plan(0,0), plan(0,1)); // Execute first action of plan
-      } else {
-        std::cout << "There is no plan to execute\n";
-      }
+      autonomous = !autonomous;
       break;
     case 't':
       truth = !truth;
       break;
     default:
       break;
+    }
+    if (autonomous) {
+      if (plan.size() > 0) {
+        w.moveRobot(plan(0,0), plan(0,1)); // Execute first action of plan
+      } else {
+        std::cout << "Disabling autonomous mode.\n";
+        autonomous = false;
+      }
     }
   } while(c!='q');
 

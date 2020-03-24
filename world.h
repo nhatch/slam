@@ -16,7 +16,7 @@ public:
   void runSimulation(int T);
   void startSimulation();
   void renderTruth();
-  void renderOdom();
+  void renderOdom(bool viz_landmark_noise);
   void moveRobot(double d_theta, double d_x);
 
   // groundTruth returns a concatenation of the ground truth poses and landmark locations
@@ -25,6 +25,7 @@ public:
   const bag_t bag();
   const trajectory_t odom();
   const trajectory_t gps();
+  const trajectory_t truth(); // not allowed for SLAM, but used for visualization
 
 private:
   landmarks_t landmarks_;
