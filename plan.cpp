@@ -141,7 +141,6 @@ plan_t getPlan(World &w, const landmark_t &world_goal, double goal_radius)
         if (is_valid(next, w) && visited_set.count(next) == 0)
         {
           visited_set.insert(next);
-          int c = visited_set.count(next);
           fringe.push(next);
         }
       }
