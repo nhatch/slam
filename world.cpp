@@ -60,14 +60,19 @@ void World::renderTruth() {
 
 void World::moveRobot(double d_theta, double d_x) {
   constexpr double WHEEL_BASE = 0.2;
-  double d_r = d_x + 0.5*WHEEL_BASE*d_theta;
-  double d_l = d_x - 0.5*WHEEL_BASE*d_theta;
+  double noisy_x(0.), noisy_theta(0.);
   double true_wheel_std = 0.1; // m
-  // Larger distance means more noise
-  double noisy_r = d_r + stdn() * true_wheel_std * sqrt(abs(d_r));
-  double noisy_l = d_l + stdn() * true_wheel_std * sqrt(abs(d_l));
-  double noisy_x = 0.5*(noisy_r + noisy_l);
-  double noisy_theta = (noisy_r - noisy_l) / WHEEL_BASE;
+  if (IS_2D) {
+    double d_r = d_x + 0.5*WHEEL_BASE*d_theta;
+    double d_l = d_x - 0.5*WHEEL_BASE*d_theta;
+    // Larger distance means more noise
+    double noisy_r = d_r + stdn() * true_wheel_std * sqrt(abs(d_r));
+    double noisy_l = d_l + stdn() * true_wheel_std * sqrt(abs(d_l));
+    noisy_x = 0.5*(noisy_r + noisy_l);
+    noisy_theta = (noisy_r - noisy_l) / WHEEL_BASE;
+  } else {
+    noisy_x = d_x + stdn() * true_wheel_std * sqrt(abs(d_x));
+  }
   ground_truth_.push_back(toTransformRotateFirst(noisy_x, 0., noisy_theta) * ground_truth_.back());
   if (collides(ground_truth_.back(), landmarks_, COLLISION_RADIUS)) {
     std::cout << "You crashed into a landmark" << std::endl;
