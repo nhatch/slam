@@ -60,14 +60,15 @@ void World::renderOdom(bool viz_landmark_noise) {
 }
 
 void World::renderTruth() {
-  drawTraj(tags_, ground_truth_, sf::Color::Magenta);
   drawTraj(landmarks_, ground_truth_, sf::Color::Black);
+  trajectory_t last({ground_truth_.back()});
+  drawTraj(tags_, last, sf::Color::Magenta);
 }
 
 void World::moveRobot(double d_theta, double d_x) {
   constexpr double WHEEL_BASE = 0.2;
   double noisy_x(0.), noisy_theta(0.);
-  double true_wheel_std = 0.1; // m
+  double true_wheel_std = 0.03; // m
   if (IS_2D) {
     double d_r = d_x + 0.5*WHEEL_BASE*d_theta;
     double d_l = d_x - 0.5*WHEEL_BASE*d_theta;
@@ -114,9 +115,9 @@ void World::readLandmarks(landmarks_t &lms, bag_t &b, double visibility_radius) 
 }
 
 void World::readGPS() {
-  double gps_x_std = 0.3; // m
-  double gps_y_std = 0.3; // m
-  double gps_theta_std = M_PI/8; // rad
+  double gps_x_std = 0.2; // m
+  double gps_y_std = 0.2; // m
+  double gps_theta_std = M_PI/24; // rad
   pose_t p = toPose(ground_truth_.back(), 0.);
   pose_t noise;
   noise << stdn()*gps_x_std, stdn()*gps_y_std, stdn()*gps_theta_std;
