@@ -4,7 +4,7 @@ SIMULATOR_DEPS=utils.o graphics.o world.o
 GRAPH_DEPS=graph.o factors.o 
 SFML=-lsfml-graphics -lsfml-window -lsfml-system
 SLAM_DEPS=$(GRAPH_DEPS) $(SIMULATOR_DEPS) print_results.o
-NAV_DEPS=$(SIMULATOR_DEPS) plan.o
+NAV_DEPS=$(SIMULATOR_DEPS) plan.o search.o
 
 target: 2D 1D nav graph
 

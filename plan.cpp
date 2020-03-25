@@ -10,8 +10,6 @@ constexpr double RESOLUTION = 0.3;
 constexpr double TURN_COST = 0.5;
 constexpr double SAFE_RADIUS = 0.4;
 
-using action_t = Eigen::Vector2d;
-
 // TODO implement goal orientations?
 double heuristic(int x, int y, const landmark_t &goal)
 {
@@ -34,7 +32,7 @@ struct Node
   action_t action;
 
   // Note: In the robot frame, starting pose is always (0,0,0).
-  Node(Node *p, action_t &a, landmark_t &goal) : x(0), y(0), theta(0),
+  Node(Node *p, action_t &a, const landmark_t &goal) : x(0), y(0), theta(0),
         acc_cost(0.), heuristic_to_goal(0.), acc_steps(0),
         parent(p), action(a)
   {
@@ -106,10 +104,10 @@ bool is_valid(const Node *n, World &w)
   return !collides(tf, lms, SAFE_RADIUS);
 }
 
-plan_t getPlan(World &w, const landmark_t &world_goal, double goal_radius)
+// Goal given in robot frame
+plan_t getPlan(World &w, const landmark_t &goal, double goal_radius)
 {
   std::cout << "Planning... " << std::flush;
-  landmark_t goal = w.gps().back() * world_goal; // in robot frame
   action_t action = action_t::Zero();
   std::vector<Node*> allocated_nodes;
   Node *start = new Node(nullptr, action, goal);
