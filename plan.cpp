@@ -8,6 +8,7 @@
 
 constexpr double TURN_COST = 0.5;
 constexpr double SAFE_RADIUS = 0.4;
+constexpr int MAX_ITERS = 3000;
 
 double resolution = 0.3;
 void setResolution(double res)
@@ -125,13 +126,18 @@ plan_t getPlan(World &w, const landmark_t &goal, double goal_radius)
   plan_t valid_actions(3,2);
   valid_actions << 0., 0., M_PI/4, 0., -M_PI/4, 0.;
   int counter = 0;
+  bool success = false;
   while (fringe.size() > 0)
   {
-    counter++;
+    if (counter++ > MAX_ITERS)
+    {
+      break;
+    }
     n = fringe.top();
     fringe.pop();
     if (n->heuristic_to_goal < goal_radius)
     {
+      success = true;
       break;
     }
     else
@@ -151,8 +157,8 @@ plan_t getPlan(World &w, const landmark_t &goal, double goal_radius)
       }
     }
   }
+  if (success == false) n = start;
 
-  // TODO what should we return if planning fails?
   plan_t plan(n->acc_steps,2);
   for (int i = n->acc_steps-1; i >= 0; i--)
   {

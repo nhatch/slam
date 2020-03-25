@@ -11,14 +11,15 @@
 #define KEY_LEFT 75
 #define KEY_RIGHT 77
 
-const double THETA_INCREMENT = 1.0;
-const double SEARCH_RADIUS = 2.0;
+const int THETA_DIVISIONS = 8;
+const double RADIUS_INCREMENT = 1.0;
 
 // State for the search algorithm
-double theta = 0.0;
+int theta = 0;
 bool tag_visible = false;
 landmark_t gps_goal;
 double waypoint_radius = 0.5;
+double search_radius = 0.0;
 
 // TODO: I think we need a map frame, otherwise this search radius thing will look stupid (the robot will barely move)
 
@@ -34,18 +35,18 @@ landmark_t nextWaypoint(World &w)
   if (lms[0](2) != 0.)
   {
     tag_visible = true;
-    setResolution(0.05);
-    waypoint_radius = 0.05;
+    waypoint_radius = 0.2;
     robot_goal = lms[0];
-    robot_goal(0) -= 0.3; // Don't crash into the AR tag
+    //robot_goal(0) -= 0.3; // Don't crash into the AR tag
   }
   else
   {
-    setResolution(0.3);
+    tag_visible = false;
     waypoint_radius = 0.5;
     landmark_t search_goal = gps_goal;
-    search_goal(0) += cos(theta)*SEARCH_RADIUS;
-    search_goal(1) += sin(theta)*SEARCH_RADIUS;
+    double a = (theta * 2 * M_PI) / THETA_DIVISIONS;
+    search_goal(0) += cos(a)*search_radius;
+    search_goal(1) += sin(a)*search_radius;
     robot_goal = w.gps().back() * search_goal;
   }
   return robot_goal;
@@ -57,7 +58,9 @@ action_t act(World &w, transform_t &viz_tf)
   plan_t plan = getPlan(w, waypoint, waypoint_radius);
   while (!tag_visible && plan.size() == 0) {
     // Either we reached the goal, or the goal seems to be unreachable. Change the goal.
-    theta += THETA_INCREMENT;
+    if (theta % THETA_DIVISIONS == 0)
+      search_radius += RADIUS_INCREMENT;
+    theta += 1;
     waypoint = nextWaypoint(w);
     plan = getPlan(w, waypoint, waypoint_radius);
   }

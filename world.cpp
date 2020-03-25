@@ -90,7 +90,7 @@ void World::moveRobot(double d_theta, double d_x) {
 
 void World::readSensors() {
   readLandmarks(landmarks_, bag_, 10.0); // TODO make small visibility radius work with SLAM
-  readLandmarks(tags_, tags_bag_, 0.6);
+  readLandmarks(tags_, tags_bag_, 1.0);
   readGPS();
 }
 

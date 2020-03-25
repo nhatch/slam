@@ -38,7 +38,7 @@ int main()
 
   World w;
   landmark_t goal;
-  goal << 5., 3., 1.;
+  goal << 3., 2., 1.;
   setGoal(goal);
   w.addLandmark(3., 1.);
   w.addLandmark(6., -1.);
@@ -46,7 +46,7 @@ int main()
   w.addLandmark(-0., -3.);
   w.addLandmark(3.1, 1.);
   w.addLandmark(0.1, 1.);
-  w.addTag(6., 4.);
+  w.addTag(5., 1.);
   w.startSimulation();
 
   bool diag = false;
