@@ -6,15 +6,20 @@
 #include <iostream>
 #include <set>
 
-constexpr double RESOLUTION = 0.3;
 constexpr double TURN_COST = 0.5;
 constexpr double SAFE_RADIUS = 0.4;
+
+double resolution = 0.3;
+void setResolution(double res)
+{
+  resolution = res;
+}
 
 // TODO implement goal orientations?
 double heuristic(int x, int y, const landmark_t &goal)
 {
-  double dx = goal(0) - x*RESOLUTION;
-  double dy = goal(1) - y*RESOLUTION;
+  double dx = goal(0) - x*resolution;
+  double dy = goal(1) - y*resolution;
   return sqrt(dx*dx + dy*dy);
 }
 
@@ -98,7 +103,7 @@ bool is_valid(const Node *n, World &w)
 {
   // To get away from obstacles, turning is always allowed.
   if (n->action(1) == 0.0) return true;
-  pose_t p(n->x * RESOLUTION, n->y * RESOLUTION, n->theta * M_PI/4);
+  pose_t p(n->x * resolution, n->y * resolution, n->theta * M_PI/4);
   transform_t tf = toTransform(p);
   landmark_readings_t lms = w.bag().back();
   return !collides(tf, lms, SAFE_RADIUS);
@@ -131,7 +136,7 @@ plan_t getPlan(World &w, const landmark_t &goal, double goal_radius)
     }
     else
     {
-      double forward_dist = (n->theta % 2 == 1) ? RESOLUTION*1.414 : RESOLUTION;
+      double forward_dist = (n->theta % 2 == 1) ? resolution*1.414 : resolution;
       valid_actions(0,1) = forward_dist;
       for (int i = 0; i < valid_actions.rows(); i++)
       {

@@ -7,8 +7,8 @@
 
 constexpr double COLLISION_RADIUS = 0.2;
 
-World::World() : landmarks_({}), ground_truth_({}), odom_({}),
-                    gps_({}), bag_({}) {
+World::World() : landmarks_({}), tags_({}), ground_truth_({}), odom_({}),
+                    gps_({}), bag_({}), tags_bag_({}) {
 }
 
 void World::addLandmark(double x, double y) {
@@ -17,11 +17,16 @@ void World::addLandmark(double x, double y) {
   landmarks_.push_back(lm);
 }
 
+void World::addTag(double x, double y) {
+  landmark_t lm;
+  lm << x, y, 1;
+  tags_.push_back(lm);
+}
+
 void World::startSimulation() {
   ground_truth_.push_back(toTransformRotateFirst(0., 0., 0.));
   odom_.push_back(toTransformRotateFirst(0., 0., 0.));
-  readGPS();
-  readLandmarks();
+  readSensors();
 }
 
 void World::runSimulation(int T) {
@@ -55,6 +60,7 @@ void World::renderOdom(bool viz_landmark_noise) {
 }
 
 void World::renderTruth() {
+  drawTraj(tags_, ground_truth_, sf::Color::Magenta);
   drawTraj(landmarks_, ground_truth_, sf::Color::Black);
 }
 
@@ -78,24 +84,33 @@ void World::moveRobot(double d_theta, double d_x) {
     std::cout << "You crashed into a landmark" << std::endl;
   }
   odom_.push_back(toTransformRotateFirst(d_x, 0., d_theta) * odom_.back());
-  readLandmarks();
+  readSensors();
+}
+
+void World::readSensors() {
+  readLandmarks(landmarks_, bag_, 10.0); // TODO make small visibility radius work with SLAM
+  readLandmarks(tags_, tags_bag_, 0.6);
   readGPS();
 }
 
-void World::readLandmarks() {
+void World::readLandmarks(landmarks_t &lms, bag_t &b, double visibility_radius) {
   double true_x_std = 0.1; // m
   double true_y_std = 0.0; // m
   if (IS_2D)
     true_y_std = 0.1;
   landmark_readings_t landmark_readings;
-  for (landmark_t lm : landmarks_) {
+  for (landmark_t lm : lms) {
     landmark_reading_t reading = project(lm, ground_truth_.back());
-    landmark_reading_t noise;
-    noise << stdn()*true_x_std, stdn()*true_y_std, 0;
-    reading += noise;
+    if (norm(reading) < visibility_radius) {
+      landmark_reading_t noise;
+      noise << stdn()*true_x_std, stdn()*true_y_std, 0;
+      reading += noise;
+    } else {
+      reading *= 0; // (0,0,0) indicates no data
+    }
     landmark_readings.push_back(reading);
   }
-  bag_.push_back(landmark_readings);
+  b.push_back(landmark_readings);
 }
 
 void World::readGPS() {
@@ -111,6 +126,10 @@ void World::readGPS() {
 
 const bag_t World::bag() {
   return bag_;
+}
+
+const bag_t World::tags_bag() {
+  return tags_bag_;
 }
 
 const trajectory_t World::odom() {

@@ -16,6 +16,8 @@ using trajectory_t = std::vector<transform_t>;
 using landmark_t = Eigen::Vector3d; // x, y, 1
 using landmarks_t = std::vector<landmark_t>;
 
+double norm(const landmark_t &lm); // Can also do this on poses
+
 bool collides(const transform_t &tf, const landmarks_t &lms, double radius);
 
 values toVector(const trajectory_t &traj, const landmark_readings_t &r);

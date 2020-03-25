@@ -46,6 +46,7 @@ int main()
   w.addLandmark(-0., -3.);
   w.addLandmark(3.1, 1.);
   w.addLandmark(0.1, 1.);
+  w.addTag(6., 4.);
   w.startSimulation();
 
   bool diag = false;
@@ -64,6 +65,11 @@ int main()
       display();
 
       action = act(w, viz_tf);
+      if (action == action_t::Zero())
+      {
+        std::cout << "Disabling autonomous mode.\n";
+        autonomous = false;
+      }
 
       truth ? w.renderTruth() : w.renderOdom(false);
       display();

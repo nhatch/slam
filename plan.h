@@ -10,6 +10,7 @@
 using plan_t = Eigen::Matrix<double, Eigen::Dynamic, 2>;
 using action_t = Eigen::Vector2d;
 
+void setResolution(double res);
 plan_t getPlan(World &w, const landmark_t &goal, double goal_radius);
 void drawPlan(const plan_t &p, const transform_t &transform);
 

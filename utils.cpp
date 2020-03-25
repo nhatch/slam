@@ -3,6 +3,11 @@
 #include <Eigen/LU>
 #include "utils.h"
 
+double norm(const landmark_t &lm)
+{
+  return sqrt(lm(0)*lm(0) + lm(1)*lm(1));
+}
+
 bool collides(const transform_t &tf, const landmarks_t &lms, double radius)
 {
   for (landmark_t lm : lms)
