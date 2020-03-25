@@ -2,6 +2,7 @@
 #include <chrono>
 #include <Eigen/LU>
 #include "utils.h"
+#include <iostream>
 
 double norm(const landmark_t &lm)
 {
@@ -12,9 +13,12 @@ bool collides(const transform_t &tf, const landmarks_t &lms, double radius)
 {
   for (landmark_t lm : lms)
   {
+    if (lm(2) == 0.0) {
+      // No reading on this landmark
+      continue;
+    }
     landmark_t tf_lm = tf * lm;
-    double dist = tf_lm(0) * tf_lm(0) + tf_lm(1) * tf_lm(1);
-    if (dist < radius) return true;
+    if (norm(tf_lm) < radius) return true;
   }
   return false;
 }
