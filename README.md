@@ -13,7 +13,6 @@ So far the SLAM solver is not used for state estimation in the planning algorith
  * C++11
  * [Eigen](http://eigen.tuxfamily.org)
  * [SFML](https://www.sfml-dev.org/tutorials/2.5/)
- * A linux-based OS (otherwise the termios hacks in `navigation.cpp` won't work)
 
 ## Usage
 

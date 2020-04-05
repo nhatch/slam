@@ -1,6 +1,7 @@
 #include <SFML/Graphics.hpp>
 #include <Eigen/LU>
 #include <unistd.h>
+#include <iostream>
 #include "graphics.h"
 
 const int WINDOW_SIDE = 500;
@@ -25,22 +26,25 @@ sf::Vector2f toWindowFrame(const landmark_t &lm, double vertOffset) {
   return toWindowFrame(lm_shifted);
 }
 
-bool checkClosed() {
-  if (!window.isOpen())
-    return true;
-
+char pollWindowEvent() {
   sf::Event event;
-  while (window.pollEvent(event))
+  if (window.pollEvent(event))
   {
-    if (event.type == sf::Event::Closed)
+    switch(event.type) {
+      case sf::Event::Closed:
         window.close();
+        return -1;
+      case sf::Event::KeyPressed:
+        return event.key.code;
+      default:
+        break;
+    }
   }
-
-  return false;
+  return -2;
 }
 
 void clear() {
-  checkClosed();
+  pollWindowEvent();
   window.clear(sf::Color::White);
   needs_clear = false;
 }
@@ -52,7 +56,7 @@ void display() {
 }
 
 void spin() {
-  while (!checkClosed()) {
+  while (pollWindowEvent() != -1) {
     usleep(10*1000);
   }
 }

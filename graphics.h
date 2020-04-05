@@ -8,6 +8,6 @@ void drawTraj(const landmarks_t &lms, const trajectory_t &traj, sf::Color c);
 void drawGoal(const landmark_t &goal);
 void display();
 void spin();
-bool checkClosed();
+char pollWindowEvent();
 
 #endif

@@ -5,7 +5,6 @@
 #include <iostream>
 #include <stdio.h>
 #include <unistd.h>
-#include <termios.h>
 
 #define KEY_UP 72
 #define KEY_DOWN 80
@@ -18,24 +17,6 @@ const double GRID_RES = 0.5;
 
 int main()
 {
-  struct termios old_tio, new_tio;
-
-  /* termios fiddling copied from https://shtrom.ssji.net/skb/getc.html */
-  /* get the terminal settings for stdin */
-  tcgetattr(STDIN_FILENO,&old_tio);
-
-  /* we want to keep the old setting to restore them a the end */
-  new_tio=old_tio;
-
-  /* disable canonical mode (buffered i/o) and local echo */
-  unsigned int flags = (uint32_t)~ICANON & (uint32_t)~ECHO & (uint32_t)~ISIG;
-  new_tio.c_lflag &= flags;
-  new_tio.c_cc[VTIME] = 1;
-  new_tio.c_cc[VMIN] = 0;
-
-  /* set the new settings immediately */
-  tcsetattr(STDIN_FILENO,TCSANOW,&new_tio);
-
   World w;
   landmark_t goal;
   goal << 3., 2., 1.;
@@ -54,10 +35,10 @@ int main()
   bool autonomous = false;
 
   std::cout << "Type 'q' to quit, 'wasd' to move around, 't' to view ground truth, 'r' to start autonomous mode.\n";
-  unsigned char c = 0;
+  char c = 0;
   action_t action;
   do {
-    if (int(c) != 255 || autonomous)
+    if (((int) c) != -2 || autonomous)
     {
       transform_t viz_tf = truth ? w.truth().back() : w.odom().back();
 
@@ -74,29 +55,32 @@ int main()
       truth ? w.renderTruth() : w.renderOdom(false);
       display();
     }
-    if (checkClosed()) break;
-    c=getchar();
+    c=pollWindowEvent();
 
     double x_dist = diag ? 1.414*GRID_RES : GRID_RES;
     switch(c) {
-    case 'w':
+    case 22:
+    case 73:
       w.moveRobot(0.0, x_dist);
       break;
-    case 's':
+    case 18:
+    case 74:
       w.moveRobot(0.0, -x_dist);
       break;
-    case 'a':
+    case 0:
+    case 71:
       w.moveRobot(M_PI/4, 0.0);
       diag = !diag;
       break;
-    case 'd':
+    case 3:
+    case 72:
       w.moveRobot(-M_PI/4, 0.0);
       diag = !diag;
       break;
-    case 'r':
+    case 17:
       autonomous = !autonomous;
       break;
-    case 't':
+    case 19:
       truth = !truth;
       break;
     default:
@@ -105,10 +89,8 @@ int main()
     if (autonomous) {
       w.moveRobot(action(0), action(1));
     }
-  } while(c!='q');
-
-  /* restore the former settings */
-  tcsetattr(STDIN_FILENO,TCSANOW,&old_tio);
+    usleep(10*1000);
+  } while(c!=16 && c!=-1);
 
   return 0;
 }

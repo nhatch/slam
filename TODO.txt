@@ -5,4 +5,4 @@ Read a paper to verify that this is actually how smoothing-based SLAM is impleme
 Change 1D factor interface to match 2D
 Implement partial visibility of landmarks (e.g. obstruction by obstacles)
 Change animation delays to reflect actual action execution time
-Switch keyboard input from terminal to animation window (and allow click to set goal)
+Allow click to set goal
