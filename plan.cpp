@@ -190,6 +190,5 @@ void drawPlan(const plan_t &p, const transform_t &initial_transform)
     trans = toTransformRotateFirst(x, 0, theta) * trans;
     traj.push_back(trans);
   }
-  landmarks_t lms({}); // Just to conform with drawTraj interface
-  drawTraj(lms, traj, sf::Color::Red);
+  drawTraj(traj, sf::Color::Red);
 }

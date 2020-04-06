@@ -7,8 +7,12 @@
 
 constexpr double COLLISION_RADIUS = 0.2;
 
-World::World() : landmarks_({}), tags_({}), ground_truth_({}), odom_({}),
+World::World() : obstacles_({}), landmarks_({}), tags_({}), ground_truth_({}), odom_({}),
                     gps_({}), bag_({}), tags_bag_({}) {
+}
+
+void World::addObstacle(obstacle_t &obs) {
+  obstacles_.push_back(obs);
 }
 
 void World::addLandmark(double x, double y) {
@@ -56,13 +60,16 @@ void World::renderOdom(bool viz_landmark_noise) {
     // (The intent is to show how noisy the sensor readings are.)
     // But if we were visualizing odom information only, we should use the odom frame.
     tf = ground_truth_.back();
-  drawTraj(transformReadings(tf), odom_, sf::Color::Blue);
+  drawLandmarks(transformReadings(tf), sf::Color::Blue);
+  drawTraj(odom_, sf::Color::Blue);
 }
 
 void World::renderTruth() {
-  drawTraj(landmarks_, ground_truth_, sf::Color::Black);
+  drawTraj(ground_truth_, sf::Color::Black);
+  drawLandmarks(landmarks_, sf::Color::Black);
+  drawObstacles(obstacles_);
   trajectory_t last({ground_truth_.back()});
-  drawTraj(tags_, last, sf::Color::Magenta);
+  drawTraj(last, sf::Color::Magenta);
 }
 
 void World::moveRobot(double d_theta, double d_x) {

@@ -65,7 +65,8 @@ action_t act(World &w, transform_t &viz_tf)
     plan = getPlan(w, waypoint, waypoint_radius);
   }
   drawPlan(plan, viz_tf);
-  drawGoal(viz_tf.inverse() * waypoint);
+  landmarks_t goal({viz_tf.inverse() * waypoint});
+  drawLandmarks(goal, sf::Color::Green);
   if (tag_visible && plan.size() == 0) {
     std::cout << "Search complete.\n";
     return action_t::Zero();

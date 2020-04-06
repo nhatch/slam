@@ -77,9 +77,8 @@ void printResults(World &w, Graph &g, int T) {
 
   w.renderTruth();
   w.renderOdom(true);
-  drawTraj(toLandmarks(g.solution(), T*pose_size, lm_size),
-           toTraj(g.solution(), pose_size, T),
-           sf::Color::Green);
+  drawLandmarks(toLandmarks(g.solution(), T*pose_size, lm_size), sf::Color::Green);
+  drawTraj(toTraj(g.solution(), pose_size, T), sf::Color::Green);
   display();
   spin();
 }

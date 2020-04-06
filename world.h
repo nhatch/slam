@@ -7,10 +7,14 @@
 #include "graph.h"
 #include "utils.h"
 
+using obstacle_t = Eigen::Array2Xd;
+using obstacles_t = std::vector<obstacle_t>;
+
 class World {
 public:
   World();
 
+  void addObstacle(obstacle_t &obs);
   void addLandmark(double x, double y);
   void addTag(double x, double y);
   // T is the number of timesteps. Will generate data for a trajectory of length T+1
@@ -30,6 +34,7 @@ public:
   const trajectory_t truth(); // not allowed for SLAM, but used for visualization
 
 private:
+  obstacles_t obstacles_;
   landmarks_t landmarks_;
   landmarks_t tags_;
   trajectory_t ground_truth_;

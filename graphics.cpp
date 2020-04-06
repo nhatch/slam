@@ -94,32 +94,43 @@ void drawRobot(const transform_t &tf, sf::Color c) {
   window.draw(shape);
 }
 
-void drawLandmark(const landmark_t &lm, sf::Color c) {
-  double pixelRadius = BALL_RADIUS * scale_x;
-  sf::CircleShape circle(pixelRadius);
-  circle.setFillColor(c);
-  sf::Vector2f pos = toWindowFrame(lm, vertOffset(c));
-  pos.x -= pixelRadius;
-  pos.y -= pixelRadius;
-  circle.setPosition(pos);
-  if (needs_clear)
-    clear();
-  window.draw(circle);
+void drawLandmarks(const landmarks_t &lms, sf::Color c) {
+  for (landmark_t lm : lms) {
+    double pixelRadius = BALL_RADIUS * scale_x;
+    sf::CircleShape circle(pixelRadius);
+    circle.setFillColor(c);
+    sf::Vector2f pos = toWindowFrame(lm, vertOffset(c));
+    pos.x -= pixelRadius;
+    pos.y -= pixelRadius;
+    circle.setPosition(pos);
+    if (needs_clear)
+      clear();
+    window.draw(circle);
+  }
 }
 
-void drawTraj(const landmarks_t &lms, const trajectory_t &traj, sf::Color c) {
+void drawObstacles(const obstacles_t &obss) {
+  for (obstacle_t obs : obss) {
+    sf::ConvexShape shape;
+    int n = obs.rows();
+    shape.setPointCount((size_t)n);
+    shape.setFillColor(sf::Color::Black);
+    for (int i = 0; i < n; i++) {
+      landmark_t l;
+      l << obs(i,0), obs(i,1), 1;
+      shape.setPoint((size_t)i, toWindowFrame(l));
+    }
+    if (needs_clear)
+      clear();
+    window.draw(shape);
+  }
+}
+
+void drawTraj(const trajectory_t &traj, sf::Color c) {
   for (size_t t = 0; t < traj.size(); t++) {
     if (t>0) {
       drawLine(toPose(traj[t-1], 0), toPose(traj[t], 0), c);
     }
     drawRobot(traj[t], c);
   }
-  for (size_t lm = 0; lm < lms.size(); lm++) {
-    drawLandmark(lms[lm], c);
-  }
-}
-
-void drawGoal(const landmark_t &goal)
-{
-  drawLandmark(goal, sf::Color::Green);
 }

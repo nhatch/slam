@@ -2,10 +2,12 @@
 #define SLAM_GRAPHICS_H
 
 #include "utils.h"
+#include "world.h"
 #include <SFML/Graphics.hpp>
 
-void drawTraj(const landmarks_t &lms, const trajectory_t &traj, sf::Color c);
-void drawGoal(const landmark_t &goal);
+void drawObstacles(const obstacles_t &obss);
+void drawTraj(const trajectory_t &traj, sf::Color c);
+void drawLandmarks(const landmarks_t &lms, sf::Color c);
 void display();
 void spin();
 char pollWindowEvent();
