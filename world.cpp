@@ -66,7 +66,7 @@ void World::renderOdom(bool viz_landmark_noise) {
 
 void World::renderTruth() {
   drawTraj(ground_truth_, sf::Color::Black);
-  drawLandmarks(landmarks_, sf::Color::Black);
+  drawLandmarks(landmarks_, sf::Color::Magenta);
   drawObstacles(obstacles_);
   trajectory_t last({ground_truth_.back()});
   drawTraj(last, sf::Color::Magenta);
