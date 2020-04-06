@@ -9,9 +9,36 @@ double norm(const landmark_t &lm)
   return sqrt(lm(0)*lm(0) + lm(1)*lm(1));
 }
 
+bool collides(const transform_t &tf, const obstacles_t &obss)
+{
+  for (const obstacle_t &obs : obss)
+  {
+    int n = obs.rows();
+    bool inside = true;
+    for(int i = 0; i < n; i++) {
+      landmark_t p0, p1;
+      p0 << obs(i,0), obs(i,1), 1;
+      if (i < (n-1)) {
+        p1 << obs(i+1,0), obs(i+1,1), 1;
+      } else {
+        p1 << obs(0,0), obs(0,1), 1;
+      }
+      p0 = tf*p0;
+      p1 = tf*p1;
+      // TODO handle actual robot footprints rather than single points
+      if (p0(0)*p1(1) - p1(0)*p0(1) < 0) {
+        inside = false;
+        break;
+      }
+    }
+    if (inside) return true;
+  }
+  return false;
+}
+
 bool collides(const transform_t &tf, const landmarks_t &lms, double radius)
 {
-  for (landmark_t lm : lms)
+  for (const landmark_t &lm : lms)
   {
     if (lm(2) == 0.0) {
       // No reading on this landmark

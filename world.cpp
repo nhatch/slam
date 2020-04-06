@@ -88,8 +88,8 @@ void World::moveRobot(double d_theta, double d_x) {
     noisy_x = d_x + stdn() * true_wheel_std * sqrt(abs(d_x));
   }
   ground_truth_.push_back(toTransformRotateFirst(noisy_x, 0., noisy_theta) * ground_truth_.back());
-  if (collides(ground_truth_.back(), landmarks_, COLLISION_RADIUS)) {
-    std::cout << "You crashed into a landmark" << std::endl;
+  if (collides(ground_truth_.back(), obstacles_)) {
+    std::cout << "You crashed into an obstacle" << std::endl;
   }
   odom_.push_back(toTransformRotateFirst(d_x, 0., d_theta) * odom_.back());
   readSensors();

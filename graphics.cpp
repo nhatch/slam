@@ -33,14 +33,14 @@ char pollWindowEvent() {
     switch(event.type) {
       case sf::Event::Closed:
         window.close();
-        return -1;
+        return 16; // same as code for key press 'q'
       case sf::Event::KeyPressed:
         return event.key.code;
       default:
         break;
     }
   }
-  return -2;
+  return -1;
 }
 
 void clear() {
@@ -56,7 +56,7 @@ void display() {
 }
 
 void spin() {
-  while (pollWindowEvent() != -1) {
+  while (pollWindowEvent() != 16) {
     usleep(10*1000);
   }
 }

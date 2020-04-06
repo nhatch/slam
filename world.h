@@ -7,9 +7,6 @@
 #include "graph.h"
 #include "utils.h"
 
-using obstacle_t = Eigen::ArrayX2d;
-using obstacles_t = std::vector<obstacle_t>;
-
 class World {
 public:
   World();

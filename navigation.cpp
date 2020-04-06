@@ -44,10 +44,10 @@ int main()
   bool autonomous = false;
 
   std::cout << "Type 'q' to quit, 'wasd' to move around, 't' to view ground truth, 'r' to start autonomous mode.\n";
-  char c = 0;
+  char c = -2;
   action_t action;
   do {
-    if (((int) c) != -2 || autonomous)
+    if (((int) c) != -1 || autonomous)
     {
       transform_t viz_tf = truth ? w.truth().back() : w.odom().back();
 
@@ -99,7 +99,7 @@ int main()
       w.moveRobot(action(0), action(1));
     }
     usleep(10*1000);
-  } while(c!=16 && c!=-1);
+  } while(c!=16);
 
   return 0;
 }

@@ -6,6 +6,8 @@
 
 extern const bool IS_2D;
 
+using obstacle_t = Eigen::ArrayX2d;
+using obstacles_t = std::vector<obstacle_t>;
 using landmark_reading_t = Eigen::Vector3d; // Assume we have a range-and-bearing sensor: x, y, 1 in sensor frame
 using landmark_readings_t = std::vector<landmark_reading_t>;
 using bag_t = std::vector<landmark_readings_t>;
@@ -18,6 +20,7 @@ using landmarks_t = std::vector<landmark_t>;
 
 double norm(const landmark_t &lm); // Can also do this on poses
 
+bool collides(const transform_t &tf, const obstacles_t &obss);
 bool collides(const transform_t &tf, const landmarks_t &lms, double radius);
 
 values toVector(const trajectory_t &traj, const landmark_readings_t &r);
