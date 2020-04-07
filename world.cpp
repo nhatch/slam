@@ -119,8 +119,31 @@ void World::readLandmarks() {
 }
 
 void World::readLidar() {
-  landmarks_t lidar_scan = intersections(ground_truth_.back(), obstacles_);
-  lidar_readings_.push_back(lidar_scan);
+  double MAX_RANGE = 5.0;
+  double MIN_RANGE = 0.3;
+  int ANGULAR_RESOLUTION = 100; // number of scans per full rotation
+  double FAILURE_PROBABILITY = 0.01; // probability of no hit even if obstacle is in range
+
+  landmarks_t hits({});
+  for(int j = 0; j < ANGULAR_RESOLUTION; j++)
+  {
+    double angle = j * 2 * M_PI / ANGULAR_RESOLUTION;
+    landmark_t r0, r1;
+    r0 << 0, 0, 1;
+    r1 << MAX_RANGE*cos(angle), MAX_RANGE*sin(angle), 1;
+    transform_t tf_inv = ground_truth_.back().inverse();
+    double t = obstacleIntersection(tf_inv*r0, tf_inv*r1, obstacles_);
+    double dist = t*MAX_RANGE;
+    if (dist < MAX_RANGE && dist > MIN_RANGE)
+    {
+      landmark_t hit;
+      hit << dist*cos(angle), dist*sin(angle), 1;
+      // TODO: add noise
+      hits.push_back(hit);
+    }
+  }
+
+  lidar_readings_.push_back(hits);
 }
 
 void World::readGPS() {

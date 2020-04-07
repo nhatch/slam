@@ -54,57 +54,35 @@ bool segmentIntersection(const landmark_t &r0, const landmark_t &r1,
   return false;
 }
 
-// returns: places where laser beams hit an obstacle (if no collision, lm(2) will be zero)
-landmarks_t intersections(const transform_t &tf, const obstacles_t &obss)
+// returns: Fraction of distance along the segment r0->r1 where the segment hits an obstacle.
+//          Returns 2.0 if the segment never hits an obstacle;
+//          Otherwise `hit` will be populated with the exact location of the hit.
+double obstacleIntersection(const landmark_t &r0, const landmark_t &r1, const obstacles_t &obss)
 {
-  double MAX_RANGE = 5.0;
-  double MIN_RANGE = 0.3;
-  int ANGULAR_RESOLUTION = 100; // number of scans per full rotation
-  double FAILURE_PROBABILITY = 0.01; // probability of no hit even if obstacle is in range
-
-  landmarks_t hits({});
-  for(int j = 0; j < ANGULAR_RESOLUTION; j++)
+  double min_t = 2.0;
+  for (const obstacle_t &obs : obss)
   {
-    double angle = j * 2 * M_PI / ANGULAR_RESOLUTION;
-    landmark_t r0, r1;
-    r0 << 0, 0, 1;
-    r1 << MAX_RANGE*cos(angle), MAX_RANGE*sin(angle), 1;
-
-    double min_t = 2.0;
-    for (const obstacle_t &obs : obss)
+    int n = obs.rows();
+    for(int i = 0; i < n; i++)
     {
-      int n = obs.rows();
-      for(int i = 0; i < n; i++)
-      {
-        landmark_t p0, p1;
-        p0 << obs(i,0), obs(i,1), 1;
-        if (i < (n-1)) {
-          p1 << obs(i+1,0), obs(i+1,1), 1;
-        } else {
-          p1 << obs(0,0), obs(0,1), 1;
-        }
-        p0 = tf*p0;
-        p1 = tf*p1;
+      landmark_t p0, p1;
+      p0 << obs(i,0), obs(i,1), 1;
+      if (i < (n-1)) {
+        p1 << obs(i+1,0), obs(i+1,1), 1;
+      } else {
+        p1 << obs(0,0), obs(0,1), 1;
+      }
 
-        double t;
-        if (segmentIntersection(r0, r1, p0, p1, &t)) {
-          if (t < min_t && t*MAX_RANGE > MIN_RANGE) {
-            min_t = t;
-          }
+      double t;
+      if (segmentIntersection(r0, r1, p0, p1, &t)) {
+        if (t < min_t) {
+          min_t = t;
         }
       }
     }
-
-    if (min_t < 2.0)
-    {
-      landmark_t hit;
-      hit << min_t*MAX_RANGE*cos(angle), min_t*MAX_RANGE*sin(angle), 1;
-      // TODO add noise
-      hits.push_back(hit);
-    }
   }
 
-  return hits;
+  return min_t;
 }
 
 bool collides(const transform_t &tf, const landmarks_t &lms, double radius)
