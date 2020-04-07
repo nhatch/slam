@@ -36,6 +36,77 @@ bool collides(const transform_t &tf, const obstacles_t &obss)
   return false;
 }
 
+bool segmentIntersection(const landmark_t &r0, const landmark_t &r1,
+                         const landmark_t &p0, const landmark_t &p1, double *t)
+{
+  Eigen::Matrix2d A;
+  Eigen::Vector2d b;
+  b = r0.topRows(2) - p0.topRows(2);
+  A.col(0) = r0.topRows(2) - r1.topRows(2);
+  A.col(1) = p1.topRows(2) - p0.topRows(2);
+  if (A.determinant() == 0.0) return false;
+  Eigen::Vector2d tt = A.inverse() * b;
+  if (tt(1) >= 0.0 && tt(1) <= 1.0 && tt(0) >= 0.0 && tt(1) <= 1.0)
+  {
+    *t = tt(0);
+    return true;
+  }
+  return false;
+}
+
+// returns: places where laser beams hit an obstacle (if no collision, lm(2) will be zero)
+landmarks_t intersections(const transform_t &tf, const obstacles_t &obss)
+{
+  double MAX_RANGE = 5.0;
+  double MIN_RANGE = 0.3;
+  int ANGULAR_RESOLUTION = 100; // number of scans per full rotation
+  double FAILURE_PROBABILITY = 0.01; // probability of no hit even if obstacle is in range
+
+  landmarks_t hits({});
+  for(int j = 0; j < ANGULAR_RESOLUTION; j++)
+  {
+    double angle = j * 2 * M_PI / ANGULAR_RESOLUTION;
+    landmark_t r0, r1;
+    r0 << 0, 0, 1;
+    r1 << MAX_RANGE*cos(angle), MAX_RANGE*sin(angle), 1;
+
+    double min_t = 2.0;
+    for (const obstacle_t &obs : obss)
+    {
+      int n = obs.rows();
+      for(int i = 0; i < n; i++)
+      {
+        landmark_t p0, p1;
+        p0 << obs(i,0), obs(i,1), 1;
+        if (i < (n-1)) {
+          p1 << obs(i+1,0), obs(i+1,1), 1;
+        } else {
+          p1 << obs(0,0), obs(0,1), 1;
+        }
+        p0 = tf*p0;
+        p1 = tf*p1;
+
+        double t;
+        if (segmentIntersection(r0, r1, p0, p1, &t)) {
+          if (t < min_t && t*MAX_RANGE > MIN_RANGE) {
+            min_t = t;
+          }
+        }
+      }
+    }
+
+    if (min_t < 2.0)
+    {
+      landmark_t hit;
+      hit << min_t*MAX_RANGE*cos(angle), min_t*MAX_RANGE*sin(angle), 1;
+      // TODO add noise
+      hits.push_back(hit);
+    }
+  }
+
+  return hits;
+}
+
 bool collides(const transform_t &tf, const landmarks_t &lms, double radius)
 {
   for (const landmark_t &lm : lms)

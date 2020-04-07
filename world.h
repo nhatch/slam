@@ -43,7 +43,7 @@ private:
   void readSensors();
   void readLandmarks(landmarks_t &lms, bag_t &b, double visibility_radius);
   void readGPS();
-  landmark_readings_t transformReadings(const transform_t &tf);
+  landmark_readings_t transformReadings(const landmarks_t &lms, const transform_t &tf);
 };
 
 #endif
