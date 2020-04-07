@@ -7,6 +7,7 @@
 
 void drawObstacles(const obstacles_t &obss);
 void drawTraj(const trajectory_t &traj, sf::Color c);
+void drawRobot(const transform_t &tf, sf::Color c);
 void drawLandmarks(const landmarks_t &lms, sf::Color c);
 void display();
 void spin();

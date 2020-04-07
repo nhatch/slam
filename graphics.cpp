@@ -114,7 +114,7 @@ void drawObstacles(const obstacles_t &obss) {
     sf::ConvexShape shape;
     int n = obs.rows();
     shape.setPointCount((size_t)n);
-    shape.setFillColor(sf::Color::Black);
+    shape.setFillColor(sf::Color(128, 128, 128));
     for (int i = 0; i < n; i++) {
       landmark_t l;
       l << obs(i,0), obs(i,1), 1;

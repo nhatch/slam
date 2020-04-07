@@ -30,13 +30,7 @@ int main()
   w.addObstacle(o1);
   w.addObstacle(o2);
   w.addObstacle(o3);
-  w.addLandmark(3., 1.);
-  w.addLandmark(6., -1.);
-  w.addLandmark(-1., 0.);
-  w.addLandmark(-0., -3.);
-  w.addLandmark(3.1, 1.);
-  w.addLandmark(0.1, 1.);
-  w.addTag(5., 1.);
+  w.addLandmark(6, 1);
   w.startSimulation();
 
   bool diag = false;

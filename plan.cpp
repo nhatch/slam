@@ -106,7 +106,7 @@ bool is_valid(const Node *n, World &w)
   if (n->action(1) == 0.0) return true;
   pose_t p(n->x * resolution, n->y * resolution, n->theta * M_PI/4);
   transform_t tf = toTransform(p);
-  landmark_readings_t lms = w.bag().back();
+  landmark_readings_t lms = w.lidar().back();
   return !collides(tf, lms, SAFE_RADIUS);
 }
 

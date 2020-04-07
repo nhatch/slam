@@ -7,8 +7,8 @@
 
 constexpr double COLLISION_RADIUS = 0.2;
 
-World::World() : obstacles_({}), landmarks_({}), tags_({}), ground_truth_({}), odom_({}),
-                    gps_({}), bag_({}), tags_bag_({}) {
+World::World() : obstacles_({}), landmarks_({}), ground_truth_({}), odom_({}),
+                    gps_({}), landmark_readings_({}), lidar_readings_({}) {
 }
 
 void World::addObstacle(obstacle_t &obs) {
@@ -19,12 +19,6 @@ void World::addLandmark(double x, double y) {
   landmark_t lm;
   lm << x, y, 1;
   landmarks_.push_back(lm);
-}
-
-void World::addTag(double x, double y) {
-  landmark_t lm;
-  lm << x, y, 1;
-  tags_.push_back(lm);
 }
 
 void World::startSimulation() {
@@ -55,23 +49,23 @@ landmark_readings_t World::transformReadings(const landmarks_t &lms, const trans
 
 void World::renderOdom(bool viz_landmark_noise) {
   transform_t tf = odom_.back();
-  //if (viz_landmark_noise)
+  landmarks_t lms = lidar_readings_.back();
+  if (viz_landmark_noise)
+  {
     // Using the ground_truth frame makes the visualization more intuitive, I think.
     // (The intent is to show how noisy the sensor readings are.)
     // But if we were visualizing odom information only, we should use the odom frame.
-    //tf = ground_truth_.back();
-  //drawLandmarks(transformReadings(tf), sf::Color::Blue);
-  landmarks_t lidar_scan = intersections(ground_truth_.back(), obstacles_);
-  drawLandmarks(transformReadings(lidar_scan, tf), sf::Color::Blue);
+    tf = ground_truth_.back();
+    lms = landmark_readings_.back();
+  }
+  drawLandmarks(transformReadings(lms, tf), sf::Color::Blue);
   drawTraj(odom_, sf::Color::Blue);
 }
 
 void World::renderTruth() {
-  drawTraj(ground_truth_, sf::Color::Black);
-  drawLandmarks(landmarks_, sf::Color::Magenta);
   drawObstacles(obstacles_);
-  trajectory_t last({ground_truth_.back()});
-  drawTraj(last, sf::Color::Magenta);
+  drawTraj(ground_truth_, sf::Color::Black);
+  drawLandmarks(landmarks_, sf::Color::Black);
 }
 
 void World::moveRobot(double d_theta, double d_x) {
@@ -98,18 +92,19 @@ void World::moveRobot(double d_theta, double d_x) {
 }
 
 void World::readSensors() {
-  readLandmarks(landmarks_, bag_, 10.0); // TODO make small visibility radius work with SLAM
-  readLandmarks(tags_, tags_bag_, 1.0);
+  readLandmarks();
   readGPS();
+  readLidar();
 }
 
-void World::readLandmarks(landmarks_t &lms, bag_t &b, double visibility_radius) {
+void World::readLandmarks() {
+  double visibility_radius = 10.0;
   double true_x_std = 0.1; // m
   double true_y_std = 0.0; // m
   if (IS_2D)
     true_y_std = 0.1;
   landmark_readings_t landmark_readings;
-  for (landmark_t lm : lms) {
+  for (landmark_t lm : landmarks_) {
     landmark_reading_t reading = project(lm, ground_truth_.back());
     if (norm(reading) < visibility_radius) {
       landmark_reading_t noise;
@@ -120,7 +115,12 @@ void World::readLandmarks(landmarks_t &lms, bag_t &b, double visibility_radius) 
     }
     landmark_readings.push_back(reading);
   }
-  b.push_back(landmark_readings);
+  landmark_readings_.push_back(landmark_readings);
+}
+
+void World::readLidar() {
+  landmarks_t lidar_scan = intersections(ground_truth_.back(), obstacles_);
+  lidar_readings_.push_back(lidar_scan);
 }
 
 void World::readGPS() {
@@ -134,12 +134,12 @@ void World::readGPS() {
   gps_.push_back(toTransform(p));
 }
 
-const bag_t World::bag() {
-  return bag_;
+const bag_t World::landmarks() {
+  return landmark_readings_;
 }
 
-const bag_t World::tags_bag() {
-  return tags_bag_;
+const bag_t World::lidar() {
+  return lidar_readings_;
 }
 
 const trajectory_t World::odom() {

@@ -31,7 +31,7 @@ void setGoal(landmark_t &goal)
 landmark_t nextWaypoint(World &w)
 {
   landmark_t robot_goal;
-  landmark_readings_t lms = w.tags_bag().back();
+  landmark_readings_t lms = w.landmarks().back();
   if (lms[0](2) != 0.)
   {
     tag_visible = true;

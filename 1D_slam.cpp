@@ -44,7 +44,7 @@ int main() {
   w.addLandmark(0.1, 0.);
 
   w.runSimulation(T);
-  const bag_t bag = w.bag();
+  const bag_t bag = w.landmarks();
   values x0 = toVector(w.odom(), bag[0]);
   Graph g = smooth(x0, bag);
   printResults(w, g, T);
