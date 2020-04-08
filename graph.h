@@ -4,8 +4,11 @@
 
 #include <Eigen/Core>
 #include <vector>
+#include "utils.h"
 
 using values = Eigen::Matrix<double, Eigen::Dynamic, 1>;
+
+values toVector(const trajectory_t &traj, const landmark_readings_t &r);
 
 using hessian = Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic>;
 

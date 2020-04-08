@@ -1,4 +1,3 @@
-#include "graph.h"
 #include "world.h"
 #include "utils.h"
 #include "graphics.h"
@@ -190,6 +189,6 @@ const trajectory_t World::truth() {
   return ground_truth_;
 }
 
-const values World::groundTruth() {
-  return toVector(ground_truth_, landmarks_);
+const landmarks_t World::trueLandmarks() {
+  return landmarks_;
 }

@@ -4,7 +4,6 @@
 #include <vector>
 #include <Eigen/Core>
 #include <Eigen/LU>
-#include "graph.h"
 #include "utils.h"
 
 class World {
@@ -20,14 +19,15 @@ public:
   void renderOdom();
   void moveRobot(double d_theta, double d_x);
 
-  // groundTruth returns a concatenation of the ground truth poses and landmark locations
-  const values groundTruth();
   // bag returns a std::vector of the landmark readings for t=0..T
   const bag_t lidar();
   const bag_t landmarks();
   const trajectory_t odom();
   const trajectory_t gps();
-  const trajectory_t truth(); // not allowed for SLAM, but used for visualization
+
+  // ground truth
+  const trajectory_t truth();
+  const landmarks_t trueLandmarks();
 
 private:
   obstacles_t obstacles_;

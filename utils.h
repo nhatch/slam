@@ -1,7 +1,6 @@
 #ifndef UTILS_H
 #define UTILS_H
 
-#include "graph.h"
 #include <Eigen/Core>
 
 extern const bool IS_2D;
@@ -23,8 +22,6 @@ double norm(const landmark_t &lm); // Can also do this on poses
 bool collides(const transform_t &tf, const obstacles_t &obss);
 bool collides(const transform_t &tf, const landmarks_t &lms, double radius);
 double obstacleIntersection(const landmark_t &r0, const landmark_t &r1, const obstacles_t &obss);
-
-values toVector(const trajectory_t &traj, const landmark_readings_t &r);
 
 /* Left-multiplying a (map-frame) landmark_t by this matrix will give the
  * corresponding landmark_t in the frame that was rotated counterclockwise

@@ -62,7 +62,7 @@ void printResults(World &w, Graph &g, int T) {
   std::cout << std::fixed;
 
   std::cout << std::showpos;
-  values ground_truth = w.groundTruth();
+  values ground_truth = toVector(w.truth(), w.trueLandmarks());
   std::cout << std::endl << "Trajectory:" << std::endl;
   printRange(g, ground_truth, 0, pose_size*T, pose_size);
   std::cout << std::endl << "Landmark locations:" << std::endl;
