@@ -98,19 +98,23 @@ void World::readSensors() {
 }
 
 void World::readLandmarks() {
-  double visibility_radius = 10.0;
+  double MAX_RANGE = 10.0;
   double true_x_std = 0.1; // m
   double true_y_std = 0.0; // m
   if (IS_2D)
     true_y_std = 0.1;
   landmark_readings_t landmark_readings;
+  transform_t tf = ground_truth_.back();
+  landmark_t robot_location = tf.inverse()*landmark_t(0,0,1);
   for (landmark_t lm : landmarks_) {
-    landmark_reading_t reading = project(lm, ground_truth_.back());
-    if (norm(reading) < visibility_radius) {
-      landmark_reading_t noise;
-      noise << stdn()*true_x_std, stdn()*true_y_std, 0;
-      reading += noise;
-    } else {
+    landmark_reading_t reading = tf * lm;
+    landmark_reading_t noise;
+    noise << stdn()*true_x_std, stdn()*true_y_std, 0;
+    reading += noise;
+    double dist = norm(robot_location - lm);
+    double t = obstacleIntersection(robot_location, lm, obstacles_);
+    // t < 1.0 indicates there's an obstacle between the landmark and the robot
+    if (dist > MAX_RANGE || t < 0.999999) {
       reading *= 0; // (0,0,0) indicates no data
     }
     landmark_readings.push_back(reading);

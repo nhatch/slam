@@ -148,14 +148,6 @@ transform_t toTransform(const pose_t &pose) {
   return toTransformRotateFirst(0, 0, pose(2)) * toTransformRotateFirst(pose(0), pose(1), 0);
 }
 
-landmark_reading_t project(const landmark_t &landmark, const transform_t &transform) {
-  landmark_t transformed_landmark = transform * landmark;
-  // If we're projecting to a 1-D camera in front of the car:
-  // using landmark_reading_t = double;
-  // transformed_landmark(1)/transformed_landmark(0);
-  return transformed_landmark;
-}
-
 std::normal_distribution<double> stdn_dist(0.0, 1.0);
 unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
 std::default_random_engine generator(seed);

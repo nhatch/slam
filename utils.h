@@ -53,8 +53,6 @@ pose_t toPose(const transform_t &trf, double prev_theta);
 
 transform_t toTransform(const pose_t &pose);
 
-landmark_reading_t project(const landmark_t &landmark, const transform_t &transform);
-
 // One sample from a standard normal distribution
 double stdn();
 
