@@ -17,19 +17,19 @@ const double RADIUS_INCREMENT = 1.0;
 // State for the search algorithm
 int theta = 0;
 bool tag_visible = false;
-landmark_t gps_goal;
+point_t gps_goal;
 double waypoint_radius = 0.5;
 double search_radius = 0.0;
 
-void setGoal(landmark_t &goal)
+void setGoal(point_t &goal)
 {
   gps_goal = goal;
 }
 
-landmark_t nextWaypoint(World &w)
+point_t nextWaypoint(World &w)
 {
-  landmark_t robot_goal;
-  landmark_readings_t lms = w.landmarks().back();
+  point_t robot_goal;
+  points_t lms = w.landmarks().back();
   if (lms[0](2) != 0.)
   {
     tag_visible = true;
@@ -41,7 +41,7 @@ landmark_t nextWaypoint(World &w)
   {
     tag_visible = false;
     waypoint_radius = 0.5;
-    landmark_t search_goal = gps_goal;
+    point_t search_goal = gps_goal;
     double a = (theta * 2 * M_PI) / THETA_DIVISIONS;
     search_goal(0) += cos(a)*search_radius;
     search_goal(1) += sin(a)*search_radius;
@@ -52,7 +52,7 @@ landmark_t nextWaypoint(World &w)
 
 action_t act(World &w, transform_t &viz_tf)
 {
-  landmark_t waypoint = nextWaypoint(w);
+  point_t waypoint = nextWaypoint(w);
   plan_t plan = getPlan(w, waypoint, waypoint_radius);
   while (!tag_visible && plan.size() == 0) {
     // Either we reached the goal, or the goal seems to be unreachable. Change the goal.
@@ -63,8 +63,8 @@ action_t act(World &w, transform_t &viz_tf)
     plan = getPlan(w, waypoint, waypoint_radius);
   }
   drawPlan(plan, viz_tf);
-  landmarks_t goal({viz_tf.inverse() * waypoint});
-  drawLandmarks(goal, sf::Color::Green);
+  points_t goal({viz_tf.inverse() * waypoint});
+  drawPoints(goal, sf::Color::Green);
   if (tag_visible && plan.size() == 0) {
     std::cout << "Search complete.\n";
     return action_t::Zero();

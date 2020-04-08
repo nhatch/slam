@@ -6,16 +6,16 @@
 
 extern const bool IS_2D { false };
 
-Graph smooth(const values& x0, const bag_t &bag) {
-  int T = (int)bag.size()-1;
-  int nLandmarks = (int)bag[0].size();
+Graph smooth(const values& x0, const traj_points_t &readings) {
+  int T = (int)readings.size()-1;
+  int nLandmarks = (int)readings[0].size();
   double odom_std = 0.1;
   double sensor_std = 0.1;
   assert("whoohoo" && (x0.size() == T + nLandmarks));
   Graph graph;
   for (int t=0; t < T+1; t++) {
     for (int i=0; i < nLandmarks; i++) {
-      landmark_reading_t l = bag[(size_t)t][(size_t)i];
+      point_t l = readings[(size_t)t][(size_t)i];
       if (l(2) == 0.0) continue; // Landmark wasn't visible
       double l_dx = l(0);
       if (t==0) {
@@ -46,9 +46,9 @@ int main() {
   w.addLandmark(0.1, 0.);
 
   w.runSimulation(T);
-  const bag_t bag = w.landmarks();
-  values x0 = toVector(w.odom(), bag[0]);
-  Graph g = smooth(x0, bag);
+  const traj_points_t readings = w.landmarks();
+  values x0 = toVector(w.odom(), readings[0]);
+  Graph g = smooth(x0, readings);
   printResults(w, g, T);
 
   return 0;

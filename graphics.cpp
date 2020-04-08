@@ -14,16 +14,16 @@ const double scale_y = double(WINDOW_SIDE) / -(MAX_Y - MIN_Y);
 const double offset_x = double(WINDOW_SIDE) / 2;
 const double offset_y = double(WINDOW_SIDE) / 2;
 
-sf::Vector2f toWindowFrame(const landmark_t &lm) {
-  return sf::Vector2f((lm(0)-ORIGIN_X)*scale_x + offset_x, (lm(1)-ORIGIN_Y)*scale_y + offset_y);
+sf::Vector2f toWindowFrame(const point_t &p) {
+  return sf::Vector2f((p(0)-ORIGIN_X)*scale_x + offset_x, (p(1)-ORIGIN_Y)*scale_y + offset_y);
 }
 bool needs_clear = true;
 
 // Useful for 1D visualizations, which are too cluttered with everything on top of each other
-sf::Vector2f toWindowFrame(const landmark_t &lm, double vertOffset) {
-  landmark_t lm_shifted { lm };
-  lm_shifted(1) += vertOffset;
-  return toWindowFrame(lm_shifted);
+sf::Vector2f toWindowFrame(const point_t &p, double vertOffset) {
+  point_t p_shifted { p };
+  p_shifted(1) += vertOffset;
+  return toWindowFrame(p_shifted);
 }
 
 char pollWindowEvent() {
@@ -69,7 +69,7 @@ double vertOffset(sf::Color c) {
   return 0.0;
 }
 
-void drawLine(const landmark_t &l1, const landmark_t &l2, sf::Color c) {
+void drawLine(const point_t &l1, const point_t &l2, sf::Color c) {
   sf::Vertex line[2];
   line[0] = sf::Vertex(toWindowFrame(l2, vertOffset(c)), c);
   line[1] = sf::Vertex(toWindowFrame(l1, vertOffset(c)), c);
@@ -80,9 +80,9 @@ void drawLine(const landmark_t &l1, const landmark_t &l2, sf::Color c) {
 
 void drawRobot(const transform_t &tf, sf::Color c) {
   transform_t tf_inv = tf.inverse();
-  landmark_t tip =        tf_inv * landmark_t( 0.2,  0.0, 1);
-  landmark_t left_back =  tf_inv * landmark_t(-0.1,  0.1, 1);
-  landmark_t right_back = tf_inv * landmark_t(-0.1, -0.1, 1);
+  point_t tip =        tf_inv * point_t( 0.2,  0.0, 1);
+  point_t left_back =  tf_inv * point_t(-0.1,  0.1, 1);
+  point_t right_back = tf_inv * point_t(-0.1, -0.1, 1);
   sf::ConvexShape shape;
   shape.setPointCount(3);
   shape.setFillColor(c);
@@ -94,13 +94,13 @@ void drawRobot(const transform_t &tf, sf::Color c) {
   window.draw(shape);
 }
 
-void drawLandmarks(const landmarks_t &lms, sf::Color c) {
-  for (landmark_t lm : lms) {
-    if (lm(2) == 0) continue;
+void drawPoints(const points_t &ps, sf::Color c) {
+  for (point_t p : ps) {
+    if (p(2) == 0) continue;
     double pixelRadius = BALL_RADIUS * scale_x;
     sf::CircleShape circle(pixelRadius);
     circle.setFillColor(c);
-    sf::Vector2f pos = toWindowFrame(lm, vertOffset(c));
+    sf::Vector2f pos = toWindowFrame(p, vertOffset(c));
     pos.x -= pixelRadius;
     pos.y -= pixelRadius;
     circle.setPosition(pos);
@@ -117,7 +117,7 @@ void drawObstacles(const obstacles_t &obss) {
     shape.setPointCount((size_t)n);
     shape.setFillColor(sf::Color(128, 128, 128));
     for (int i = 0; i < n; i++) {
-      landmark_t l;
+      point_t l;
       l << obs(i,0), obs(i,1), 1;
       shape.setPoint((size_t)i, toWindowFrame(l));
     }

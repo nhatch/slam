@@ -27,11 +27,11 @@ void printRange(Graph &g, values ground_truth, int start, int end, int size) {
   }
 }
 
-landmarks_t toLandmarks(const values &x, int start, int lm_size) {
+points_t toLandmarks(const values &x, int start, int lm_size) {
   int N = x.size();
-  landmarks_t lms({});
+  points_t lms({});
   for (int i = start; i < N; i += lm_size) {
-    landmark_t lm ({0, 0, 1});
+    point_t lm ({0, 0, 1});
     lm.topRows(lm_size) = x.block(i, 0, lm_size, 1);
     lms.push_back(lm);
   }
@@ -77,7 +77,7 @@ void printResults(World &w, Graph &g, int T) {
 
   w.renderTruth();
   drawTraj(w.odom(), sf::Color::Blue);
-  drawLandmarks(toLandmarks(g.solution(), T*pose_size, lm_size), sf::Color::Green);
+  drawPoints(toLandmarks(g.solution(), T*pose_size, lm_size), sf::Color::Green);
   drawTraj(toTraj(g.solution(), pose_size, T), sf::Color::Green);
   display();
   spin();

@@ -17,7 +17,7 @@ void setResolution(double res)
 }
 
 // TODO implement goal orientations?
-double heuristic(int x, int y, const landmark_t &goal)
+double heuristic(int x, int y, const point_t &goal)
 {
   double dx = goal(0) - x*resolution;
   double dy = goal(1) - y*resolution;
@@ -38,7 +38,7 @@ struct Node
   action_t action;
 
   // Note: In the robot frame, starting pose is always (0,0,0).
-  Node(Node *p, action_t &a, const landmark_t &goal) : x(0), y(0), theta(0),
+  Node(Node *p, action_t &a, const point_t &goal) : x(0), y(0), theta(0),
         acc_cost(0.), heuristic_to_goal(0.), acc_steps(0),
         parent(p), action(a)
   {
@@ -106,12 +106,12 @@ bool is_valid(const Node *n, World &w)
   if (n->action(1) == 0.0) return true;
   pose_t p(n->x * resolution, n->y * resolution, n->theta * M_PI/4);
   transform_t tf = toTransform(p);
-  landmark_readings_t lms = w.lidar().back();
-  return !collides(tf, lms, SAFE_RADIUS);
+  points_t lidar = w.lidar().back();
+  return !collides(tf, lidar, SAFE_RADIUS);
 }
 
 // Goal given in robot frame
-plan_t getPlan(World &w, const landmark_t &goal, double goal_radius)
+plan_t getPlan(World &w, const point_t &goal, double goal_radius)
 {
   std::cout << "Planning... " << std::flush;
   action_t action = action_t::Zero();

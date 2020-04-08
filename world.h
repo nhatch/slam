@@ -20,30 +20,30 @@ public:
   void moveRobot(double d_theta, double d_x);
 
   // bag returns a std::vector of the landmark readings for t=0..T
-  const bag_t lidar();
-  const bag_t landmarks();
+  const traj_points_t lidar();
+  const traj_points_t landmarks();
   const trajectory_t odom();
   const trajectory_t gps();
 
   // ground truth
   const trajectory_t truth();
-  const landmarks_t trueLandmarks();
+  const points_t trueLandmarks();
 
 private:
   obstacles_t obstacles_;
-  landmarks_t landmarks_;
+  points_t landmarks_;
   trajectory_t ground_truth_;
   trajectory_t odom_;
   trajectory_t gps_;
-  bag_t landmark_readings_;
-  bag_t lidar_readings_;
+  traj_points_t landmark_readings_;
+  traj_points_t lidar_readings_;
 
   void readSensors();
   void readLidar();
   void readLandmarks();
   void readGPS();
   void renderReadings(const transform_t &tf);
-  landmark_readings_t transformReadings(const landmarks_t &lms, const transform_t &tf);
+  points_t transformReadings(const points_t &ps, const transform_t &tf);
 };
 
 #endif

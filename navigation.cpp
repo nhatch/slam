@@ -18,7 +18,7 @@ const double GRID_RES = 0.5;
 int main()
 {
   World w;
-  landmark_t goal;
+  point_t goal;
   goal << 3., 2., 1.;
   setGoal(goal);
   obstacle_t o1(3,2);

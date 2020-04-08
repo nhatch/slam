@@ -5,7 +5,7 @@
 #include <Eigen/LU>
 #include <vector>
 
-values toVector(const trajectory_t &traj, const landmark_readings_t &r) {
+values toVector(const trajectory_t &traj, const points_t &r) {
   int T = (int) traj.size()-1;
   int L = (int) r.size();
   int pose_size(1), lm_size(1);

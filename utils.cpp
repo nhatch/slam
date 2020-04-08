@@ -4,9 +4,9 @@
 #include "utils.h"
 #include <iostream>
 
-double norm(const landmark_t &lm)
+double norm(const point_t &p)
 {
-  return sqrt(lm(0)*lm(0) + lm(1)*lm(1));
+  return sqrt(p(0)*p(0) + p(1)*p(1));
 }
 
 bool collides(const transform_t &tf, const obstacles_t &obss)
@@ -16,7 +16,7 @@ bool collides(const transform_t &tf, const obstacles_t &obss)
     int n = obs.rows();
     bool inside = true;
     for(int i = 0; i < n; i++) {
-      landmark_t p0, p1;
+      point_t p0, p1;
       p0 << obs(i,0), obs(i,1), 1;
       if (i < (n-1)) {
         p1 << obs(i+1,0), obs(i+1,1), 1;
@@ -36,8 +36,8 @@ bool collides(const transform_t &tf, const obstacles_t &obss)
   return false;
 }
 
-bool segmentIntersection(const landmark_t &r0, const landmark_t &r1,
-                         const landmark_t &p0, const landmark_t &p1, double *t)
+bool segmentIntersection(const point_t &r0, const point_t &r1,
+                         const point_t &p0, const point_t &p1, double *t)
 {
   Eigen::Matrix2d A;
   Eigen::Vector2d b;
@@ -57,7 +57,7 @@ bool segmentIntersection(const landmark_t &r0, const landmark_t &r1,
 // returns: Fraction of distance along the segment r0->r1 where the segment hits an obstacle.
 //          Returns 2.0 if the segment never hits an obstacle;
 //          Otherwise `hit` will be populated with the exact location of the hit.
-double obstacleIntersection(const landmark_t &r0, const landmark_t &r1, const obstacles_t &obss)
+double obstacleIntersection(const point_t &r0, const point_t &r1, const obstacles_t &obss)
 {
   double min_t = 2.0;
   for (const obstacle_t &obs : obss)
@@ -65,7 +65,7 @@ double obstacleIntersection(const landmark_t &r0, const landmark_t &r1, const ob
     int n = obs.rows();
     for(int i = 0; i < n; i++)
     {
-      landmark_t p0, p1;
+      point_t p0, p1;
       p0 << obs(i,0), obs(i,1), 1;
       if (i < (n-1)) {
         p1 << obs(i+1,0), obs(i+1,1), 1;
@@ -85,16 +85,16 @@ double obstacleIntersection(const landmark_t &r0, const landmark_t &r1, const ob
   return min_t;
 }
 
-bool collides(const transform_t &tf, const landmarks_t &lms, double radius)
+bool collides(const transform_t &tf, const points_t &ps, double radius)
 {
-  for (const landmark_t &lm : lms)
+  for (const point_t &p : ps)
   {
-    if (lm(2) == 0.0) {
-      // No reading on this landmark
+    if (p(2) == 0.0) {
+      // This point is a "no data" point
       continue;
     }
-    landmark_t tf_lm = tf * lm;
-    if (norm(tf_lm) < radius) return true;
+    point_t tf_p = tf * p;
+    if (norm(tf_p) < radius) return true;
   }
   return false;
 }

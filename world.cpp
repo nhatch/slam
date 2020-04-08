@@ -15,7 +15,7 @@ void World::addObstacle(obstacle_t &obs) {
 }
 
 void World::addLandmark(double x, double y) {
-  landmark_t lm;
+  point_t lm;
   lm << x, y, 1;
   landmarks_.push_back(lm);
 }
@@ -37,20 +37,20 @@ void World::runSimulation(int T) {
   }
 }
 
-landmark_readings_t World::transformReadings(const landmarks_t &lms, const transform_t &tf) {
+points_t World::transformReadings(const points_t &ps, const transform_t &tf) {
   transform_t tf_inv = tf.inverse();
-  landmark_readings_t lms_readings({});
-  for (landmark_reading_t lm : lms) {
-    lms_readings.push_back(tf_inv * lm);
+  points_t readings({});
+  for (point_t p : ps) {
+    readings.push_back(tf_inv * p);
   }
-  return lms_readings;
+  return readings;
 }
 
 void World::renderReadings(const transform_t &tf) {
-  landmarks_t lidar = lidar_readings_.back();
-  drawLandmarks(transformReadings(lidar, tf), sf::Color::Red);
-  landmarks_t lms = landmark_readings_.back();
-  drawLandmarks(transformReadings(lms, tf), sf::Color::Blue);
+  points_t lidar = lidar_readings_.back();
+  drawPoints(transformReadings(lidar, tf), sf::Color::Red);
+  points_t lms = landmark_readings_.back();
+  drawPoints(transformReadings(lms, tf), sf::Color::Blue);
 }
 
 void World::renderOdom() {
@@ -61,7 +61,7 @@ void World::renderOdom() {
 void World::renderTruth() {
   drawObstacles(obstacles_);
   drawTraj(ground_truth_, sf::Color::Black);
-  drawLandmarks(landmarks_, sf::Color::Black);
+  drawPoints(landmarks_, sf::Color::Black);
   renderReadings(ground_truth_.back());
 }
 
@@ -96,27 +96,27 @@ void World::readSensors() {
 
 // Currently this treats landmarks and lidar hits the same;
 // presumably in the real world they should have different noise models.
-void corrupt(landmark_t &lm, double dist) {
+void corrupt(point_t &p, double dist) {
   double true_x_std = 0.04; // m
   double true_y_std = 0.0; // m
   if (IS_2D)
     true_y_std = 0.04;
   // Add noise that increases with distance
-  lm(0) += stdn() * true_x_std * sqrt(dist);
-  lm(1) += stdn() * true_y_std * sqrt(dist);
+  p(0) += stdn() * true_x_std * sqrt(dist);
+  p(1) += stdn() * true_y_std * sqrt(dist);
   // Sometimes completely erase the data
   if (stdn() < -2.0) {
-    lm *= 0;
+    p *= 0;
   }
 }
 
 void World::readLandmarks() {
   double MAX_RANGE = 10.0;
-  landmark_readings_t landmark_readings;
+  points_t landmark_readings;
   transform_t tf = ground_truth_.back();
-  landmark_t robot_location = tf.inverse()*landmark_t(0,0,1);
-  for (landmark_t lm : landmarks_) {
-    landmark_reading_t reading = tf * lm;
+  point_t robot_location = tf.inverse()*point_t(0,0,1);
+  for (point_t lm : landmarks_) {
+    point_t reading = tf * lm;
     double dist = norm(robot_location - lm);
     corrupt(reading, dist);
     double t = obstacleIntersection(robot_location, lm, obstacles_);
@@ -134,11 +134,11 @@ void World::readLidar() {
   double MIN_RANGE = 0.3;
   int ANGULAR_RESOLUTION = 100; // number of scans per full rotation
 
-  landmarks_t hits({});
+  points_t hits({});
   for(int j = 0; j < ANGULAR_RESOLUTION; j++)
   {
     double angle = j * 2 * M_PI / ANGULAR_RESOLUTION;
-    landmark_t r0, r1;
+    point_t r0, r1;
     r0 << 0, 0, 1;
     r1 << MAX_RANGE*cos(angle), MAX_RANGE*sin(angle), 1;
     transform_t tf_inv = ground_truth_.back().inverse();
@@ -146,7 +146,7 @@ void World::readLidar() {
     double dist = t*MAX_RANGE;
     if (dist < MAX_RANGE && dist > MIN_RANGE)
     {
-      landmark_t hit;
+      point_t hit;
       hit << dist*cos(angle), dist*sin(angle), 1;
       corrupt(hit, dist);
       if (hit(2) != 0.0) {
@@ -169,11 +169,11 @@ void World::readGPS() {
   gps_.push_back(toTransform(p));
 }
 
-const bag_t World::landmarks() {
+const traj_points_t World::landmarks() {
   return landmark_readings_;
 }
 
-const bag_t World::lidar() {
+const traj_points_t World::lidar() {
   return lidar_readings_;
 }
 
@@ -189,6 +189,6 @@ const trajectory_t World::truth() {
   return ground_truth_;
 }
 
-const landmarks_t World::trueLandmarks() {
+const points_t World::trueLandmarks() {
   return landmarks_;
 }

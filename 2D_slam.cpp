@@ -7,9 +7,9 @@
 
 extern const bool IS_2D { true };
 
-Graph smooth(const values &x0, const bag_t &bag) {
-  int T = (int) bag.size()-1;
-  int nLandmarks = (int) bag[0].size();
+Graph smooth(const values &x0, const traj_points_t &readings) {
+  int T = (int) readings.size()-1;
+  int nLandmarks = (int) readings[0].size();
   assert("whoohoo" && (x0.size() == T*3 + nLandmarks*2));
   covariance<3> odom_cov = covariance<3>::Zero();
   // TODO what are the right numbers here? Should y be correlated with theta?
@@ -24,7 +24,7 @@ Graph smooth(const values &x0, const bag_t &bag) {
   Graph graph;
   for (int t=0; t < T+1; t++) {
     for (int i = 0; i < nLandmarks; i++) {
-      landmark_reading_t l = bag[(size_t)t][(size_t)i];
+      point_t l = readings[(size_t)t][(size_t)i];
       if (l(2) == 0.0) continue; // Landmark wasn't visible
       measurement<2> lm = measurement<2> { l(0), l(1) };
       graph.add(new LandmarkFactor2D(3*T+2*i, 3*(t-1), sensor_cov_inv, lm));
@@ -57,9 +57,9 @@ int main() {
   w.addLandmark(0.1, 1.);
 
   w.runSimulation(T);
-  const bag_t bag = w.landmarks();
-  values x0 = toVector(w.odom(), bag[0]);
-  Graph g = smooth(x0, bag);
+  const traj_points_t readings = w.landmarks();
+  values x0 = toVector(w.odom(), readings[0]);
+  Graph g = smooth(x0, readings);
   printResults(w, g, T);
 
   return 0;
