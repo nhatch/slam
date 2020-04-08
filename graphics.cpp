@@ -96,6 +96,7 @@ void drawRobot(const transform_t &tf, sf::Color c) {
 
 void drawLandmarks(const landmarks_t &lms, sf::Color c) {
   for (landmark_t lm : lms) {
+    if (lm(2) == 0) continue;
     double pixelRadius = BALL_RADIUS * scale_x;
     sf::CircleShape circle(pixelRadius);
     circle.setFillColor(c);

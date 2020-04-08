@@ -76,7 +76,7 @@ void printResults(World &w, Graph &g, int T) {
   std::cout << "Ground truth potential: " << g.eval(ground_truth) << std::endl;
 
   w.renderTruth();
-  w.renderOdom(true);
+  drawTraj(w.odom(), sf::Color::Blue);
   drawLandmarks(toLandmarks(g.solution(), T*pose_size, lm_size), sf::Color::Green);
   drawTraj(toTraj(g.solution(), pose_size, T), sf::Color::Green);
   display();

@@ -45,7 +45,7 @@ int main()
     {
       transform_t viz_tf = truth ? w.truth().back() : w.odom().back();
 
-      truth ? w.renderTruth() : w.renderOdom(false);
+      truth ? w.renderTruth() : w.renderOdom();
       display();
 
       action = act(w, viz_tf);
@@ -55,7 +55,7 @@ int main()
         autonomous = false;
       }
 
-      truth ? w.renderTruth() : w.renderOdom(false);
+      truth ? w.renderTruth() : w.renderOdom();
       display();
     }
     c=pollWindowEvent();

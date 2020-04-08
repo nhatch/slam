@@ -21,8 +21,6 @@ landmark_t gps_goal;
 double waypoint_radius = 0.5;
 double search_radius = 0.0;
 
-// TODO: I think we need a map frame, otherwise this search radius thing will look stupid (the robot will barely move)
-
 void setGoal(landmark_t &goal)
 {
   gps_goal = goal;
@@ -35,7 +33,7 @@ landmark_t nextWaypoint(World &w)
   if (lms[0](2) != 0.)
   {
     tag_visible = true;
-    waypoint_radius = 0.2;
+    waypoint_radius = 0.3;
     robot_goal = lms[0];
     //robot_goal(0) -= 0.3; // Don't crash into the AR tag
   }

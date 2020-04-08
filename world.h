@@ -17,7 +17,7 @@ public:
   void runSimulation(int T);
   void startSimulation();
   void renderTruth();
-  void renderOdom(bool viz_landmark_noise);
+  void renderOdom();
   void moveRobot(double d_theta, double d_x);
 
   // groundTruth returns a concatenation of the ground truth poses and landmark locations
@@ -42,6 +42,7 @@ private:
   void readLidar();
   void readLandmarks();
   void readGPS();
+  void renderReadings(const transform_t &tf);
   landmark_readings_t transformReadings(const landmarks_t &lms, const transform_t &tf);
 };
 

@@ -32,7 +32,7 @@ void World::runSimulation(int T) {
   for (int i = 1; i < T+1; i++) {
     moveRobot(0., 0.5);
     renderTruth();
-    renderOdom(true);
+    drawTraj(odom_, sf::Color::Blue);
     display();
     usleep(300*1000);
   }
@@ -47,25 +47,23 @@ landmark_readings_t World::transformReadings(const landmarks_t &lms, const trans
   return lms_readings;
 }
 
-void World::renderOdom(bool viz_landmark_noise) {
-  transform_t tf = odom_.back();
-  landmarks_t lms = lidar_readings_.back();
-  if (viz_landmark_noise)
-  {
-    // Using the ground_truth frame makes the visualization more intuitive, I think.
-    // (The intent is to show how noisy the sensor readings are.)
-    // But if we were visualizing odom information only, we should use the odom frame.
-    tf = ground_truth_.back();
-    lms = landmark_readings_.back();
-  }
+void World::renderReadings(const transform_t &tf) {
+  landmarks_t lidar = lidar_readings_.back();
+  drawLandmarks(transformReadings(lidar, tf), sf::Color::Red);
+  landmarks_t lms = landmark_readings_.back();
   drawLandmarks(transformReadings(lms, tf), sf::Color::Blue);
-  drawTraj(odom_, sf::Color::Blue);
+}
+
+void World::renderOdom() {
+  renderReadings(odom_.back());
+  drawRobot(odom_.back(), sf::Color::Blue);
 }
 
 void World::renderTruth() {
   drawObstacles(obstacles_);
   drawTraj(ground_truth_, sf::Color::Black);
   drawLandmarks(landmarks_, sf::Color::Black);
+  renderReadings(ground_truth_.back());
 }
 
 void World::moveRobot(double d_theta, double d_x) {
