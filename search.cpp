@@ -33,7 +33,7 @@ landmark_t nextWaypoint(World &w)
   if (lms[0](2) != 0.)
   {
     tag_visible = true;
-    waypoint_radius = 0.3;
+    waypoint_radius = 0.4;
     robot_goal = lms[0];
     //robot_goal(0) -= 0.3; // Don't crash into the AR tag
   }

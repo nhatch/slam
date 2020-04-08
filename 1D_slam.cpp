@@ -15,7 +15,9 @@ Graph smooth(const values& x0, const bag_t &bag) {
   Graph graph;
   for (int t=0; t < T+1; t++) {
     for (int i=0; i < nLandmarks; i++) {
-      double l_dx = bag[(size_t)t][(size_t)i](0);
+      landmark_reading_t l = bag[(size_t)t][(size_t)i];
+      if (l(2) == 0.0) continue; // Landmark wasn't visible
+      double l_dx = l(0);
       if (t==0) {
         graph.add(new GPSFactor(T+i, sensor_std, l_dx));
       } else {

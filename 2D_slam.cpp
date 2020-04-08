@@ -25,6 +25,7 @@ Graph smooth(const values &x0, const bag_t &bag) {
   for (int t=0; t < T+1; t++) {
     for (int i = 0; i < nLandmarks; i++) {
       landmark_reading_t l = bag[(size_t)t][(size_t)i];
+      if (l(2) == 0.0) continue; // Landmark wasn't visible
       measurement<2> lm = measurement<2> { l(0), l(1) };
       graph.add(new LandmarkFactor2D(3*T+2*i, 3*(t-1), sensor_cov_inv, lm));
     }

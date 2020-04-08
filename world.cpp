@@ -95,21 +95,31 @@ void World::readSensors() {
   readLidar();
 }
 
-void World::readLandmarks() {
-  double MAX_RANGE = 10.0;
-  double true_x_std = 0.1; // m
+// Currently this treats landmarks and lidar hits the same;
+// presumably in the real world they should have different noise models.
+void corrupt(landmark_t &lm, double dist) {
+  double true_x_std = 0.04; // m
   double true_y_std = 0.0; // m
   if (IS_2D)
-    true_y_std = 0.1;
+    true_y_std = 0.04;
+  // Add noise that increases with distance
+  lm(0) += stdn() * true_x_std * sqrt(dist);
+  lm(1) += stdn() * true_y_std * sqrt(dist);
+  // Sometimes completely erase the data
+  if (stdn() < -2.0) {
+    lm *= 0;
+  }
+}
+
+void World::readLandmarks() {
+  double MAX_RANGE = 10.0;
   landmark_readings_t landmark_readings;
   transform_t tf = ground_truth_.back();
   landmark_t robot_location = tf.inverse()*landmark_t(0,0,1);
   for (landmark_t lm : landmarks_) {
     landmark_reading_t reading = tf * lm;
-    landmark_reading_t noise;
-    noise << stdn()*true_x_std, stdn()*true_y_std, 0;
-    reading += noise;
     double dist = norm(robot_location - lm);
+    corrupt(reading, dist);
     double t = obstacleIntersection(robot_location, lm, obstacles_);
     // t < 1.0 indicates there's an obstacle between the landmark and the robot
     if (dist > MAX_RANGE || t < 0.999999) {
@@ -124,7 +134,6 @@ void World::readLidar() {
   double MAX_RANGE = 5.0;
   double MIN_RANGE = 0.3;
   int ANGULAR_RESOLUTION = 100; // number of scans per full rotation
-  double FAILURE_PROBABILITY = 0.01; // probability of no hit even if obstacle is in range
 
   landmarks_t hits({});
   for(int j = 0; j < ANGULAR_RESOLUTION; j++)
@@ -140,8 +149,10 @@ void World::readLidar() {
     {
       landmark_t hit;
       hit << dist*cos(angle), dist*sin(angle), 1;
-      // TODO: add noise
-      hits.push_back(hit);
+      corrupt(hit, dist);
+      if (hit(2) != 0.0) {
+        hits.push_back(hit);
+      }
     }
   }
 
