@@ -3,19 +3,20 @@
 #include <unistd.h>
 #include <iostream>
 #include "graphics.h"
+#include "constants.h"
 
-const int WINDOW_SIDE = 500;
-const double BALL_RADIUS = 0.08;
-sf::RenderWindow window(sf::VideoMode(WINDOW_SIDE, WINDOW_SIDE), "SLAM visualization");
-const double MAX_X(8), MIN_X(-2), MAX_Y(5), MIN_Y(-5);
-const double ORIGIN_X(3), ORIGIN_Y(0);
-const double scale_x = double(WINDOW_SIDE) / (MAX_X - MIN_X);
-const double scale_y = double(WINDOW_SIDE) / -(MAX_Y - MIN_Y);
-const double offset_x = double(WINDOW_SIDE) / 2;
-const double offset_y = double(WINDOW_SIDE) / 2;
+using namespace NavSim;
+
+const int WINDOW_WIDTH_PX = 500;
+const int BALL_RADIUS_PX = 4;
+sf::RenderWindow window(sf::VideoMode(WINDOW_WIDTH_PX, WINDOW_WIDTH_PX), "SLAM visualization");
+const double scale_x = double(WINDOW_WIDTH_PX) / WINDOW_WIDTH;
+const double scale_y = -double(WINDOW_WIDTH_PX) / WINDOW_WIDTH;
+const double offset_x = double(WINDOW_WIDTH_PX) / 2;
+const double offset_y = double(WINDOW_WIDTH_PX) / 2;
 
 sf::Vector2f toWindowFrame(const point_t &p) {
-  return sf::Vector2f((p(0)-ORIGIN_X)*scale_x + offset_x, (p(1)-ORIGIN_Y)*scale_y + offset_y);
+  return sf::Vector2f((p(0)-WINDOW_CENTER_X)*scale_x + offset_x, (p(1)-WINDOW_CENTER_Y)*scale_y + offset_y);
 }
 bool needs_clear = true;
 
@@ -63,9 +64,9 @@ void spin() {
 
 double vertOffset(sf::Color c) {
   if (!IS_2D && c == sf::Color::Blue)
-    return -0.3;
+    return -2*ROBOT_WHEEL_BASE;
   if (!IS_2D && c == sf::Color::Black)
-    return +0.3;
+    return +2*ROBOT_WHEEL_BASE;
   return 0.0;
 }
 
@@ -80,9 +81,9 @@ void drawLine(const point_t &l1, const point_t &l2, sf::Color c) {
 
 void drawRobot(const transform_t &tf, sf::Color c) {
   transform_t tf_inv = tf.inverse();
-  point_t tip =        tf_inv * point_t( 0.2,  0.0, 1);
-  point_t left_back =  tf_inv * point_t(-0.1,  0.1, 1);
-  point_t right_back = tf_inv * point_t(-0.1, -0.1, 1);
+  point_t tip =        tf_inv * point_t( ROBOT_LENGTH/2,  0.0, 1);
+  point_t left_back =  tf_inv * point_t(-ROBOT_LENGTH/2,  ROBOT_WHEEL_BASE/2, 1);
+  point_t right_back = tf_inv * point_t(-ROBOT_LENGTH/2, -ROBOT_WHEEL_BASE/2, 1);
   sf::ConvexShape shape;
   shape.setPointCount(3);
   shape.setFillColor(c);
@@ -97,12 +98,11 @@ void drawRobot(const transform_t &tf, sf::Color c) {
 void drawPoints(const points_t &ps, sf::Color c) {
   for (point_t p : ps) {
     if (p(2) == 0) continue;
-    double pixelRadius = BALL_RADIUS * scale_x;
-    sf::CircleShape circle(pixelRadius);
+    sf::CircleShape circle(BALL_RADIUS_PX);
     circle.setFillColor(c);
     sf::Vector2f pos = toWindowFrame(p, vertOffset(c));
-    pos.x -= pixelRadius;
-    pos.y -= pixelRadius;
+    pos.x -= BALL_RADIUS_PX;
+    pos.y -= BALL_RADIUS_PX;
     circle.setPosition(pos);
     if (needs_clear)
       clear();

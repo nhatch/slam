@@ -1,14 +1,15 @@
 #include "world.h"
 #include "utils.h"
 #include "graphics.h"
+#include "constants.h"
 #include <unistd.h>
 #include <iostream>
-
-constexpr double COLLISION_RADIUS = 0.2;
 
 World::World() : obstacles_({}), landmarks_({}), ground_truth_({}), odom_({}),
                     gps_({}), landmark_readings_({}), lidar_readings_({}) {
 }
+
+using namespace NavSim;
 
 void World::addObstacle(obstacle_t &obs) {
   obstacles_.push_back(obs);
@@ -66,19 +67,17 @@ void World::renderTruth() {
 }
 
 void World::moveRobot(double d_theta, double d_x) {
-  constexpr double WHEEL_BASE = 0.2;
   double noisy_x(0.), noisy_theta(0.);
-  double true_wheel_std = 0.03; // m
   if (IS_2D) {
-    double d_r = d_x + 0.5*WHEEL_BASE*d_theta;
-    double d_l = d_x - 0.5*WHEEL_BASE*d_theta;
+    double d_r = d_x + 0.5*ROBOT_WHEEL_BASE*d_theta;
+    double d_l = d_x - 0.5*ROBOT_WHEEL_BASE*d_theta;
     // Larger distance means more noise
-    double noisy_r = d_r + stdn() * true_wheel_std * sqrt(abs(d_r));
-    double noisy_l = d_l + stdn() * true_wheel_std * sqrt(abs(d_l));
+    double noisy_r = d_r + stdn() * WHEEL_STD * sqrt(abs(d_r));
+    double noisy_l = d_l + stdn() * WHEEL_STD * sqrt(abs(d_l));
     noisy_x = 0.5*(noisy_r + noisy_l);
-    noisy_theta = (noisy_r - noisy_l) / WHEEL_BASE;
+    noisy_theta = (noisy_r - noisy_l) / ROBOT_WHEEL_BASE;
   } else {
-    noisy_x = d_x + stdn() * true_wheel_std * sqrt(abs(d_x));
+    noisy_x = d_x + stdn() * WHEEL_STD * sqrt(abs(d_x));
   }
   ground_truth_.push_back(toTransformRotateFirst(noisy_x, 0., noisy_theta) * ground_truth_.back());
   if (collides(ground_truth_.back(), obstacles_)) {
@@ -97,13 +96,9 @@ void World::readSensors() {
 // Currently this treats landmarks and lidar hits the same;
 // presumably in the real world they should have different noise models.
 void corrupt(point_t &p, double dist) {
-  double true_x_std = 0.04; // m
-  double true_y_std = 0.0; // m
-  if (IS_2D)
-    true_y_std = 0.04;
   // Add noise that increases with distance
-  p(0) += stdn() * true_x_std * sqrt(dist);
-  p(1) += stdn() * true_y_std * sqrt(dist);
+  p(0) += stdn() * CORRUPTION_STD * sqrt(dist);
+  if (IS_2D) p(1) += stdn() * CORRUPTION_STD * sqrt(dist);
   // Sometimes completely erase the data
   if (stdn() < -2.0) {
     p *= 0;
@@ -111,7 +106,6 @@ void corrupt(point_t &p, double dist) {
 }
 
 void World::readLandmarks() {
-  double MAX_RANGE = 10.0;
   points_t landmark_readings;
   transform_t tf = ground_truth_.back();
   point_t robot_location = tf.inverse()*point_t(0,0,1);
@@ -121,7 +115,7 @@ void World::readLandmarks() {
     corrupt(reading, dist);
     double t = obstacleIntersection(robot_location, lm, obstacles_);
     // t < 1.0 indicates there's an obstacle between the landmark and the robot
-    if (dist > MAX_RANGE || t < 0.999999) {
+    if (dist > LANDMARK_MAX_RANGE || t < 0.999999) {
       reading *= 0; // (0,0,0) indicates no data
     }
     landmark_readings.push_back(reading);
@@ -130,21 +124,17 @@ void World::readLandmarks() {
 }
 
 void World::readLidar() {
-  double MAX_RANGE = 5.0;
-  double MIN_RANGE = 0.3;
-  int ANGULAR_RESOLUTION = 100; // number of scans per full rotation
-
   points_t hits({});
-  for(int j = 0; j < ANGULAR_RESOLUTION; j++)
+  for(int j = 0; j < LIDAR_RESOLUTION; j++)
   {
-    double angle = j * 2 * M_PI / ANGULAR_RESOLUTION;
+    double angle = j * 2 * M_PI / LIDAR_RESOLUTION;
     point_t r0, r1;
     r0 << 0, 0, 1;
-    r1 << MAX_RANGE*cos(angle), MAX_RANGE*sin(angle), 1;
+    r1 << LIDAR_MAX_RANGE*cos(angle), LIDAR_MAX_RANGE*sin(angle), 1;
     transform_t tf_inv = ground_truth_.back().inverse();
     double t = obstacleIntersection(tf_inv*r0, tf_inv*r1, obstacles_);
-    double dist = t*MAX_RANGE;
-    if (dist < MAX_RANGE && dist > MIN_RANGE)
+    double dist = t*LIDAR_MAX_RANGE;
+    if (dist < LIDAR_MAX_RANGE && dist > LIDAR_MIN_RANGE)
     {
       point_t hit;
       hit << dist*cos(angle), dist*sin(angle), 1;
@@ -159,12 +149,9 @@ void World::readLidar() {
 }
 
 void World::readGPS() {
-  double gps_x_std = 0.2; // m
-  double gps_y_std = 0.2; // m
-  double gps_theta_std = M_PI/24; // rad
   pose_t p = toPose(ground_truth_.back(), 0.);
   pose_t noise;
-  noise << stdn()*gps_x_std, stdn()*gps_y_std, stdn()*gps_theta_std;
+  noise << stdn()*GPS_POS_STD, stdn()*GPS_POS_STD, stdn()*GPS_THETA_STD;
   p += noise;
   gps_.push_back(toTransform(p));
 }
