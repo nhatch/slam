@@ -32,7 +32,7 @@ void World::runSimulation(int T) {
   renderTruth();
   display();
   for (int i = 1; i < T+1; i++) {
-    moveRobot(0., 0.5);
+    moveRobot(0., ROBOT_LENGTH*1.5);
     renderTruth();
     drawTraj(odom_, sf::Color::Blue);
     display();

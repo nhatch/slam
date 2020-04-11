@@ -9,17 +9,11 @@
 
 using namespace NavSim;
 
-double resolution = 0.3;
-void setResolution(double res)
-{
-  resolution = res;
-}
-
 // TODO implement goal orientations?
 double heuristic(int x, int y, const point_t &goal)
 {
-  double dx = goal(0) - x*resolution;
-  double dy = goal(1) - y*resolution;
+  double dx = goal(0) - x*PLAN_RESOLUTION;
+  double dy = goal(1) - y*PLAN_RESOLUTION;
   return sqrt(dx*dx + dy*dy);
 }
 
@@ -103,7 +97,7 @@ bool is_valid(const Node *n, World &w)
 {
   // To get away from obstacles, turning is always allowed.
   if (n->action(1) == 0.0) return true;
-  pose_t p(n->x * resolution, n->y * resolution, n->theta * M_PI/4);
+  pose_t p(n->x * PLAN_RESOLUTION, n->y * PLAN_RESOLUTION, n->theta * M_PI/4);
   transform_t tf = toTransform(p);
   points_t lidar = w.lidar().back();
   return !collides(tf, lidar, SAFE_RADIUS);
@@ -141,7 +135,7 @@ plan_t getPlan(World &w, const point_t &goal, double goal_radius)
     }
     else
     {
-      double forward_dist = (n->theta % 2 == 1) ? resolution*1.414 : resolution;
+      double forward_dist = (n->theta % 2 == 1) ? PLAN_RESOLUTION*1.414 : PLAN_RESOLUTION;
       valid_actions(0,1) = forward_dist;
       for (int i = 0; i < valid_actions.rows(); i++)
       {

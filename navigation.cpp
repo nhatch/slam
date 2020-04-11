@@ -2,18 +2,13 @@
 #include "graphics.h"
 #include "plan.h"
 #include "search.h"
+#include "constants.h"
 #include <iostream>
 #include <stdio.h>
 #include <unistd.h>
 
-#define KEY_UP 72
-#define KEY_DOWN 80
-#define KEY_LEFT 75
-#define KEY_RIGHT 77
-
+using namespace NavSim;
 extern const bool IS_2D { true };
-
-const double GRID_RES = 0.3;
 
 int main()
 {
@@ -61,7 +56,7 @@ int main()
     }
     c=pollWindowEvent();
 
-    double x_dist = diag ? 1.414*GRID_RES : GRID_RES;
+    double x_dist = diag ? 1.414*PLAN_RESOLUTION : PLAN_RESOLUTION;
     switch(c) {
     case 22:
     case 73:
