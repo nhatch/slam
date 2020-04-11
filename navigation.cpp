@@ -13,7 +13,7 @@
 
 extern const bool IS_2D { true };
 
-const double GRID_RES = 0.5;
+const double GRID_RES = 0.3;
 
 int main()
 {
@@ -40,12 +40,13 @@ int main()
   std::cout << "Type 'q' to quit, 'wasd' to move around, 't' to view ground truth, 'r' to start autonomous mode.\n";
   char c = -2;
   action_t action;
+  transform_t odom_viz_tf = toTransform({3,-2,M_PI/2});
   do {
     if (((int) c) != -1 || autonomous)
     {
-      transform_t viz_tf = truth ? w.truth().back() : w.odom().back();
+      transform_t viz_tf = truth ? w.truth().back() : odom_viz_tf;
 
-      truth ? w.renderTruth() : w.renderOdom();
+      truth ? w.renderTruth() : w.renderRobotView(viz_tf);
       display();
 
       action = act(w, viz_tf);
@@ -55,7 +56,7 @@ int main()
         autonomous = false;
       }
 
-      truth ? w.renderTruth() : w.renderOdom();
+      truth ? w.renderTruth() : w.renderRobotView(viz_tf);
       display();
     }
     c=pollWindowEvent();

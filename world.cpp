@@ -54,9 +54,9 @@ void World::renderReadings(const transform_t &tf) {
   drawPoints(transformReadings(lms, tf), sf::Color::Blue);
 }
 
-void World::renderOdom() {
-  renderReadings(odom_.back());
-  drawRobot(odom_.back(), sf::Color::Blue);
+void World::renderRobotView(const transform_t &tf) {
+  renderReadings(tf);
+  drawRobot(tf, sf::Color::Blue);
 }
 
 void World::renderTruth() {

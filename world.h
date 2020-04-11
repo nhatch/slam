@@ -16,7 +16,7 @@ public:
   void runSimulation(int T);
   void startSimulation();
   void renderTruth();
-  void renderOdom();
+  void renderRobotView(const transform_t &tf);
   void moveRobot(double d_theta, double d_x);
 
   // bag returns a std::vector of the landmark readings for t=0..T
