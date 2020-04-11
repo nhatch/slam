@@ -1,13 +1,15 @@
 #include "world.h"
 #include "graphics.h"
 #include "plan.h"
+#include "constants.h"
 #include <iostream>
 #include <stdio.h>
 #include <unistd.h>
 #include <termios.h>
 
+using namespace NavSim;
+
 const int THETA_DIVISIONS = 8;
-const double RADIUS_INCREMENT = 1.0;
 
 // State for the search algorithm
 int theta = 0;
@@ -52,7 +54,7 @@ action_t act(World &w, transform_t &viz_tf)
   while (!tag_visible && plan.size() == 0) {
     // Either we reached the goal, or the goal seems to be unreachable. Change the goal.
     if (theta % THETA_DIVISIONS == 0)
-      search_radius += RADIUS_INCREMENT;
+      search_radius += SEARCH_RADIUS_INCREMENT;
     theta += 1;
     waypoint = nextWaypoint(w);
     plan = getPlan(w, waypoint, waypoint_radius);

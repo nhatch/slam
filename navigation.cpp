@@ -27,7 +27,7 @@ int main()
   std::cout << "Type 'q' to quit, 'wasd' to move around, 't' to view ground truth, 'r' to start autonomous mode.\n";
   char c = -2;
   action_t action;
-  transform_t odom_viz_tf = toTransform({3,-2,M_PI/2});
+  transform_t odom_viz_tf = toTransform({WINDOW_CENTER_X,WINDOW_CENTER_Y,M_PI/2});
   do {
     if (((int) c) != -1 || autonomous)
     {

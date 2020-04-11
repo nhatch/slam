@@ -6,8 +6,8 @@ namespace NavSim {
 
 /* Robot footprint */
 
-const double ROBOT_WHEEL_BASE = 0.2; // m
 const double ROBOT_LENGTH = 0.3; // m
+const double ROBOT_WHEEL_BASE = ROBOT_LENGTH*2/3; // m
 
 /* Sensors and actuators */
 // I define a lot of these constants in terms of ROBOT_LENGTH to make it easy to change the scale
@@ -36,6 +36,7 @@ const double RADIAN_COST = ROBOT_WHEEL_BASE / 2.0; // Distance (m) we could have
 const double SAFE_RADIUS = ROBOT_LENGTH * 1.3; // Planner stays this far away from obstacles (m)
 const int MAX_ITERS = 3000; // Max number of nodes expanded during A* search
 const double PLAN_RESOLUTION = ROBOT_LENGTH; // m
+const double SEARCH_RADIUS_INCREMENT = ROBOT_LENGTH*3;
 
 }
 

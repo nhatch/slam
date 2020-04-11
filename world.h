@@ -10,7 +10,7 @@ class World {
 public:
   World();
 
-  void addObstacle(obstacle_t &obs);
+  void addObstacle(const obstacle_t &obs);
   void addLandmark(double x, double y);
   void addDefaultObstacles();
   void addDefaultLandmarks();

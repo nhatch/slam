@@ -11,7 +11,7 @@ World::World() : obstacles_({}), landmarks_({}), ground_truth_({}), odom_({}),
 
 using namespace NavSim;
 
-void World::addObstacle(obstacle_t &obs) {
+void World::addObstacle(const obstacle_t &obs) {
   obstacles_.push_back(obs);
 }
 
@@ -29,18 +29,19 @@ void World::addDefaultObstacles() {
   o1 << 3, 1,     4, 2,     2, 2.5;
   o2 << 5, -1,    5.5, -1,  5.5, 2,   5, 2;
   o3 << 5, 1.5,   6, 1.5,   6, 2,     5, 2;
-  addObstacle(o1);
-  addObstacle(o2);
-  addObstacle(o3);
+  addObstacle(o1*ROBOT_LENGTH*3.3);
+  addObstacle(o2*ROBOT_LENGTH*3.3);
+  addObstacle(o3*ROBOT_LENGTH*3.3);
 }
 
 void World::addDefaultLandmarks() {
-  addLandmark(3., 1.);
-  addLandmark(6., -1.);
-  addLandmark(-1., 0.);
-  addLandmark(-0., -3.);
-  addLandmark(3.1, 1.);
-  addLandmark(0.1, 1.);
+  double scale = ROBOT_LENGTH / 0.3;
+  addLandmark(3*scale, 1*scale);
+  addLandmark(6.*scale, -1*scale);
+  addLandmark(-1.*scale, 0*scale);
+  addLandmark(-0.*scale, -3*scale);
+  addLandmark(3.1*scale, 1*scale);
+  addLandmark(0.1*scale, 1*scale);
 }
 
 void World::startSimulation() {
