@@ -4,12 +4,8 @@
 
 #include <Eigen/Core>
 #include <vector>
-#include "utils.h"
 
 using values = Eigen::Matrix<double, Eigen::Dynamic, 1>;
-
-values toVector(const trajectory_t &traj, const points_t &r);
-
 using hessian = Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic>;
 
 class AbstractFactor {

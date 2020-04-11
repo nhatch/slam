@@ -1,14 +1,13 @@
 
 #include "graphics.h"
 #include "plan.h"
+#include "constants.h"
 #include <Eigen/Core>
 #include <queue>
 #include <iostream>
 #include <set>
 
-constexpr double TURN_COST = 0.5;
-constexpr double SAFE_RADIUS = 0.4;
-constexpr int MAX_ITERS = 3000;
+using namespace NavSim;
 
 double resolution = 0.3;
 void setResolution(double res)
@@ -46,7 +45,7 @@ struct Node
     {
       acc_steps = p->acc_steps + 1;
       bool moving_forward = action(1) > 0.0;
-      double step_cost = moving_forward ? action(1) : TURN_COST;
+      double step_cost = moving_forward ? action(1) : RADIAN_COST * abs(action(0));
       acc_cost = p->acc_cost + step_cost;
       if (moving_forward)
       {

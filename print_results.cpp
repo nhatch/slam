@@ -3,6 +3,7 @@
 #include "graph.h"
 #include "world.h"
 #include "graphics.h"
+#include "slam_utils.h"
 
 void pstr(Eigen::VectorXd v, bool newline) {
   std::cout << "(";

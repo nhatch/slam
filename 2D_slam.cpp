@@ -3,6 +3,7 @@
 #include "factors.h"
 #include "world.h"
 #include "utils.h"
+#include "slam_utils.h"
 #include "print_results.h"
 
 extern const bool IS_2D { true };
