@@ -16,15 +16,7 @@ int main()
   point_t goal;
   goal << 3., 2., 1.;
   setGoal(goal);
-  obstacle_t o1(3,2);
-  obstacle_t o2(4,2);
-  obstacle_t o3(4,2);
-  o1 << 3, 1,     4, 2,     2, 2.5;
-  o2 << 5, -1,    5.5, -1,  5.5, 2,   5, 2;
-  o3 << 5, 1.5,   6, 1.5,   6, 2,     5, 2;
-  w.addObstacle(o1);
-  w.addObstacle(o2);
-  w.addObstacle(o3);
+  w.addDefaultObstacles();
   w.addLandmark(6, 1);
   w.startSimulation();
 

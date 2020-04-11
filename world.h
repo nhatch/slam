@@ -12,6 +12,8 @@ public:
 
   void addObstacle(obstacle_t &obs);
   void addLandmark(double x, double y);
+  void addDefaultObstacles();
+  void addDefaultLandmarks();
   // T is the number of timesteps. Will generate data for a trajectory of length T+1
   void runSimulation(int T);
   void startSimulation();

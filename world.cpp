@@ -16,9 +16,31 @@ void World::addObstacle(obstacle_t &obs) {
 }
 
 void World::addLandmark(double x, double y) {
+  if (!IS_2D) y = 0.0;
   point_t lm;
   lm << x, y, 1;
   landmarks_.push_back(lm);
+}
+
+void World::addDefaultObstacles() {
+  obstacle_t o1(3,2);
+  obstacle_t o2(4,2);
+  obstacle_t o3(4,2);
+  o1 << 3, 1,     4, 2,     2, 2.5;
+  o2 << 5, -1,    5.5, -1,  5.5, 2,   5, 2;
+  o3 << 5, 1.5,   6, 1.5,   6, 2,     5, 2;
+  addObstacle(o1);
+  addObstacle(o2);
+  addObstacle(o3);
+}
+
+void World::addDefaultLandmarks() {
+  addLandmark(3., 1.);
+  addLandmark(6., -1.);
+  addLandmark(-1., 0.);
+  addLandmark(-0., -3.);
+  addLandmark(3.1, 1.);
+  addLandmark(0.1, 1.);
 }
 
 void World::startSimulation() {

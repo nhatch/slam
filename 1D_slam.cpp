@@ -35,16 +35,10 @@ Graph smooth(const values& x0, const traj_points_t &readings) {
 }
 
 int main() {
-  constexpr int nLandmarks = 6;
   constexpr int T = 10;
 
   World w;
-  w.addLandmark(3., 0.);
-  w.addLandmark(6., 0.);
-  w.addLandmark(-1., 0.);
-  w.addLandmark(-0., 0.);
-  w.addLandmark(3.1, 0.);
-  w.addLandmark(0.1, 0.);
+  w.addDefaultLandmarks();
 
   w.runSimulation(T);
   const traj_points_t readings = w.landmarks();
