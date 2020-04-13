@@ -4,14 +4,14 @@
 #include "world.h"
 #include "slam_utils.h"
 #include "print_results.h"
+#include "constants.h"
+using namespace NavSim;
 
 extern const bool IS_2D { false };
 
 Graph smooth(const values& x0, const traj_points_t &readings) {
   int T = (int)readings.size()-1;
   int nLandmarks = (int)readings[0].size();
-  double odom_std = 0.1;
-  double sensor_std = 0.1;
   assert("whoohoo" && (x0.size() == T + nLandmarks));
   Graph graph;
   for (int t=0; t < T+1; t++) {
@@ -20,17 +20,17 @@ Graph smooth(const values& x0, const traj_points_t &readings) {
       if (l(2) == 0.0) continue; // Landmark wasn't visible
       double l_dx = l(0);
       if (t==0) {
-        graph.add(new GPSFactor(T+i, sensor_std, l_dx));
+        graph.add(new GPSFactor(T+i, sqrt(SLAM_VAR), l_dx));
       } else {
-        graph.add(new OdomFactor(t-1, T+i, sensor_std, l_dx));
+        graph.add(new OdomFactor(t-1, T+i, sqrt(SLAM_VAR), l_dx));
       }
     }
     if (t==1)
-      graph.add(new GPSFactor(0, odom_std, x0(t-1)));
+      graph.add(new GPSFactor(0, sqrt(SLAM_VAR), x0(t-1)));
     if (t>1)
-      graph.add(new OdomFactor(t-2, t-1, odom_std, x0(t-1)-x0(t-2)));
+      graph.add(new OdomFactor(t-2, t-1, sqrt(SLAM_VAR), x0(t-1)-x0(t-2)));
   }
-  graph.solve(x0, 0.001, 100000);
+  graph.solve(x0, 0.001, 100000, SLAM_TOL);
   return graph;
 }
 

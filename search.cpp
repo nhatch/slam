@@ -15,7 +15,7 @@ const int THETA_DIVISIONS = 8;
 int theta = 0;
 bool tag_visible = false;
 point_t gps_goal;
-double waypoint_radius = 0.5;
+double waypoint_radius = GPS_WAYPOINT_RADIUS;
 double search_radius = 0.0;
 
 void setGoal(point_t &goal)
@@ -30,14 +30,14 @@ point_t nextWaypoint(World &w)
   if (lms[0](2) != 0.)
   {
     tag_visible = true;
-    waypoint_radius = 0.4;
+    waypoint_radius = LANDMARK_WAYPOINT_RADIUS;
     robot_goal = lms[0];
     //robot_goal(0) -= 0.3; // Don't crash into the AR tag
   }
   else
   {
     tag_visible = false;
-    waypoint_radius = 0.5;
+    waypoint_radius = GPS_WAYPOINT_RADIUS;
     point_t search_goal = gps_goal;
     double a = (theta * 2 * M_PI) / THETA_DIVISIONS;
     search_goal(0) += cos(a)*search_radius;

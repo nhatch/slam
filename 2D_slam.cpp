@@ -5,6 +5,8 @@
 #include "utils.h"
 #include "slam_utils.h"
 #include "print_results.h"
+#include "constants.h"
+using namespace NavSim;
 
 extern const bool IS_2D { true };
 
@@ -14,13 +16,13 @@ Graph smooth(const values &x0, const traj_points_t &readings) {
   assert("whoohoo" && (x0.size() == T*3 + nLandmarks*2));
   covariance<3> odom_cov = covariance<3>::Zero();
   // TODO what are the right numbers here? Should y be correlated with theta?
-  odom_cov << 0.1*0.1, 0, 0,
-              0, 0.1*0.1, 0,
-              0, 0, 0.1*0.1;
+  odom_cov << SLAM_VAR, 0, 0,
+              0, SLAM_VAR, 0,
+              0, 0, SLAM_VAR;
   covariance<3> odom_cov_inv = odom_cov.inverse();
   covariance<2> sensor_cov = covariance<2>::Zero();
-  sensor_cov << 0.1*0.1, 0,
-                0, 0.1*0.1;
+  sensor_cov << SLAM_VAR, 0,
+                0, SLAM_VAR;
   covariance<2> sensor_cov_inv = sensor_cov.inverse();
   Graph graph;
   for (int t=0; t < T+1; t++) {
@@ -40,7 +42,7 @@ Graph smooth(const values &x0, const traj_points_t &readings) {
       graph.add(new OdomFactor2D(t2, t1, odom_cov_inv, om2-om1));
     }
   }
-  graph.solve(x0, 0.0001, 10000);
+  graph.solve(x0, 0.0001, 10000, SLAM_TOL);
   return graph;
 }
 

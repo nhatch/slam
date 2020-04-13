@@ -14,10 +14,10 @@ int main()
 {
   World w;
   point_t goal;
-  goal << 3., 2., 1.;
+  goal << 9., 6., 1.;
   setGoal(goal);
   w.addDefaultObstacles();
-  w.addLandmark(6, 1);
+  w.addLandmark(20, 3);
   w.startSimulation();
 
   bool diag = false;
@@ -35,6 +35,7 @@ int main()
 
       truth ? w.renderTruth() : w.renderRobotView(viz_tf);
       display();
+      truth ? w.renderTruth() : w.renderRobotView(viz_tf);
 
       action = act(w, viz_tf);
       if (action == action_t::Zero())
@@ -43,7 +44,6 @@ int main()
         autonomous = false;
       }
 
-      truth ? w.renderTruth() : w.renderRobotView(viz_tf);
       display();
     }
     c=pollWindowEvent();
