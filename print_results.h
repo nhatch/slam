@@ -3,8 +3,8 @@
 #define PRINT_RESULTS_H
 
 #include "graph.h"
-#include "world.h"
+#include "world_ui.h"
 
-void printResults(World &w, Graph &g, int T);
+void printResults(WorldUI &ui, Graph &g);
 
 #endif

@@ -1,6 +1,5 @@
 #include "world.h"
 #include "utils.h"
-#include "graphics.h"
 #include "constants.h"
 #include <unistd.h>
 #include <iostream>
@@ -48,34 +47,6 @@ void World::startSimulation() {
   ground_truth_.push_back(toTransformRotateFirst(0., 0., 0.));
   odom_.push_back(toTransformRotateFirst(0., 0., 0.));
   readSensors();
-}
-
-points_t World::transformReadings(const points_t &ps, const transform_t &tf) {
-  transform_t tf_inv = tf.inverse();
-  points_t readings({});
-  for (point_t p : ps) {
-    readings.push_back(tf_inv * p);
-  }
-  return readings;
-}
-
-void World::renderReadings(const transform_t &tf) {
-  points_t lidar = lidar_readings_.back();
-  drawPoints(transformReadings(lidar, tf), sf::Color::Red);
-  points_t lms = landmark_readings_.back();
-  drawPoints(transformReadings(lms, tf), sf::Color::Blue);
-}
-
-void World::renderRobotView(const transform_t &tf) {
-  renderReadings(tf);
-  drawRobot(tf, sf::Color::Blue);
-}
-
-void World::renderTruth() {
-  drawObstacles(obstacles_);
-  drawTraj(ground_truth_, sf::Color::Black);
-  drawPoints(landmarks_, sf::Color::Black);
-  renderReadings(ground_truth_.back());
 }
 
 void World::moveRobot(double d_theta, double d_x) {

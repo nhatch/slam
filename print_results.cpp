@@ -1,8 +1,7 @@
 
 #include <iostream>
 #include "graph.h"
-#include "world.h"
-#include "graphics.h"
+#include "world_ui.h"
 #include "slam_utils.h"
 
 void pstr(Eigen::VectorXd v, bool newline) {
@@ -52,12 +51,14 @@ trajectory_t toTraj(const values &x, int pose_size, int T) {
   return tfs;
 }
 
-void printResults(World &w, Graph &g, int T) {
+void printResults(WorldUI &ui, Graph &g) {
+  World &w = ui.world;
   int pose_size(1), lm_size(1);
   if (IS_2D) {
     pose_size = 3;
     lm_size = 2;
   }
+  int T = w.truth().size() - 1;
 
   std::cout.precision(3);
   std::cout << std::fixed;
@@ -76,10 +77,8 @@ void printResults(World &w, Graph &g, int T) {
   std::cout << "Smoothed potential: " << g.eval(g.solution()) << std::endl;
   std::cout << "Ground truth potential: " << g.eval(ground_truth) << std::endl;
 
-  w.renderTruth();
-  drawTraj(w.odom(), sf::Color::Blue);
-  drawPoints(toLandmarks(g.solution(), T*pose_size, lm_size), sf::Color::Green);
-  drawTraj(toTraj(g.solution(), pose_size, T), sf::Color::Green);
-  display();
-  spin();
+  trajectory_t smoothed_traj = toTraj(g.solution(), pose_size, T);
+  points_t smoothed_lms = toLandmarks(g.solution(), T*pose_size, lm_size);
+  ui.drawPointsP(smoothed_lms, false, sf::Color::Green);
+  ui.drawTrajP(smoothed_traj, false, sf::Color::Green);
 }

@@ -9,11 +9,11 @@ class WorldUI {
 public:
   WorldUI(World &w);
   void runSimulation(int T);
-  char handleKeyPress();
+  int handleKeyPress();
   void render();
   void show();
-  void drawPointsP(const points_t &pp, sf::Color c);
-  void drawTrajP(const trajectory_t &traj, sf::Color c);
+  void drawPointsP(const points_t &pp, bool robot_frame, sf::Color c);
+  void drawTrajP(const trajectory_t &traj, bool robot_frame, sf::Color c);
 
   World &world;
 

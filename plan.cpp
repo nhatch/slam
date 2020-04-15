@@ -1,5 +1,4 @@
 
-#include "graphics.h"
 #include "plan.h"
 #include "constants.h"
 #include <Eigen/Core>
@@ -117,8 +116,8 @@ void drawPlan(WorldUI &ui, const plan_t &p, const point_t &goal)
     trans = toTransformRotateFirst(x, 0, theta) * trans;
     traj.push_back(trans);
   }
-  ui.drawTrajP(traj, sf::Color::Red);
-  ui.drawPointsP({goal}, sf::Color::Green);
+  ui.drawTrajP(traj, true, sf::Color::Red);
+  ui.drawPointsP({goal}, true, sf::Color::Green);
 }
 
 // Goal given in robot frame

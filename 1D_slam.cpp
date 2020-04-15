@@ -2,9 +2,11 @@
 #include "graph.h"
 #include "factors.h"
 #include "world.h"
+#include "world_ui.h"
 #include "slam_utils.h"
 #include "print_results.h"
 #include "constants.h"
+#include <unistd.h>
 using namespace NavSim;
 
 extern const bool IS_2D { false };
@@ -30,21 +32,42 @@ Graph smooth(const values& x0, const traj_points_t &readings) {
     if (t>1)
       graph.add(new OdomFactor(t-2, t-1, sqrt(SLAM_VAR), x0(t-1)-x0(t-2)));
   }
-  graph.solve(x0, 0.001, 100000, SLAM_TOL);
+  graph.solve(x0, 0.001, 100000, 0.1);
   return graph;
+}
+
+void optimizeAndRender(WorldUI &ui) {
+  const traj_points_t readings = ui.world.landmarks();
+  values x0 = toVector(ui.world.odom(), readings[0]);
+  Graph g = smooth(x0, readings);
+  printResults(ui, g);
 }
 
 int main() {
   constexpr int T = 10;
 
   World w;
+  WorldUI ui(w);
   w.addDefaultLandmarks();
 
-  w.runSimulation(T);
-  const traj_points_t readings = w.landmarks();
-  values x0 = toVector(w.odom(), readings[0]);
-  Graph g = smooth(x0, readings);
-  printResults(w, g, T);
+  ui.runSimulation(T);
+  ui.render();
+  ui.drawTrajP(w.odom(), false, sf::Color::Blue);
+  optimizeAndRender(ui);
+  ui.show();
+
+  int c;
+  while ((c = ui.handleKeyPress()) != -2) {
+    if (c != -1) {
+      ui.render();
+      ui.drawTrajP(w.odom(), false, sf::Color::Blue);
+      if (c == 6) { // 'g'
+        optimizeAndRender(ui);
+      }
+      ui.show();
+    }
+    usleep(10*1000);
+  }
 
   return 0;
 }

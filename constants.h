@@ -12,7 +12,7 @@ const double ROBOT_WHEEL_BASE = ROBOT_LENGTH*2/3; // m
 /* Sensors and actuators */
 // I define a lot of these constants in terms of ROBOT_LENGTH to make it easy to change the scale
 
-const double LANDMARK_MAX_RANGE = ROBOT_LENGTH * 30; // m
+const double LANDMARK_MAX_RANGE = ROBOT_LENGTH * 20; // m
 const double LIDAR_MAX_RANGE = ROBOT_LENGTH * 20; // m
 const double LIDAR_MIN_RANGE = ROBOT_LENGTH; // m
 const int LIDAR_RESOLUTION = 100; // number of scans per full rotation
@@ -26,7 +26,7 @@ const double WHEEL_STD = 0.03; // std in meters for 1 meter distance traveled
 /* Graphics */
 
 const double ANIMATION_SPEED = ROBOT_LENGTH * 15; // m/s
-const double WINDOW_WIDTH = ROBOT_LENGTH * 30; // m
+const double WINDOW_WIDTH = 2 * LANDMARK_MAX_RANGE ; // m
 const double WINDOW_CENTER_X = ROBOT_LENGTH * 10; // m
 const double WINDOW_CENTER_Y = 0.0; // m
 
@@ -42,7 +42,6 @@ const double LANDMARK_WAYPOINT_RADIUS = ROBOT_LENGTH * 1.3;
 
 /* State estimation */
 
-const double SLAM_TOL = 1.0;
 const double SLAM_VAR = (ROBOT_LENGTH / 3) * (ROBOT_LENGTH / 3);
 
 }

@@ -1,5 +1,4 @@
 #include "world.h"
-#include "graphics.h"
 #include "plan.h"
 #include "search.h"
 #include "constants.h"
@@ -26,7 +25,7 @@ int main()
 
   bool autonomous = false;
 
-  char c = -1;
+  int c = -1;
   action_t action;
   while (c != -2) {
     c = ui.handleKeyPress();

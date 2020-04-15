@@ -12,7 +12,7 @@ WorldUI::WorldUI(World &w) : world(w), diag_(false), truth_(false) {
   std::cout << "Type 'q' to quit, 'wasd' to move around, 't' to view ground truth, 'r' to start autonomous mode.\n";
 }
 
-char WorldUI::handleKeyPress()
+int WorldUI::handleKeyPress()
 {
   char c = pollWindowEvent();
   double x_dist = diag_ ? 1.414*PLAN_RESOLUTION : PLAN_RESOLUTION;
@@ -41,7 +41,7 @@ char WorldUI::handleKeyPress()
   default:
     break;
   }
-  return c;
+  return (int) c;
 }
 
 void WorldUI::show() {
@@ -49,6 +49,7 @@ void WorldUI::show() {
 }
 
 void WorldUI::runSimulation(int T) {
+  truth_ = true;
   world.startSimulation();
   renderTruth();
   display();
@@ -98,16 +99,20 @@ void WorldUI::renderTruth() {
   renderReadings(world.ground_truth_.back());
 }
 
-void WorldUI::drawTrajP(const trajectory_t &traj, sf::Color c) {
-  transform_t base = baseTF();
-  trajectory_t tf_traj({});
-  for (const transform_t &tf : traj) {
-    tf_traj.push_back(tf * base);
+void WorldUI::drawTrajP(const trajectory_t &traj, bool robot_frame, sf::Color c) {
+  if (robot_frame) {
+    transform_t base = baseTF();
+    trajectory_t tf_traj({});
+    for (const transform_t &tf_i : traj) {
+      tf_traj.push_back(tf_i * base);
+    }
+    drawTraj(tf_traj, c);
+  } else {
+    drawTraj(traj, c);
   }
-  drawTraj(tf_traj, c);
 }
 
-void WorldUI::drawPointsP(const points_t &pp, sf::Color c) {
-  transform_t base = baseTF();
+void WorldUI::drawPointsP(const points_t &pp, bool robot_frame, sf::Color c) {
+  transform_t base = robot_frame ? baseTF() : toTransform({0,0,0});
   drawPoints(transformReadings(pp, base), c);
 }
