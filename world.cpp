@@ -50,18 +50,6 @@ void World::startSimulation() {
   readSensors();
 }
 
-void World::runSimulation(int T) {
-  startSimulation();
-  renderTruth();
-  display();
-  for (int i = 1; i < T+1; i++) {
-    moveRobot(0., ROBOT_LENGTH*1.5);
-    renderTruth();
-    drawTraj(odom_, sf::Color::Blue);
-    display();
-  }
-}
-
 points_t World::transformReadings(const points_t &ps, const transform_t &tf) {
   transform_t tf_inv = tf.inverse();
   points_t readings({});

@@ -103,8 +103,26 @@ bool is_valid(const Node *n, World &w)
   return !collides(tf, lidar, SAFE_RADIUS);
 }
 
+void drawPlan(WorldUI &ui, const plan_t &p, const point_t &goal)
+{
+  trajectory_t traj({});
+  transform_t trans = toTransform({0,0,0});
+  traj.push_back(trans);
+  for (int i = 0; i < p.rows(); i++)
+  {
+    double theta = p(i,0);
+    double x = p(i,1);
+    // Doesn't matter if we rotate first because our plans never rotate
+    // and move forward at the same time.
+    trans = toTransformRotateFirst(x, 0, theta) * trans;
+    traj.push_back(trans);
+  }
+  ui.drawTrajP(traj, sf::Color::Red);
+  ui.drawPointsP({goal}, sf::Color::Green);
+}
+
 // Goal given in robot frame
-plan_t getPlan(World &w, const point_t &goal, double goal_radius)
+plan_t getPlan(WorldUI &ui, const point_t &goal, double goal_radius)
 {
   std::cout << "Planning... " << std::flush;
   action_t action = action_t::Zero();
@@ -142,7 +160,7 @@ plan_t getPlan(World &w, const point_t &goal, double goal_radius)
         action = valid_actions.row(i);
         Node *next = new Node(n, action, goal);
         allocated_nodes.push_back(next);
-        if (is_valid(next, w) && visited_set.count(next) == 0)
+        if (is_valid(next, ui.world) && visited_set.count(next) == 0)
         {
           visited_set.insert(next);
           fringe.push(next);
@@ -166,22 +184,7 @@ plan_t getPlan(World &w, const point_t &goal, double goal_radius)
     free(p);
   }
 
-  return plan;
-}
+  drawPlan(ui, plan, goal);
 
-void drawPlan(const plan_t &p, const transform_t &initial_transform)
-{
-  trajectory_t traj({});
-  transform_t trans = initial_transform;
-  traj.push_back(trans);
-  for (int i = 0; i < p.rows(); i++)
-  {
-    double theta = p(i,0);
-    double x = p(i,1);
-    // Doesn't matter if we rotate first because our plans never rotate
-    // and move forward at the same time.
-    trans = toTransformRotateFirst(x, 0, theta) * trans;
-    traj.push_back(trans);
-  }
-  drawTraj(traj, sf::Color::Red);
+  return plan;
 }

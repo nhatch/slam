@@ -46,6 +46,8 @@ private:
   void readGPS();
   void renderReadings(const transform_t &tf);
   points_t transformReadings(const points_t &ps, const transform_t &tf);
+
+  friend class WorldUI;
 };
 
 #endif

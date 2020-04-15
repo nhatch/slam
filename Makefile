@@ -1,6 +1,6 @@
 CC=g++
 CFLAGS=-pedantic-errors -Wall -Weffc++ -Wextra -Wsign-conversion
-SIMULATOR_DEPS=utils.o graphics.o world.o
+SIMULATOR_DEPS=utils.o graphics.o world.o world_ui.o
 GRAPH_DEPS=graph.o factors.o 
 SFML=-lsfml-graphics -lsfml-window -lsfml-system
 SLAM_DEPS=$(GRAPH_DEPS) $(SIMULATOR_DEPS) print_results.o slam_utils.o

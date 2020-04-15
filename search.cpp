@@ -1,4 +1,5 @@
 #include "world.h"
+#include "world_ui.h"
 #include "graphics.h"
 #include "plan.h"
 #include "constants.h"
@@ -47,21 +48,18 @@ point_t nextWaypoint(World &w)
   return robot_goal;
 }
 
-action_t act(World &w, transform_t &viz_tf)
+action_t act(WorldUI &ui)
 {
-  point_t waypoint = nextWaypoint(w);
-  plan_t plan = getPlan(w, waypoint, waypoint_radius);
+  point_t waypoint = nextWaypoint(ui.world);
+  plan_t plan = getPlan(ui, waypoint, waypoint_radius);
   while (!tag_visible && plan.size() == 0) {
     // Either we reached the goal, or the goal seems to be unreachable. Change the goal.
     if (theta % THETA_DIVISIONS == 0)
       search_radius += SEARCH_RADIUS_INCREMENT;
     theta += 1;
-    waypoint = nextWaypoint(w);
-    plan = getPlan(w, waypoint, waypoint_radius);
+    waypoint = nextWaypoint(ui.world);
+    plan = getPlan(ui, waypoint, waypoint_radius);
   }
-  drawPlan(plan, viz_tf);
-  points_t goal({viz_tf.inverse() * waypoint});
-  drawPoints(goal, sf::Color::Green);
   if (tag_visible && plan.size() == 0) {
     std::cout << "Search complete.\n";
     return action_t::Zero();
