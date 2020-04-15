@@ -159,7 +159,7 @@ const trajectory_t World::gps() {
   return gps_;
 }
 
-const trajectory_t World::truth() {
+const trajectory_t World::trueTrajectory() {
   return ground_truth_;
 }
 

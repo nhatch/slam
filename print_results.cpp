@@ -58,13 +58,13 @@ void printResults(WorldUI &ui, Graph &g) {
     pose_size = 3;
     lm_size = 2;
   }
-  int T = w.truth().size() - 1;
+  int T = w.trueTrajectory().size() - 1;
 
   std::cout.precision(3);
   std::cout << std::fixed;
 
   std::cout << std::showpos;
-  values ground_truth = toVector(w.truth(), w.trueLandmarks());
+  values ground_truth = toVector(w.trueTrajectory(), w.trueLandmarks());
   std::cout << std::endl << "Trajectory:" << std::endl;
   printRange(g, ground_truth, 0, pose_size*T, pose_size);
   std::cout << std::endl << "Landmark locations:" << std::endl;

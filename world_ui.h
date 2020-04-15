@@ -8,10 +8,10 @@
 class WorldUI {
 public:
   WorldUI(World &w);
-  void runSimulation(int T);
-  int handleKeyPress();
-  void render();
+  void goForwardTSteps(int T);
+  int pollKeyPress();
   void show();
+  void start();
   void drawPoints(const points_t &pp, bool robot_frame, sf::Color c);
   void drawTraj(const trajectory_t &traj, bool robot_frame, sf::Color c);
 
@@ -21,6 +21,7 @@ private:
   bool diag_;
   bool truth_;
 
+  void render();
   void renderRobotView();
   void renderTruth();
   void renderReadings(const transform_t &tf);

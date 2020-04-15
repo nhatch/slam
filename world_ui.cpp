@@ -8,11 +8,18 @@
 
 using namespace NavSim;
 
-WorldUI::WorldUI(World &w) : world(w), diag_(false), truth_(false) {
+WorldUI::WorldUI(World &w) : world(w), diag_(false), truth_(true) {
   std::cout << "Type 'q' to quit, 'wasd' to move around, 't' to view ground truth, 'r' to start autonomous mode.\n";
 }
 
-int WorldUI::handleKeyPress()
+void WorldUI::start() {
+  world.startSimulation();
+  render();
+  show();
+  render();
+}
+
+int WorldUI::pollKeyPress()
 {
   char c = pollWindowEvent();
   double x_dist = diag_ ? 1.414*PLAN_RESOLUTION : PLAN_RESOLUTION;
@@ -41,24 +48,27 @@ int WorldUI::handleKeyPress()
   default:
     break;
   }
+  if (c > 0) {
+    show();
+  }
   return (int) c;
 }
 
 void WorldUI::show() {
   display();
+  render();
 }
 
-void WorldUI::runSimulation(int T) {
-  truth_ = true;
-  world.startSimulation();
-  renderTruth();
+void WorldUI::goForwardTSteps(int T) {
+  _drawTraj(world.odom_, sf::Color::Blue);
   display();
   for (int i = 1; i < T+1; i++) {
     world.moveRobot(0., ROBOT_LENGTH*1.5);
-    renderTruth();
+    render();
     _drawTraj(world.odom_, sf::Color::Blue);
     display();
   }
+  render();
 }
 
 points_t transformReadings(const points_t &ps, const transform_t &tf) {

@@ -14,21 +14,17 @@ public:
   void addLandmark(double x, double y);
   void addDefaultObstacles();
   void addDefaultLandmarks();
-  // T is the number of timesteps. Will generate data for a trajectory of length T+1
-  void runSimulation(int T);
   void startSimulation();
-  void renderTruth();
-  void renderRobotView(const transform_t &tf);
   void moveRobot(double d_theta, double d_x);
 
-  // bag returns a std::vector of the landmark readings for t=0..T
+  // Sensor data. Each of these are a std::vector of length T+1
   const traj_points_t lidar();
   const traj_points_t landmarks();
   const trajectory_t odom();
   const trajectory_t gps();
 
   // ground truth
-  const trajectory_t truth();
+  const trajectory_t trueTrajectory();
   const points_t trueLandmarks();
 
 private:
@@ -44,8 +40,6 @@ private:
   void readLidar();
   void readLandmarks();
   void readGPS();
-  void renderReadings(const transform_t &tf);
-  points_t transformReadings(const points_t &ps, const transform_t &tf);
 
   friend class WorldUI;
 };

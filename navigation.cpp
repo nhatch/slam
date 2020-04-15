@@ -19,21 +19,20 @@ int main()
   setGoal(goal);
   w.addDefaultObstacles();
   w.addLandmark(20, 3);
-  w.startSimulation();
-  ui.render();
-  ui.show();
+  ui.start();
 
   bool autonomous = false;
 
   int c = -1;
-  action_t action;
+  action_t action = act(ui);
+  ui.show();
   while (c != -2) {
-    c = ui.handleKeyPress();
+    c = ui.pollKeyPress();
     if (c == 17) autonomous = !autonomous;
 
     if (((int) c) != -1 || autonomous)
     {
-      ui.render();
+      ui.show();
       action = act(ui);
       if (action == action_t::Zero())
       {
