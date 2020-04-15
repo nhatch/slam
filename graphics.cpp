@@ -56,12 +56,6 @@ void display() {
   clear();
 }
 
-void spin() {
-  while (pollWindowEvent() != -2) {
-    usleep(10*1000);
-  }
-}
-
 double vertOffset(sf::Color c) {
   if (!IS_2D && c == sf::Color::Blue)
     return -2*ROBOT_WHEEL_BASE;
@@ -95,7 +89,7 @@ void drawRobot(const transform_t &tf, sf::Color c) {
   window.draw(shape);
 }
 
-void drawPoints(const points_t &ps, sf::Color c) {
+void _drawPoints(const points_t &ps, sf::Color c) {
   for (point_t p : ps) {
     if (p(2) == 0) continue;
     sf::CircleShape circle(BALL_RADIUS_PX);
@@ -127,7 +121,7 @@ void drawObstacles(const obstacles_t &obss) {
   }
 }
 
-void drawTraj(const trajectory_t &traj, sf::Color c) {
+void _drawTraj(const trajectory_t &traj, sf::Color c) {
   for (size_t t = 0; t < traj.size(); t++) {
     if (t>0) {
       drawLine(toPose(traj[t-1], 0), toPose(traj[t], 0), c);

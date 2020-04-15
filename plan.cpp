@@ -116,8 +116,8 @@ void drawPlan(WorldUI &ui, const plan_t &p, const point_t &goal)
     trans = toTransformRotateFirst(x, 0, theta) * trans;
     traj.push_back(trans);
   }
-  ui.drawTrajP(traj, true, sf::Color::Red);
-  ui.drawPointsP({goal}, true, sf::Color::Green);
+  ui.drawTraj(traj, true, sf::Color::Red);
+  ui.drawPoints({goal}, true, sf::Color::Green);
 }
 
 // Goal given in robot frame

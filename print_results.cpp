@@ -79,6 +79,6 @@ void printResults(WorldUI &ui, Graph &g) {
 
   trajectory_t smoothed_traj = toTraj(g.solution(), pose_size, T);
   points_t smoothed_lms = toLandmarks(g.solution(), T*pose_size, lm_size);
-  ui.drawPointsP(smoothed_lms, false, sf::Color::Green);
-  ui.drawTrajP(smoothed_traj, false, sf::Color::Green);
+  ui.drawPoints(smoothed_lms, false, sf::Color::Green);
+  ui.drawTraj(smoothed_traj, false, sf::Color::Green);
 }

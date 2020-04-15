@@ -56,7 +56,7 @@ void WorldUI::runSimulation(int T) {
   for (int i = 1; i < T+1; i++) {
     world.moveRobot(0., ROBOT_LENGTH*1.5);
     renderTruth();
-    drawTraj(world.odom_, sf::Color::Blue);
+    _drawTraj(world.odom_, sf::Color::Blue);
     display();
   }
 }
@@ -72,9 +72,9 @@ points_t transformReadings(const points_t &ps, const transform_t &tf) {
 
 void WorldUI::renderReadings(const transform_t &tf) {
   points_t lidar = world.lidar_readings_.back();
-  drawPoints(transformReadings(lidar, tf), sf::Color::Red);
+  _drawPoints(transformReadings(lidar, tf), sf::Color::Red);
   points_t lms = world.landmark_readings_.back();
-  drawPoints(transformReadings(lms, tf), sf::Color::Blue);
+  _drawPoints(transformReadings(lms, tf), sf::Color::Blue);
 }
 
 void WorldUI::render() {
@@ -94,25 +94,25 @@ void WorldUI::renderRobotView() {
 
 void WorldUI::renderTruth() {
   drawObstacles(world.obstacles_);
-  drawTraj(world.ground_truth_, sf::Color::Black);
-  drawPoints(world.landmarks_, sf::Color::Black);
+  _drawTraj(world.ground_truth_, sf::Color::Black);
+  _drawPoints(world.landmarks_, sf::Color::Black);
   renderReadings(world.ground_truth_.back());
 }
 
-void WorldUI::drawTrajP(const trajectory_t &traj, bool robot_frame, sf::Color c) {
+void WorldUI::drawTraj(const trajectory_t &traj, bool robot_frame, sf::Color c) {
   if (robot_frame) {
     transform_t base = baseTF();
     trajectory_t tf_traj({});
     for (const transform_t &tf_i : traj) {
       tf_traj.push_back(tf_i * base);
     }
-    drawTraj(tf_traj, c);
+    _drawTraj(tf_traj, c);
   } else {
-    drawTraj(traj, c);
+    _drawTraj(traj, c);
   }
 }
 
-void WorldUI::drawPointsP(const points_t &pp, bool robot_frame, sf::Color c) {
+void WorldUI::drawPoints(const points_t &pp, bool robot_frame, sf::Color c) {
   transform_t base = robot_frame ? baseTF() : toTransform({0,0,0});
-  drawPoints(transformReadings(pp, base), c);
+  _drawPoints(transformReadings(pp, base), c);
 }

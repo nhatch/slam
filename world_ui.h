@@ -12,8 +12,8 @@ public:
   int handleKeyPress();
   void render();
   void show();
-  void drawPointsP(const points_t &pp, bool robot_frame, sf::Color c);
-  void drawTrajP(const trajectory_t &traj, bool robot_frame, sf::Color c);
+  void drawPoints(const points_t &pp, bool robot_frame, sf::Color c);
+  void drawTraj(const trajectory_t &traj, bool robot_frame, sf::Color c);
 
   World &world;
 

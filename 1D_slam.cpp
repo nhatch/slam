@@ -52,7 +52,7 @@ int main() {
 
   ui.runSimulation(T);
   ui.render();
-  ui.drawTrajP(w.odom(), false, sf::Color::Blue);
+  ui.drawTraj(w.odom(), false, sf::Color::Blue);
   optimizeAndRender(ui);
   ui.show();
 
@@ -60,7 +60,7 @@ int main() {
   while ((c = ui.handleKeyPress()) != -2) {
     if (c != -1) {
       ui.render();
-      ui.drawTrajP(w.odom(), false, sf::Color::Blue);
+      ui.drawTraj(w.odom(), false, sf::Color::Blue);
       if (c == 6) { // 'g'
         optimizeAndRender(ui);
       }
