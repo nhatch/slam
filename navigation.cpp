@@ -26,9 +26,9 @@ int main()
 
   bool autonomous = false;
 
-  char c = -2;
+  char c = -1;
   action_t action;
-  while (c != 16) {
+  while (c != -2) {
     c = ui.handleKeyPress();
     if (c == 17) autonomous = !autonomous;
 
