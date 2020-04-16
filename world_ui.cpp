@@ -121,5 +121,5 @@ void WorldUI::drawTraj(const trajectory_t &traj, bool robot_frame, sf::Color c) 
 
 void WorldUI::drawPoints(const points_t &pp, bool robot_frame, sf::Color c) {
   transform_t base = robot_frame ? baseTF() : toTransform({0,0,0});
-  _drawPoints(transformReadings(pp, base), c, 4);
+  _drawPoints(transformReadings(pp, base), c, 10);
 }

@@ -18,6 +18,7 @@ const double LIDAR_MIN_RANGE = ROBOT_LENGTH; // m
 const int LIDAR_RESOLUTION = 100; // number of scans per full rotation
 const double CORRUPTION_STD = 0.04; // std in meters at 1 meter distance
                                     // variance increases for measurements farther from robot
+const double DATA_LOSS_THRESHOLD = -2.0; // if stdn() is less than this, erase data
 const double GPS_POS_STD = 2.0; // m
 const double GPS_THETA_STD = M_PI/24; // rad (yes, I know this uses a magnetometer, not a GPS)
 const double WHEEL_STD = 0.03; // std in meters for 1 meter distance traveled

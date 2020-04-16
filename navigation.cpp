@@ -24,7 +24,6 @@ int main()
 
   int c = -1;
   action_t action = act(ui);
-  ui.show();
   while (c != -2) {
     c = ui.pollKeyPress();
     if (c == 17) autonomous = !autonomous;
@@ -38,7 +37,6 @@ int main()
         std::cout << "Disabling autonomous mode.\n";
         autonomous = false;
       }
-      ui.show();
     }
 
     if (autonomous) {

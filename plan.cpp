@@ -118,11 +118,13 @@ void drawPlan(WorldUI &ui, const plan_t &p, const point_t &goal)
   }
   ui.drawTraj(traj, true, sf::Color::Red);
   ui.drawPoints({goal}, true, sf::Color::Green);
+  ui.show();
 }
 
 // Goal given in robot frame
 plan_t getPlan(WorldUI &ui, const point_t &goal, double goal_radius)
 {
+  drawPlan(ui, {}, goal);
   std::cout << "Planning... " << std::flush;
   action_t action = action_t::Zero();
   std::vector<Node*> allocated_nodes;
@@ -137,7 +139,7 @@ plan_t getPlan(WorldUI &ui, const point_t &goal, double goal_radius)
   valid_actions << 0., 0., M_PI/4, 0., -M_PI/4, 0.;
   int counter = 0;
   bool success = false;
-  while (fringe.size() > 0)
+  while (fringe.size() > 0 && ui.pollKeyPress() != -2)
   {
     if (counter++ > MAX_ITERS)
     {

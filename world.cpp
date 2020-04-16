@@ -87,7 +87,7 @@ void corrupt(point_t &p, double dist) {
   p(0) += stdn() * CORRUPTION_STD * sqrt(dist);
   if (IS_2D) p(1) += stdn() * CORRUPTION_STD * sqrt(dist);
   // Sometimes completely erase the data
-  if (stdn() < -2.0) {
+  if (stdn() < DATA_LOSS_THRESHOLD) {
     p *= 0;
   }
 }
@@ -98,7 +98,7 @@ void World::readLandmarks() {
   point_t robot_location = tf.inverse()*point_t(0,0,1);
   for (point_t lm : landmarks_) {
     point_t reading = tf * lm;
-    double dist = norm(robot_location - lm);
+    double dist = (robot_location - lm).norm();
     corrupt(reading, dist);
     double t = obstacleIntersection(robot_location, lm, obstacles_);
     // t < 1.0 indicates there's an obstacle between the landmark and the robot

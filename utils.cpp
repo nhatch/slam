@@ -4,11 +4,6 @@
 #include "utils.h"
 #include <iostream>
 
-double norm(const point_t &p)
-{
-  return sqrt(p(0)*p(0) + p(1)*p(1));
-}
-
 bool collides(const transform_t &tf, const obstacles_t &obss)
 {
   for (const obstacle_t &obs : obss)
@@ -94,7 +89,8 @@ bool collides(const transform_t &tf, const points_t &ps, double radius)
       continue;
     }
     point_t tf_p = tf * p;
-    if (norm(tf_p) < radius) return true;
+    tf_p(2) = 0;
+    if (tf_p.norm() < radius) return true;
   }
   return false;
 }
