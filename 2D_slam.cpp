@@ -59,10 +59,9 @@ int main() {
   constexpr int T = 10;
 
   World w;
-  WorldUI ui(w);
   w.addDefaultLandmarks();
+  WorldUI ui(w);
 
-  ui.start();
   ui.goForwardTSteps(T);
   ui.drawTraj(w.odom(), false, sf::Color::Blue);
   optimizeAndRender(ui);

@@ -7,16 +7,15 @@
 #include "constants.h"
 
 using namespace NavSim;
+const sf::Color TRUTH_COLOR(0,0,0,128);
+const sf::Color ODOM_COLOR(0,0,255,128);
+const sf::Color LIDAR_COLOR(255,0,0,128);
+const sf::Color LANDMARK_COLOR(0,0,255);
 
 WorldUI::WorldUI(World &w) : world(w), diag_(false), truth_(true) {
   std::cout << "Type 'q' to quit, 'wasd' to move around, 't' to view ground truth, 'r' to start autonomous mode.\n";
-}
-
-void WorldUI::start() {
   world.startSimulation();
-  render();
   show();
-  render();
 }
 
 int WorldUI::pollKeyPress()
@@ -48,27 +47,25 @@ int WorldUI::pollKeyPress()
   default:
     break;
   }
-  if (c > 0) {
+  if (c >= 0) {
     show();
   }
   return (int) c;
 }
 
 void WorldUI::show() {
-  display();
   render();
+  display();
 }
 
 void WorldUI::goForwardTSteps(int T) {
-  _drawTraj(world.odom_, sf::Color::Blue);
-  display();
+  _drawTraj(world.odom_, ODOM_COLOR);
+  show();
   for (int i = 1; i < T+1; i++) {
     world.moveRobot(0., ROBOT_LENGTH*1.5);
-    render();
-    _drawTraj(world.odom_, sf::Color::Blue);
-    display();
+    _drawTraj(world.odom_, ODOM_COLOR);
+    show();
   }
-  render();
 }
 
 points_t transformReadings(const points_t &ps, const transform_t &tf) {
@@ -82,9 +79,9 @@ points_t transformReadings(const points_t &ps, const transform_t &tf) {
 
 void WorldUI::renderReadings(const transform_t &tf) {
   points_t lidar = world.lidar_readings_.back();
-  _drawPoints(transformReadings(lidar, tf), sf::Color::Red);
+  _drawPoints(transformReadings(lidar, tf), LIDAR_COLOR, 3);
   points_t lms = world.landmark_readings_.back();
-  _drawPoints(transformReadings(lms, tf), sf::Color::Blue);
+  _drawPoints(transformReadings(lms, tf), LANDMARK_COLOR, 4);
 }
 
 void WorldUI::render() {
@@ -99,13 +96,13 @@ const transform_t WorldUI::baseTF() {
 void WorldUI::renderRobotView() {
   transform_t tf = baseTF();
   renderReadings(tf);
-  drawRobot(tf, sf::Color::Blue);
+  drawRobot(tf, ODOM_COLOR);
 }
 
 void WorldUI::renderTruth() {
   drawObstacles(world.obstacles_);
-  _drawTraj(world.ground_truth_, sf::Color::Black);
-  _drawPoints(world.landmarks_, sf::Color::Black);
+  _drawTraj(world.ground_truth_, TRUTH_COLOR);
+  _drawPoints(world.landmarks_, TRUTH_COLOR, 4);
   renderReadings(world.ground_truth_.back());
 }
 
@@ -124,5 +121,5 @@ void WorldUI::drawTraj(const trajectory_t &traj, bool robot_frame, sf::Color c) 
 
 void WorldUI::drawPoints(const points_t &pp, bool robot_frame, sf::Color c) {
   transform_t base = robot_frame ? baseTF() : toTransform({0,0,0});
-  _drawPoints(transformReadings(pp, base), c);
+  _drawPoints(transformReadings(pp, base), c, 4);
 }

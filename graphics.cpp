@@ -7,8 +7,7 @@
 
 using namespace NavSim;
 
-const int WINDOW_WIDTH_PX = 500;
-const int BALL_RADIUS_PX = 4;
+const int WINDOW_WIDTH_PX = 600;
 sf::RenderWindow window(sf::VideoMode(WINDOW_WIDTH_PX, WINDOW_WIDTH_PX), "SLAM visualization");
 const double scale_x = double(WINDOW_WIDTH_PX) / WINDOW_WIDTH;
 const double scale_y = -double(WINDOW_WIDTH_PX) / WINDOW_WIDTH;
@@ -57,9 +56,11 @@ void display() {
 }
 
 double vertOffset(sf::Color c) {
-  if (!IS_2D && c == sf::Color::Blue)
+  if (c.g > 0 && c.r == 0 && c.b == 0)
+    return 0.0;
+  if (!IS_2D && c.r == c.b && c.r == c.g)
     return -2*ROBOT_WHEEL_BASE;
-  if (!IS_2D && c == sf::Color::Black)
+  if (!IS_2D)
     return +2*ROBOT_WHEEL_BASE;
   return 0.0;
 }
@@ -89,14 +90,14 @@ void drawRobot(const transform_t &tf, sf::Color c) {
   window.draw(shape);
 }
 
-void _drawPoints(const points_t &ps, sf::Color c) {
+void _drawPoints(const points_t &ps, sf::Color c, int radius_px) {
   for (point_t p : ps) {
     if (p(2) == 0) continue;
-    sf::CircleShape circle(BALL_RADIUS_PX);
+    sf::CircleShape circle(radius_px);
     circle.setFillColor(c);
     sf::Vector2f pos = toWindowFrame(p, vertOffset(c));
-    pos.x -= BALL_RADIUS_PX;
-    pos.y -= BALL_RADIUS_PX;
+    pos.x -= radius_px;
+    pos.y -= radius_px;
     circle.setPosition(pos);
     if (needs_clear)
       clear();
@@ -109,7 +110,7 @@ void drawObstacles(const obstacles_t &obss) {
     sf::ConvexShape shape;
     int n = obs.rows();
     shape.setPointCount((size_t)n);
-    shape.setFillColor(sf::Color(128, 128, 128));
+    shape.setFillColor(sf::Color(128, 128, 128, 128));
     for (int i = 0; i < n; i++) {
       point_t l;
       l << obs(i,0), obs(i,1), 1;

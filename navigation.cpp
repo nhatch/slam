@@ -13,13 +13,12 @@ extern const bool IS_2D { true };
 int main()
 {
   World w;
-  WorldUI ui(w);
   point_t goal;
   goal << 9., 6., 1.;
   setGoal(goal);
   w.addDefaultObstacles();
   w.addLandmark(20, 3);
-  ui.start();
+  WorldUI ui(w);
 
   bool autonomous = false;
 
