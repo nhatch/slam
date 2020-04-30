@@ -18,7 +18,7 @@ point_t gps_goal;
 double waypoint_radius = GPS_WAYPOINT_RADIUS;
 double search_radius = 0.0;
 
-void setGoal(point_t &goal)
+void setGoal(const point_t &goal)
 {
   gps_goal = goal;
 }

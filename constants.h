@@ -21,7 +21,7 @@ const double CORRUPTION_STD = 0.04; // std in meters at 1 meter distance
 const double DATA_LOSS_THRESHOLD = -2.0; // if stdn() is less than this, erase data
 const double GPS_POS_STD = 2.0; // m
 const double GPS_THETA_STD = M_PI/24; // rad (yes, I know this uses a magnetometer, not a GPS)
-const double WHEEL_STD = 0.03; // std in meters for 1 meter distance traveled
+const double WHEEL_STD = 0.04; // std in meters for 1 meter distance traveled
                                // variance increases for longer distances
 
 /* Graphics */

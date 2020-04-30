@@ -14,13 +14,13 @@ int main()
 {
   World w;
   point_t goal;
-  goal << 9., 6., 1.;
-  setGoal(goal);
+  setGoal({13, 6, 1});
   w.addDefaultObstacles();
   w.addLandmark(20, 3);
   WorldUI ui(w);
 
   bool autonomous = false;
+  std::cout << "Type 'r' to toggle autonomous navigation.\n";
 
   int c = -1;
   action_t action = act(ui);

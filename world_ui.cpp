@@ -13,7 +13,7 @@ const sf::Color LIDAR_COLOR(255,0,0,128);
 const sf::Color LANDMARK_COLOR(0,0,255);
 
 WorldUI::WorldUI(World &w) : world(w), diag_(false), truth_(true) {
-  std::cout << "Type 'q' to quit, 'wasd' to move around, 't' to view ground truth, 'r' to start autonomous mode.\n";
+  std::cout << "Type 'q' to quit, 'wasd' to move around, 't' to toggle ground truth.\n";
   world.startSimulation();
   show();
 }
