@@ -42,6 +42,11 @@ public:
   const trajectory_t trueTrajectory();
   const points_t trueLandmarks();
 
+  void readSensors();
+  void readLidar();
+  void readLandmarks();
+  void readGPS();
+
 private:
   obstacles_t obstacles_;
   points_t landmarks_;
@@ -50,11 +55,6 @@ private:
   trajectory_t gps_;
   traj_points_t landmark_readings_;
   traj_points_t lidar_readings_;
-
-  void readSensors();
-  void readLidar();
-  void readLandmarks();
-  void readGPS();
 
   friend class WorldUI;
 };

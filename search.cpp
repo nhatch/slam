@@ -1,5 +1,4 @@
-#include "world.h"
-#include "world_ui.h"
+#include "world_interface.h"
 #include "plan.h"
 #include "constants.h"
 #include <iostream>
@@ -23,10 +22,10 @@ void setGoal(const point_t &goal)
   gps_goal = goal;
 }
 
-point_t nextWaypoint(World &w)
+point_t nextWaypoint()
 {
   point_t robot_goal;
-  points_t lms = w.landmarks().back();
+  points_t lms = getLandmarks();
   if (lms[0](2) != 0.)
   {
     tag_visible = true;
@@ -42,22 +41,22 @@ point_t nextWaypoint(World &w)
     double a = (theta * 2 * M_PI) / THETA_DIVISIONS;
     search_goal(0) += cos(a)*search_radius;
     search_goal(1) += sin(a)*search_radius;
-    robot_goal = w.gps().back() * search_goal;
+    robot_goal = getGPS() * search_goal;
   }
   return robot_goal;
 }
 
-action_t act(WorldUI &ui)
+action_t act()
 {
-  point_t waypoint = nextWaypoint(ui.world);
-  plan_t plan = getPlan(ui, waypoint, waypoint_radius);
+  point_t waypoint = nextWaypoint();
+  plan_t plan = getPlan(waypoint, waypoint_radius);
   while (!tag_visible && plan.size() == 0) {
     // Either we reached the goal, or the goal seems to be unreachable. Change the goal.
     if (theta % THETA_DIVISIONS == 0)
       search_radius += SEARCH_RADIUS_INCREMENT;
     theta += 1;
-    waypoint = nextWaypoint(ui.world);
-    plan = getPlan(ui, waypoint, waypoint_radius);
+    waypoint = nextWaypoint();
+    plan = getPlan(waypoint, waypoint_radius);
   }
   if (tag_visible && plan.size() == 0) {
     std::cout << "Search complete.\n";

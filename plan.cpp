@@ -1,5 +1,6 @@
 
 #include "plan.h"
+#include "world_interface.h"
 #include "constants.h"
 #include <Eigen/Core>
 #include <queue>
@@ -92,17 +93,16 @@ public:
 using pqueue_t = std::priority_queue<Node*, std::vector<Node*>, NodeCompare>;
 using set_t = std::set<Node*, NodeEqualityCompare>;
 
-bool is_valid(const Node *n, World &w)
+bool is_valid(const Node *n, const points_t &lidar_hits)
 {
   // To get away from obstacles, turning is always allowed.
   if (n->action(1) == 0.0) return true;
   pose_t p(n->x * PLAN_RESOLUTION, n->y * PLAN_RESOLUTION, n->theta * M_PI/4);
   transform_t tf = toTransform(p);
-  points_t lidar = w.lidar().back();
-  return !collides(tf, lidar, SAFE_RADIUS);
+  return !collides(tf, lidar_hits, SAFE_RADIUS);
 }
 
-void drawPlan(WorldUI &ui, const plan_t &p, const point_t &goal)
+void drawPlan(const plan_t &p, const point_t &goal)
 {
   trajectory_t traj({});
   transform_t trans = toTransform({0,0,0});
@@ -116,15 +116,16 @@ void drawPlan(WorldUI &ui, const plan_t &p, const point_t &goal)
     trans = toTransformRotateFirst(x, 0, theta) * trans;
     traj.push_back(trans);
   }
-  ui.drawTraj(traj, true, sf::Color::Red);
-  ui.drawPoints({goal}, true, sf::Color::Green);
-  ui.show();
+  // TODO add a UI that works regardless of simulated world UI
+  //ui.drawTraj(traj, true, sf::Color::Red);
+  //ui.drawPoints({goal}, true, sf::Color::Green);
+  //ui.show();
 }
 
 // Goal given in robot frame
-plan_t getPlan(WorldUI &ui, const point_t &goal, double goal_radius)
+plan_t getPlan(const point_t &goal, double goal_radius)
 {
-  drawPlan(ui, {}, goal);
+  drawPlan({}, goal);
   std::cout << "Planning... " << std::flush;
   action_t action = action_t::Zero();
   std::vector<Node*> allocated_nodes;
@@ -139,7 +140,8 @@ plan_t getPlan(WorldUI &ui, const point_t &goal, double goal_radius)
   valid_actions << 0., 0., M_PI/4, 0., -M_PI/4, 0.;
   int counter = 0;
   bool success = false;
-  while (fringe.size() > 0 && ui.pollKeyPress() != -2)
+  points_t lidar_hits = getLidarScan();
+  while (fringe.size() > 0)
   {
     if (counter++ > MAX_ITERS)
     {
@@ -161,7 +163,7 @@ plan_t getPlan(WorldUI &ui, const point_t &goal, double goal_radius)
         action = valid_actions.row(i);
         Node *next = new Node(n, action, goal);
         allocated_nodes.push_back(next);
-        if (is_valid(next, ui.world) && visited_set.count(next) == 0)
+        if (is_valid(next, lidar_hits) && visited_set.count(next) == 0)
         {
           visited_set.insert(next);
           fringe.push(next);
@@ -185,7 +187,7 @@ plan_t getPlan(WorldUI &ui, const point_t &goal, double goal_radius)
     free(p);
   }
 
-  drawPlan(ui, plan, goal);
+  drawPlan(plan, goal);
 
   return plan;
 }
