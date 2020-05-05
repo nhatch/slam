@@ -4,6 +4,24 @@
 #include "utils.h"
 #include <iostream>
 
+points_t transformReadings(const points_t &ps, const transform_t &tf) {
+  transform_t tf_inv = tf.inverse();
+  points_t readings({});
+  for (point_t p : ps) {
+    readings.push_back(tf_inv * p);
+  }
+  return readings;
+}
+
+trajectory_t transformTraj(const trajectory_t &traj, const transform_t &tf) {
+  trajectory_t tf_traj({});
+  // TODO can probably simplify this method to use just one for loop
+  for (const transform_t &tf_i : traj) {
+    tf_traj.push_back(tf_i * tf);
+  }
+  return tf_traj;
+}
+
 bool collides(const transform_t &tf, const obstacles_t &obss)
 {
   for (const obstacle_t &obs : obss)

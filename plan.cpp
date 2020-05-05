@@ -1,6 +1,7 @@
 
 #include "plan.h"
 #include "world_interface.h"
+#include "graphics.h"
 #include "constants.h"
 #include <Eigen/Core>
 #include <queue>
@@ -102,7 +103,7 @@ bool is_valid(const Node *n, const points_t &lidar_hits)
   return !collides(tf, lidar_hits, SAFE_RADIUS);
 }
 
-void drawPlan(const plan_t &p, const point_t &goal)
+void drawPlan(sf::RenderWindow &plan_window, const plan_t &p, const point_t &goal, const points_t &lidar_hits)
 {
   trajectory_t traj({});
   transform_t trans = toTransform({0,0,0});
@@ -116,16 +117,19 @@ void drawPlan(const plan_t &p, const point_t &goal)
     trans = toTransformRotateFirst(x, 0, theta) * trans;
     traj.push_back(trans);
   }
-  // TODO add a UI that works regardless of simulated world UI
-  //ui.drawTraj(traj, true, sf::Color::Red);
-  //ui.drawPoints({goal}, true, sf::Color::Green);
-  //ui.show();
+  transform_t base = toTransform({WINDOW_CENTER_X,WINDOW_CENTER_Y,M_PI/2});
+  _drawTraj(plan_window, transformTraj(traj, base), sf::Color::Red);
+  _drawPoints(plan_window, transformReadings({goal}, base), sf::Color::Green, 10);
+  _drawPoints(plan_window, transformReadings(lidar_hits, base), sf::Color::Red, 3);
+  drawRobot(plan_window, base, sf::Color::Black);
+  display(plan_window);
 }
 
 // Goal given in robot frame
-plan_t getPlan(const point_t &goal, double goal_radius)
+plan_t getPlan(sf::RenderWindow &window, const point_t &goal, double goal_radius)
 {
-  drawPlan({}, goal);
+  points_t lidar_hits = getLidarScan();
+  drawPlan(window, {}, goal, lidar_hits);
   std::cout << "Planning... " << std::flush;
   action_t action = action_t::Zero();
   std::vector<Node*> allocated_nodes;
@@ -140,7 +144,6 @@ plan_t getPlan(const point_t &goal, double goal_radius)
   valid_actions << 0., 0., M_PI/4, 0., -M_PI/4, 0.;
   int counter = 0;
   bool success = false;
-  points_t lidar_hits = getLidarScan();
   while (fringe.size() > 0)
   {
     if (counter++ > MAX_ITERS)
@@ -187,7 +190,7 @@ plan_t getPlan(const point_t &goal, double goal_radius)
     free(p);
   }
 
-  drawPlan(plan, goal);
+  drawPlan(window, plan, goal, lidar_hits);
 
   return plan;
 }

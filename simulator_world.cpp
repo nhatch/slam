@@ -3,27 +3,27 @@
 
 World world;
 
-void init() {
+void world_interface_init() {
   world.addDefaultObstacles();
   world.addLandmark(20, 3);
-  world.startSimulation();
+  world.readSensors();
 }
 
-void setCmdVel(double dx, double dtheta) {
-  world.moveRobot(dx, dtheta); // TODO switch to cmd_vel
+// TODO clean this up. Right now we measure sensor data
+// iff we set the cmd_vel.
+void setCmdVel(double dtheta, double dx) {
+  world.readSensors();
+  world.setCmdVel(dtheta, dx);
 }
 
 points_t getLidarScan() {
-  world.readLidar();
   return world.lidar().back();
 }
 
 points_t getLandmarks() {
-  world.readLandmarks();
   return world.landmarks().back();
 }
 
 transform_t getGPS() {
-  world.readGPS();
   return world.gps().back();
 }

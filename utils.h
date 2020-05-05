@@ -20,6 +20,9 @@ using point_t = Eigen::Vector3d; // x, y, 1 (or 0, 0, 0 to represent "no data")
 using points_t = std::vector<point_t>;
 using traj_points_t = std::vector<points_t>; // points_t for each time along a trajectory
 
+points_t transformReadings(const points_t &ps, const transform_t &tf);
+trajectory_t transformTraj(const trajectory_t &traj, const transform_t &tf);
+
 /* Whether the robot in location given by `tf` collides with anything. */
 bool collides(const transform_t &tf, const obstacles_t &obss);
 bool collides(const transform_t &tf, const points_t &lms, double radius);

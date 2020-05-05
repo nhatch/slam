@@ -1,8 +1,8 @@
 
 #include "utils.h"
 
-void init(); // Call this before trying to do anything else
-void setCmdVel(double dx, double dtheta);
+void world_interface_init(); // Call this before trying to do anything else
+void setCmdVel(double dtheta, double dx);
 
 points_t getLidarScan();
 points_t getLandmarks();

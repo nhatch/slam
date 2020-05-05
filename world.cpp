@@ -1,11 +1,22 @@
 #include "world.h"
 #include "utils.h"
 #include "constants.h"
+#include "graphics.h"
 #include <unistd.h>
 #include <iostream>
 
+const sf::Color TRUTH_COLOR(0,0,0,128);
+const sf::Color ODOM_COLOR(0,0,255,128);
+const sf::Color LIDAR_COLOR(255,0,0,128);
+const sf::Color LANDMARK_COLOR(0,0,255);
+
 World::World() : obstacles_({}), landmarks_({}), ground_truth_({}), odom_({}),
-                    gps_({}), landmark_readings_({}), lidar_readings_({}) {
+                    gps_({}), landmark_readings_({}), lidar_readings_({}),
+                    cmd_vel_x_(0), cmd_vel_theta_(0),
+                    current_transform_truth_(toTransform({0,0,0})),
+                    current_transform_odom_(toTransform({0,0,0})),
+                    spin_thread_(spawn())
+{
 }
 
 using namespace NavSim;
@@ -43,10 +54,42 @@ void World::addDefaultLandmarks() {
   addLandmark(0.1*scale, 1*scale);
 }
 
-void World::startSimulation() {
-  ground_truth_.push_back(toTransformRotateFirst(0., 0., 0.));
-  odom_.push_back(toTransformRotateFirst(0., 0., 0.));
+void World::spinSim() {
+  sf::RenderWindow window(sf::VideoMode(WINDOW_WIDTH_PX, WINDOW_WIDTH_PX), "Simulator visualization");
+  const double SIM_HZ = 30;
+  const double dt = 1/SIM_HZ;
+  while (true) {
+    int c = 0;
+    while (c != -1)
+    {
+      c = pollWindowEvent(window); // We ignore these events.
+    }
+    moveRobot(cmd_vel_theta_ * dt, cmd_vel_x_ * dt);
+    drawObstacles(window, obstacles_);
+    _drawTraj(window, ground_truth_, TRUTH_COLOR);
+    _drawPoints(window, landmarks_, TRUTH_COLOR, 4);
+    renderReadings(window, ground_truth_.back());
+    drawRobot(window, current_transform_truth_, TRUTH_COLOR);
+    display(window);
+    usleep(1000 * 1000 / SIM_HZ);
+  }
+}
+
+void World::renderReadings(sf::RenderWindow &window, const transform_t &tf) {
+  points_t lidar = lidar_readings_.back();
+  _drawPoints(window, transformReadings(lidar, tf), LIDAR_COLOR, 3);
+  points_t lms = landmark_readings_.back();
+  _drawPoints(window, transformReadings(lms, tf), LANDMARK_COLOR, 4);
+}
+
+std::thread World::spawn() {
   readSensors();
+  return std::thread( [this] {spinSim();} );
+}
+
+void World::setCmdVel(double d_theta, double d_x) {
+  cmd_vel_theta_ = d_theta;
+  cmd_vel_x_ = d_x;
 }
 
 void World::moveRobot(double d_theta, double d_x) {
@@ -66,15 +109,16 @@ void World::moveRobot(double d_theta, double d_x) {
     move_dist = abs(d_x);
   }
   usleep((size_t)(move_dist / ANIMATION_SPEED * 1000 * 1000));
-  ground_truth_.push_back(toTransformRotateFirst(noisy_x, 0., noisy_theta) * ground_truth_.back());
-  if (collides(ground_truth_.back(), obstacles_)) {
+  current_transform_truth_ = toTransformRotateFirst(noisy_x, 0., noisy_theta) * current_transform_truth_;
+  if (collides(current_transform_truth_, obstacles_)) {
     std::cout << "You crashed into an obstacle" << std::endl;
   }
-  odom_.push_back(toTransformRotateFirst(d_x, 0., d_theta) * odom_.back());
-  readSensors();
+  current_transform_odom_ = toTransformRotateFirst(d_x, 0., d_theta) * current_transform_odom_;
 }
 
 void World::readSensors() {
+  readOdom();
+  readTrueTransform();
   readLandmarks();
   readGPS();
   readLidar();
@@ -92,9 +136,17 @@ void corrupt(point_t &p, double dist) {
   }
 }
 
+void World::readTrueTransform() {
+  ground_truth_.push_back(current_transform_truth_);
+}
+
+void World::readOdom() {
+  odom_.push_back(current_transform_odom_);
+}
+
 void World::readLandmarks() {
   points_t landmark_readings;
-  transform_t tf = ground_truth_.back();
+  transform_t tf = current_transform_truth_;
   point_t robot_location = tf.inverse()*point_t(0,0,1);
   for (point_t lm : landmarks_) {
     point_t reading = tf * lm;
@@ -118,7 +170,7 @@ void World::readLidar() {
     point_t r0, r1;
     r0 << 0, 0, 1;
     r1 << LIDAR_MAX_RANGE*cos(angle), LIDAR_MAX_RANGE*sin(angle), 1;
-    transform_t tf_inv = ground_truth_.back().inverse();
+    transform_t tf_inv = current_transform_truth_.inverse();
     double t = obstacleIntersection(tf_inv*r0, tf_inv*r1, obstacles_);
     double dist = t*LIDAR_MAX_RANGE;
     if (dist < LIDAR_MAX_RANGE && dist > LIDAR_MIN_RANGE)
@@ -136,7 +188,7 @@ void World::readLidar() {
 }
 
 void World::readGPS() {
-  pose_t p = toPose(ground_truth_.back(), 0.);
+  pose_t p = toPose(current_transform_truth_, 0.);
   pose_t noise;
   noise << stdn()*GPS_POS_STD, stdn()*GPS_POS_STD, stdn()*GPS_THETA_STD;
   p += noise;

@@ -46,17 +46,17 @@ point_t nextWaypoint()
   return robot_goal;
 }
 
-action_t act()
+action_t act(sf::RenderWindow &window)
 {
   point_t waypoint = nextWaypoint();
-  plan_t plan = getPlan(waypoint, waypoint_radius);
+  plan_t plan = getPlan(window, waypoint, waypoint_radius);
   while (!tag_visible && plan.size() == 0) {
     // Either we reached the goal, or the goal seems to be unreachable. Change the goal.
     if (theta % THETA_DIVISIONS == 0)
       search_radius += SEARCH_RADIUS_INCREMENT;
     theta += 1;
     waypoint = nextWaypoint();
-    plan = getPlan(waypoint, waypoint_radius);
+    plan = getPlan(window, waypoint, waypoint_radius);
   }
   if (tag_visible && plan.size() == 0) {
     std::cout << "Search complete.\n";

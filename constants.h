@@ -26,6 +26,7 @@ const double WHEEL_STD = 0.04; // std in meters for 1 meter distance traveled
 
 /* Graphics */
 
+const int WINDOW_WIDTH_PX = 600;
 const double ANIMATION_SPEED = ROBOT_LENGTH * 15; // m/s
 const double WINDOW_WIDTH = 2 * LANDMARK_MAX_RANGE ; // m
 const double WINDOW_CENTER_X = ROBOT_LENGTH * 10; // m
