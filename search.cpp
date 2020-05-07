@@ -22,10 +22,9 @@ void setGoal(const point_t &goal)
   gps_goal = goal;
 }
 
-point_t nextWaypoint()
+point_t nextWaypoint(const points_t &lms)
 {
   point_t robot_goal;
-  points_t lms = getLandmarks();
   if (lms[0](2) != 0.)
   {
     tag_visible = true;
@@ -46,16 +45,16 @@ point_t nextWaypoint()
   return robot_goal;
 }
 
-plan_t act(const points_t &lidar_scan, point_t *chosen_waypoint)
+plan_t act(const points_t &lidar_scan, const points_t &landmarks, point_t *chosen_waypoint)
 {
-  point_t waypoint = nextWaypoint();
+  point_t waypoint = nextWaypoint(landmarks);
   plan_t plan = getPlan(lidar_scan, waypoint, waypoint_radius);
   while (!tag_visible && plan.size() == 0) {
     // Either we reached the goal, or the goal seems to be unreachable. Change the goal.
     if (theta % THETA_DIVISIONS == 0)
       search_radius += SEARCH_RADIUS_INCREMENT;
     theta += 1;
-    waypoint = nextWaypoint();
+    waypoint = nextWaypoint(landmarks);
     plan = getPlan(lidar_scan, waypoint, waypoint_radius);
   }
   *chosen_waypoint = waypoint;

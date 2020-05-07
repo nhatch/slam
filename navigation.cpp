@@ -17,7 +17,8 @@ const double REFRESH_HZ = 30;
 const int REFRESH_PER_CONTROL = REFRESH_HZ / CONTROL_HZ;
 
 void drawPlan(sf::RenderWindow &plan_window, const transform_t &plan_odom,
-    const plan_t &p, const point_t &goal, const points_t &lidar_hits)
+    const plan_t &p, const point_t &goal, const points_t &lidar_hits,
+    const points_t &landmarks)
 {
   trajectory_t traj({});
   transform_t trans = toTransform({0,0,0});
@@ -36,6 +37,7 @@ void drawPlan(sf::RenderWindow &plan_window, const transform_t &plan_odom,
   _drawTraj(plan_window, transformTraj(traj, plan_base), sf::Color::Red);
   _drawPoints(plan_window, transformReadings({goal}, plan_base), sf::Color::Green, 10);
   _drawPoints(plan_window, transformReadings(lidar_hits, plan_base), sf::Color::Red, 3);
+  _drawPoints(plan_window, transformReadings(landmarks, plan_base), sf::Color::Blue, 4);
   drawRobot(plan_window, base, sf::Color::Black);
   display(plan_window);
 }
@@ -56,8 +58,9 @@ int main()
   point_t waypoint;
   transform_t plan_odom = getOdom();
   points_t lidar_hits = getLidarScan();
-  plan_t plan = act(lidar_hits, &waypoint);
-  drawPlan(plan_window, plan_odom, plan, waypoint, lidar_hits);
+  points_t landmarks = getLandmarks();
+  plan_t plan = act(lidar_hits, landmarks, &waypoint);
+  drawPlan(plan_window, plan_odom, plan, waypoint, lidar_hits, landmarks);
   while (true) {
     while ((c = pollWindowEvent(plan_window)) != -1) {
       switch (c) {
@@ -95,8 +98,9 @@ int main()
     if (iter++ % REFRESH_PER_CONTROL == 0) {
       plan_odom = getOdom();
       lidar_hits = getLidarScan();
+      landmarks = getLandmarks();
       if (autonomous) setCmdVel(0.,0.); // In case planning takes a long time
-      plan = act(lidar_hits, &waypoint);
+      plan = act(lidar_hits, landmarks, &waypoint);
       if (autonomous) {
         if (plan.size() == 0)
         {
@@ -111,7 +115,7 @@ int main()
         }
       }
     }
-    drawPlan(plan_window, plan_odom, plan, waypoint, lidar_hits);
+    drawPlan(plan_window, plan_odom, plan, waypoint, lidar_hits, landmarks);
 
     usleep(1000*1000 / REFRESH_HZ);
   }
