@@ -12,7 +12,7 @@
 
 using namespace NavSim;
 extern const bool IS_2D { true };
-const double CONTROL_HZ = 5;
+const double CONTROL_HZ = MAX_SPEED / PLAN_RESOLUTION;
 const double REFRESH_HZ = 30;
 const int REFRESH_PER_CONTROL = REFRESH_HZ / CONTROL_HZ;
 
@@ -63,19 +63,19 @@ int main()
       switch (c) {
         case 22:
         case 73:
-          setCmdVel(0.0, 2.0);
+          setCmdVel(0.0, MAX_SPEED);
           break;
         case 18:
         case 74:
-          setCmdVel(0.0, -2.0);
+          setCmdVel(0.0, -MAX_SPEED);
           break;
         case 0:
         case 71:
-          setCmdVel(M_PI/2, 0.0);
+          setCmdVel(0.5 * MAX_SPEED / ROBOT_WHEEL_BASE, 0.0);
           break;
         case 3:
         case 72:
-          setCmdVel(-M_PI/2, 0.0);
+          setCmdVel(-0.5 * MAX_SPEED / ROBOT_WHEEL_BASE, 0.0);
           break;
         case -3:
           setCmdVel(0.0, 0.0);
@@ -95,6 +95,7 @@ int main()
     if (iter++ % REFRESH_PER_CONTROL == 0) {
       plan_odom = getOdom();
       lidar_hits = getLidarScan();
+      if (autonomous) setCmdVel(0.,0.); // In case planning takes a long time
       plan = act(lidar_hits, &waypoint);
       if (autonomous) {
         if (plan.size() == 0)

@@ -91,12 +91,10 @@ void World::setCmdVel(double d_theta, double d_x) {
 }
 
 void World::moveRobot(double d_theta, double d_x) {
-  double move_dist;
   double noisy_x(0.), noisy_theta(0.);
   if (IS_2D) {
     double d_r = d_x + 0.5*ROBOT_WHEEL_BASE*d_theta;
     double d_l = d_x - 0.5*ROBOT_WHEEL_BASE*d_theta;
-    move_dist = abs(d_r) > abs(d_l) ? abs(d_r) : abs(d_l);
     // Larger distance means more noise
     double noisy_r = d_r + stdn() * WHEEL_STD * sqrt(abs(d_r));
     double noisy_l = d_l + stdn() * WHEEL_STD * sqrt(abs(d_l));
@@ -104,9 +102,7 @@ void World::moveRobot(double d_theta, double d_x) {
     noisy_theta = (noisy_r - noisy_l) / ROBOT_WHEEL_BASE;
   } else {
     noisy_x = d_x + stdn() * WHEEL_STD * sqrt(abs(d_x));
-    move_dist = abs(d_x);
   }
-  usleep((size_t)(move_dist / ANIMATION_SPEED * 1000 * 1000));
   current_transform_truth_ = toTransformRotateFirst(noisy_x, 0., noisy_theta) * current_transform_truth_;
   if (collides(current_transform_truth_, obstacles_)) {
     std::cout << "You crashed into an obstacle" << std::endl;
