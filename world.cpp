@@ -5,6 +5,8 @@
 #include <unistd.h>
 #include <iostream>
 
+using namespace NavSim;
+
 const sf::Color TRUTH_COLOR(0,0,0,128);
 const sf::Color ODOM_COLOR(0,0,255,128);
 const sf::Color LIDAR_COLOR(255,0,0,128);
@@ -15,11 +17,9 @@ World::World() : obstacles_({}), landmarks_({}), ground_truth_({}), odom_({}),
                     cmd_vel_x_(0), cmd_vel_theta_(0),
                     current_transform_truth_(toTransform({0,0,0})),
                     current_transform_odom_(toTransform({0,0,0})),
-                    spin_thread_(spawn())
+                    spin_thread_()
 {
 }
-
-using namespace NavSim;
 
 void World::addObstacle(const obstacle_t &obs) {
   obstacles_.push_back(obs);
@@ -82,9 +82,8 @@ void World::renderReadings(sf::RenderWindow &window, const transform_t &tf) {
   _drawPoints(window, transformReadings(lms, tf), LANDMARK_COLOR, 4);
 }
 
-std::thread World::spawn() {
-  readSensors();
-  return std::thread( [this] {spinSim();} );
+void World::spawnWindow() {
+  spin_thread_ = std::thread( [this] {spinSim();} );
 }
 
 void World::setCmdVel(double d_theta, double d_x) {

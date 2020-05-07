@@ -37,8 +37,7 @@ public:
   const points_t trueLandmarks();
 
   void readSensors();
-
-  std::thread spawn();
+  void spawnWindow();
 
 private:
   obstacles_t obstacles_;
