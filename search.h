@@ -3,4 +3,4 @@
 #include "utils.h"
 
 void setGoal(const point_t &goal);
-action_t act(sf::RenderWindow &window);
+plan_t act(const points_t &lidar_scan, point_t *waypoint);

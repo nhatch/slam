@@ -103,33 +103,9 @@ bool is_valid(const Node *n, const points_t &lidar_hits)
   return !collides(tf, lidar_hits, SAFE_RADIUS);
 }
 
-void drawPlan(sf::RenderWindow &plan_window, const plan_t &p, const point_t &goal, const points_t &lidar_hits)
-{
-  trajectory_t traj({});
-  transform_t trans = toTransform({0,0,0});
-  traj.push_back(trans);
-  for (int i = 0; i < p.rows(); i++)
-  {
-    double theta = p(i,0);
-    double x = p(i,1);
-    // Doesn't matter if we rotate first because our plans never rotate
-    // and move forward at the same time.
-    trans = toTransformRotateFirst(x, 0, theta) * trans;
-    traj.push_back(trans);
-  }
-  transform_t base = toTransform({WINDOW_CENTER_X,WINDOW_CENTER_Y,M_PI/2});
-  _drawTraj(plan_window, transformTraj(traj, base), sf::Color::Red);
-  _drawPoints(plan_window, transformReadings({goal}, base), sf::Color::Green, 10);
-  _drawPoints(plan_window, transformReadings(lidar_hits, base), sf::Color::Red, 3);
-  drawRobot(plan_window, base, sf::Color::Black);
-  display(plan_window);
-}
-
 // Goal given in robot frame
-plan_t getPlan(sf::RenderWindow &window, const point_t &goal, double goal_radius)
+plan_t getPlan(const points_t &lidar_hits, const point_t &goal, double goal_radius)
 {
-  points_t lidar_hits = getLidarScan();
-  drawPlan(window, {}, goal, lidar_hits);
   std::cout << "Planning... " << std::flush;
   action_t action = action_t::Zero();
   std::vector<Node*> allocated_nodes;
@@ -189,8 +165,6 @@ plan_t getPlan(sf::RenderWindow &window, const point_t &goal, double goal_radius
   {
     free(p);
   }
-
-  drawPlan(window, plan, goal, lidar_hits);
 
   return plan;
 }

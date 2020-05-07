@@ -46,22 +46,18 @@ point_t nextWaypoint()
   return robot_goal;
 }
 
-action_t act(sf::RenderWindow &window)
+plan_t act(const points_t &lidar_scan, point_t *chosen_waypoint)
 {
   point_t waypoint = nextWaypoint();
-  plan_t plan = getPlan(window, waypoint, waypoint_radius);
+  plan_t plan = getPlan(lidar_scan, waypoint, waypoint_radius);
   while (!tag_visible && plan.size() == 0) {
     // Either we reached the goal, or the goal seems to be unreachable. Change the goal.
     if (theta % THETA_DIVISIONS == 0)
       search_radius += SEARCH_RADIUS_INCREMENT;
     theta += 1;
     waypoint = nextWaypoint();
-    plan = getPlan(window, waypoint, waypoint_radius);
+    plan = getPlan(lidar_scan, waypoint, waypoint_radius);
   }
-  if (tag_visible && plan.size() == 0) {
-    std::cout << "Search complete.\n";
-    return action_t::Zero();
-  } else {
-    return plan.row(0);
-  }
+  *chosen_waypoint = waypoint;
+  return plan;
 }
