@@ -7,7 +7,6 @@ World world;
 void world_interface_init() {
   world.addDefaultObstacles();
   world.addLandmark(20, 3);
-  world.readSensors();
   world.spawnWindow();
   // Sleep to avoid situation where we're trying to launch two SFML windows
   // simultaneously (which seems to sometimes cause deadlock??)
@@ -17,18 +16,21 @@ void world_interface_init() {
 // TODO clean this up. Right now we measure sensor data
 // iff we set the cmd_vel.
 void setCmdVel(double dtheta, double dx) {
-  world.readSensors();
   world.setCmdVel(dtheta, dx);
 }
 
 points_t getLidarScan() {
-  return world.lidar().back();
+  return world.readLidar();
 }
 
 points_t getLandmarks() {
-  return world.landmarks().back();
+  return world.readLandmarks();
 }
 
 transform_t getGPS() {
-  return world.gps().back();
+  return world.readGPS();
+}
+
+transform_t getOdom() {
+  return world.readOdom();
 }

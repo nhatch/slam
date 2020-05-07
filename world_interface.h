@@ -7,4 +7,4 @@ void setCmdVel(double dtheta, double dx);
 points_t getLidarScan();
 points_t getLandmarks();
 transform_t getGPS();
-// TODO does the rover have wheel encoders?
+transform_t getOdom();

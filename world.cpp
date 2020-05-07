@@ -12,8 +12,7 @@ const sf::Color ODOM_COLOR(0,0,255,128);
 const sf::Color LIDAR_COLOR(255,0,0,128);
 const sf::Color LANDMARK_COLOR(0,0,255);
 
-World::World() : obstacles_({}), landmarks_({}), ground_truth_({}), odom_({}),
-                    gps_({}), landmark_readings_({}), lidar_readings_({}),
+World::World() : obstacles_({}), landmarks_({}),
                     cmd_vel_x_(0), cmd_vel_theta_(0),
                     current_transform_truth_(toTransform({0,0,0})),
                     current_transform_odom_(toTransform({0,0,0})),
@@ -66,19 +65,19 @@ void World::spinSim() {
     }
     moveRobot(cmd_vel_theta_ * dt, cmd_vel_x_ * dt);
     drawObstacles(window, obstacles_);
-    _drawTraj(window, ground_truth_, TRUTH_COLOR);
     _drawPoints(window, landmarks_, TRUTH_COLOR, 4);
-    renderReadings(window, ground_truth_.back());
+    renderReadings(window);
     drawRobot(window, current_transform_truth_, TRUTH_COLOR);
     display(window);
     usleep(1000 * 1000 / SIM_HZ);
   }
 }
 
-void World::renderReadings(sf::RenderWindow &window, const transform_t &tf) {
-  points_t lidar = lidar_readings_.back();
+void World::renderReadings(sf::RenderWindow &window) {
+  transform_t tf = current_transform_truth_;
+  points_t lidar = readLidar();
   _drawPoints(window, transformReadings(lidar, tf), LIDAR_COLOR, 3);
-  points_t lms = landmark_readings_.back();
+  points_t lms = readLandmarks();
   _drawPoints(window, transformReadings(lms, tf), LANDMARK_COLOR, 4);
 }
 
@@ -115,14 +114,6 @@ void World::moveRobot(double d_theta, double d_x) {
   current_transform_odom_ = toTransformRotateFirst(d_x, 0., d_theta) * current_transform_odom_;
 }
 
-void World::readSensors() {
-  readOdom();
-  readTrueTransform();
-  readLandmarks();
-  readGPS();
-  readLidar();
-}
-
 // Currently this treats landmarks and lidar hits the same;
 // presumably in the real world they should have different noise models.
 void corrupt(point_t &p, double dist) {
@@ -135,15 +126,15 @@ void corrupt(point_t &p, double dist) {
   }
 }
 
-void World::readTrueTransform() {
-  ground_truth_.push_back(current_transform_truth_);
+transform_t World::readTrueTransform() {
+  return current_transform_truth_;
 }
 
-void World::readOdom() {
-  odom_.push_back(current_transform_odom_);
+transform_t World::readOdom() {
+  return current_transform_odom_;
 }
 
-void World::readLandmarks() {
+points_t World::readLandmarks() {
   points_t landmark_readings;
   transform_t tf = current_transform_truth_;
   point_t robot_location = tf.inverse()*point_t(0,0,1);
@@ -158,10 +149,10 @@ void World::readLandmarks() {
     }
     landmark_readings.push_back(reading);
   }
-  landmark_readings_.push_back(landmark_readings);
+  return landmark_readings;
 }
 
-void World::readLidar() {
+points_t World::readLidar() {
   points_t hits({});
   for(int j = 0; j < LIDAR_RESOLUTION; j++)
   {
@@ -182,36 +173,15 @@ void World::readLidar() {
       }
     }
   }
-
-  lidar_readings_.push_back(hits);
+  return hits;
 }
 
-void World::readGPS() {
+transform_t World::readGPS() {
   pose_t p = toPose(current_transform_truth_, 0.);
   pose_t noise;
   noise << stdn()*GPS_POS_STD, stdn()*GPS_POS_STD, stdn()*GPS_THETA_STD;
   p += noise;
-  gps_.push_back(toTransform(p));
-}
-
-const traj_points_t World::landmarks() {
-  return landmark_readings_;
-}
-
-const traj_points_t World::lidar() {
-  return lidar_readings_;
-}
-
-const trajectory_t World::odom() {
-  return odom_;
-}
-
-const trajectory_t World::gps() {
-  return gps_;
-}
-
-const trajectory_t World::trueTrajectory() {
-  return ground_truth_;
+  return toTransform(p);
 }
 
 const points_t World::trueLandmarks() {

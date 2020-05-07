@@ -23,46 +23,29 @@ public:
 
   void setCmdVel(double d_theta, double d_x);
 
-  /* Sensor data. Each of these are a std::vector of length T+1,
-   * where T is the number of times moveRobot has been called.
-   * See utils.h for more details about data format.
-   * Noisy: see settings in constants.h. */
-  const traj_points_t lidar();
-  const traj_points_t landmarks();
-  const trajectory_t odom();
-  const trajectory_t gps(); // Also includes theta readings taken from a "magnetometer"
+  points_t readLidar();
+  points_t readLandmarks();
+  transform_t readGPS();
+  transform_t readOdom();
 
   /* Ground truth */
-  const trajectory_t trueTrajectory();
   const points_t trueLandmarks();
+  transform_t readTrueTransform();
 
-  void readSensors();
   void spawnWindow();
 
 private:
   obstacles_t obstacles_;
   points_t landmarks_;
-  trajectory_t ground_truth_;
-  trajectory_t odom_;
-  trajectory_t gps_;
-  traj_points_t landmark_readings_;
-  traj_points_t lidar_readings_;
   double cmd_vel_x_;
   double cmd_vel_theta_;
   transform_t current_transform_truth_;
   transform_t current_transform_odom_;
   std::thread spin_thread_;
 
-  void readLidar();
-  void readLandmarks();
-  void readGPS();
-  void readOdom();
-  void readTrueTransform();
   void spinSim();
-  void renderReadings(sf::RenderWindow &window, const transform_t &tf);
+  void renderReadings(sf::RenderWindow &window);
   void moveRobot(double d_theta, double d_x);
-
-  friend class WorldUI;
 };
 
 #endif
