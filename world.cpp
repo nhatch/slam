@@ -81,7 +81,7 @@ void World::renderReadings(sf::RenderWindow &window) {
   _drawPoints(window, transformReadings(lms, tf), LANDMARK_COLOR, 4);
 }
 
-void World::spawnWindow() {
+void World::start() {
   spin_thread_ = std::thread( [this] {spinSim();} );
 }
 

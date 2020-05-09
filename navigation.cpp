@@ -33,7 +33,7 @@ void drawPlan(sf::RenderWindow &plan_window, const transform_t &plan_odom,
     traj.push_back(trans);
   }
   transform_t base = toTransform({WINDOW_CENTER_X,WINDOW_CENTER_Y,M_PI/2});
-  transform_t plan_base = plan_odom * getOdom().inverse() * base;
+  transform_t plan_base = plan_odom * readOdom().inverse() * base;
   _drawTraj(plan_window, transformTraj(traj, plan_base), sf::Color::Red);
   _drawPoints(plan_window, transformReadings({goal}, plan_base), sf::Color::Green, 10);
   _drawPoints(plan_window, transformReadings(lidar_hits, plan_base), sf::Color::Red, 3);
@@ -56,9 +56,9 @@ int main()
   int iter = 0;
   bool done = false;
   point_t waypoint;
-  transform_t plan_odom = getOdom();
-  points_t lidar_hits = getLidarScan();
-  points_t landmarks = getLandmarks();
+  transform_t plan_odom = readOdom();
+  points_t lidar_hits = readLidarScan();
+  points_t landmarks = readLandmarks();
   plan_t plan = act(lidar_hits, landmarks, &waypoint);
   drawPlan(plan_window, plan_odom, plan, waypoint, lidar_hits, landmarks);
   while (true) {
@@ -96,9 +96,9 @@ int main()
     if (done) break;
 
     if (iter++ % REFRESH_PER_CONTROL == 0) {
-      plan_odom = getOdom();
-      lidar_hits = getLidarScan();
-      landmarks = getLandmarks();
+      plan_odom = readOdom();
+      lidar_hits = readLidarScan();
+      landmarks = readLandmarks();
       if (autonomous) setCmdVel(0.,0.); // In case planning takes a long time
       plan = act(lidar_hits, landmarks, &waypoint);
       if (autonomous) {

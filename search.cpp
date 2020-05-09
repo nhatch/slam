@@ -40,7 +40,7 @@ point_t nextWaypoint(const points_t &lms)
     double a = (theta * 2 * M_PI) / THETA_DIVISIONS;
     search_goal(0) += cos(a)*search_radius;
     search_goal(1) += sin(a)*search_radius;
-    robot_goal = getGPS() * search_goal;
+    robot_goal = readGPS() * search_goal;
   }
   return robot_goal;
 }
