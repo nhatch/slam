@@ -23,8 +23,9 @@ sf::Vector2f toWindowFrame(const point_t &p, double vertOffset) {
   return toWindowFrame(p_shifted);
 }
 
-char pollWindowEvent(sf::RenderWindow &window) {
+int pollWindowEvent(sf::RenderWindow &window) {
   sf::Event event;
+  int code;
   if (window.pollEvent(event))
   {
     switch(event.type) {
@@ -32,7 +33,9 @@ char pollWindowEvent(sf::RenderWindow &window) {
         window.close();
         return -2;
       case sf::Event::KeyPressed:
-        return (event.key.code == 16) ? -2 : event.key.code; // 16 is key press 'q' for quit
+        code = (event.key.code == 16) ? -2 : event.key.code; // 16 is key press 'q' for quit
+        if (code == -2) window.close();
+        return code;
       case sf::Event::KeyReleased:
         return -3;
       default:

@@ -1,8 +1,10 @@
 
 #include <iostream>
+#include <SFML/Graphics.hpp>
+#include <unistd.h>
 #include "graph.h"
-#include "world_ui.h"
 #include "slam_utils.h"
+#include "graphics.h"
 
 void pstr(Eigen::VectorXd v, bool newline) {
   std::cout << "(";
@@ -51,20 +53,19 @@ trajectory_t toTraj(const values &x, int pose_size, int T) {
   return tfs;
 }
 
-void printResults(WorldUI &ui, Graph &g) {
-  World &w = ui.world;
+void printResults(sf::RenderWindow &window, Graph &g, const trajectory_t &true_trajectory, const points_t &true_landmarks) {
   int pose_size(1), lm_size(1);
   if (IS_2D) {
     pose_size = 3;
     lm_size = 2;
   }
-  int T = w.trueTrajectory().size() - 1;
+  int T = true_trajectory.size() - 1;
 
   std::cout.precision(3);
   std::cout << std::fixed;
 
   std::cout << std::showpos;
-  values ground_truth = toVector(w.trueTrajectory(), w.trueLandmarks());
+  values ground_truth = toVector(true_trajectory, true_landmarks);
   std::cout << std::endl << "Trajectory:" << std::endl;
   printRange(g, ground_truth, 0, pose_size*T, pose_size);
   std::cout << std::endl << "Landmark locations:" << std::endl;
@@ -79,6 +80,12 @@ void printResults(WorldUI &ui, Graph &g) {
 
   trajectory_t smoothed_traj = toTraj(g.solution(), pose_size, T);
   points_t smoothed_lms = toLandmarks(g.solution(), T*pose_size, lm_size);
-  ui.drawPoints(smoothed_lms, false, sf::Color::Green);
-  ui.drawTraj(smoothed_traj, false, sf::Color::Green);
+  _drawPoints(window, smoothed_lms, sf::Color::Green, 3);
+  _drawTraj(window, smoothed_traj, sf::Color::Green);
+  display(window);
+  int c = 0;
+  while (c != -2) {
+    while ((c = pollWindowEvent(window)) != -1 && c != -2) {};
+    usleep(100 * 1000);
+  };
 }

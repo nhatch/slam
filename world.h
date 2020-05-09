@@ -32,7 +32,7 @@ public:
   const points_t trueLandmarks();
   transform_t readTrueTransform();
 
-  void spawnWindow();
+  void start();
 
 private:
   obstacles_t obstacles_;

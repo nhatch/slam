@@ -2,7 +2,6 @@
 #include "graph.h"
 #include "factors.h"
 #include "world.h"
-#include "world_ui.h"
 #include "utils.h"
 #include "slam_utils.h"
 #include "print_results.h"
@@ -48,36 +47,43 @@ Graph smooth(const values &x0, const traj_points_t &readings) {
   return graph;
 }
 
-void optimizeAndRender(WorldUI &ui) {
-  const traj_points_t readings = ui.world.landmarks();
-  values x0 = toVector(ui.world.odom(), readings[0]);
-  Graph g = smooth(x0, readings);
-  printResults(ui, g);
+void optimizeAndRender(sf::RenderWindow &window, const traj_points_t &landmark_readings, const trajectory_t &odom, const trajectory_t &true_trajectory, const points_t &true_landmarks) {
+  values x0 = toVector(odom, landmark_readings[0]);
+  Graph g = smooth(x0, landmark_readings);
+  printResults(window, g, true_trajectory, true_landmarks);
 }
 
 int main() {
   constexpr int T = 10;
 
+  traj_points_t landmark_readings({});
+  trajectory_t ground_truth({});
+  trajectory_t odom({});
+
   World w;
   w.addDefaultLandmarks();
-  WorldUI ui(w);
-
-  ui.goForwardTSteps(T);
-  ui.drawTraj(w.odom(), false, sf::Color::Blue);
-  optimizeAndRender(ui);
-  ui.show();
-
-  int c;
-  while ((c = ui.pollKeyPress()) != -2) {
-    if (c != -1) {
-      ui.drawTraj(w.odom(), false, sf::Color::Blue);
-      if (c == 6) { // 'g'
-        optimizeAndRender(ui);
-      }
-      ui.show();
-    }
-    usleep(10*1000);
+  w.start();
+  for (int i = 0; i < T+1; i++) {
+    landmark_readings.push_back(w.readLandmarks());
+    odom.push_back(w.readOdom());
+    ground_truth.push_back(w.readTrueTransform());
+    if (i == 0) w.setCmdVel(0.0, ROBOT_LENGTH*8);
+    usleep(200 * 1000);
   }
+  w.setCmdVel(0.0, 0.0);
+
+  sf::RenderWindow window(sf::VideoMode(WINDOW_WIDTH_PX, WINDOW_WIDTH_PX), "SLAM visualization");
+  display(window);
+  _drawTraj(window, odom, sf::Color::Blue);
+  _drawPoints(window, landmark_readings[0], sf::Color::Blue, 3);
+  _drawTraj(window, ground_truth, sf::Color::Black);
+  _drawPoints(window, w.trueLandmarks(), sf::Color::Black, 3);
+  display(window);
+  _drawTraj(window, odom, sf::Color::Blue);
+  _drawPoints(window, landmark_readings[0], sf::Color::Blue, 3);
+  _drawTraj(window, ground_truth, sf::Color::Black);
+  _drawPoints(window, w.trueLandmarks(), sf::Color::Black, 3);
+  optimizeAndRender(window, landmark_readings, odom, ground_truth, w.trueLandmarks());
 
   return 0;
 }
