@@ -34,10 +34,10 @@ void drawPlan(sf::RenderWindow &plan_window, const transform_t &plan_odom,
   }
   transform_t base = toTransform({WINDOW_CENTER_X,WINDOW_CENTER_Y,M_PI/2});
   transform_t plan_base = plan_odom * readOdom().inverse() * base;
-  _drawTraj(plan_window, transformTraj(traj, plan_base), sf::Color::Red);
-  _drawPoints(plan_window, transformReadings({goal}, plan_base), sf::Color::Green, 10);
-  _drawPoints(plan_window, transformReadings(lidar_hits, plan_base), sf::Color::Red, 3);
-  _drawPoints(plan_window, transformReadings(landmarks, plan_base), sf::Color::Blue, 4);
+  drawTraj(plan_window, transformTraj(traj, plan_base), sf::Color::Red);
+  drawPoints(plan_window, transformReadings({goal}, plan_base), sf::Color::Green, 10);
+  drawPoints(plan_window, transformReadings(lidar_hits, plan_base), sf::Color::Red, 3);
+  drawPoints(plan_window, transformReadings(landmarks, plan_base), sf::Color::Blue, 4);
   drawRobot(plan_window, base, sf::Color::Black);
   display(plan_window);
 }

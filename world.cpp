@@ -65,7 +65,7 @@ void World::spinSim() {
     }
     moveRobot(cmd_vel_theta_ * dt, cmd_vel_x_ * dt);
     drawObstacles(window, obstacles_);
-    _drawPoints(window, landmarks_, TRUTH_COLOR, 4);
+    drawPoints(window, landmarks_, TRUTH_COLOR, 4);
     renderReadings(window);
     drawRobot(window, current_transform_truth_, TRUTH_COLOR);
     display(window);
@@ -76,9 +76,9 @@ void World::spinSim() {
 void World::renderReadings(sf::RenderWindow &window) {
   transform_t tf = current_transform_truth_;
   points_t lidar = readLidar();
-  _drawPoints(window, transformReadings(lidar, tf), LIDAR_COLOR, 3);
+  drawPoints(window, transformReadings(lidar, tf), LIDAR_COLOR, 3);
   points_t lms = readLandmarks();
-  _drawPoints(window, transformReadings(lms, tf), LANDMARK_COLOR, 4);
+  drawPoints(window, transformReadings(lms, tf), LANDMARK_COLOR, 4);
 }
 
 void World::start() {

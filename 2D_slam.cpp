@@ -74,15 +74,15 @@ int main() {
 
   sf::RenderWindow window(sf::VideoMode(WINDOW_WIDTH_PX, WINDOW_WIDTH_PX), "SLAM visualization");
   display(window);
-  _drawTraj(window, odom, sf::Color::Blue);
-  _drawPoints(window, landmark_readings[0], sf::Color::Blue, 3);
-  _drawTraj(window, ground_truth, sf::Color::Black);
-  _drawPoints(window, w.trueLandmarks(), sf::Color::Black, 3);
+  drawTraj(window, odom, sf::Color::Blue);
+  drawPoints(window, landmark_readings[0], sf::Color::Blue, 3);
+  drawTraj(window, ground_truth, sf::Color::Black);
+  drawPoints(window, w.trueLandmarks(), sf::Color::Black, 3);
   display(window);
-  _drawTraj(window, odom, sf::Color::Blue);
-  _drawPoints(window, landmark_readings[0], sf::Color::Blue, 3);
-  _drawTraj(window, ground_truth, sf::Color::Black);
-  _drawPoints(window, w.trueLandmarks(), sf::Color::Black, 3);
+  drawTraj(window, odom, sf::Color::Blue);
+  drawPoints(window, landmark_readings[0], sf::Color::Blue, 3);
+  drawTraj(window, ground_truth, sf::Color::Black);
+  drawPoints(window, w.trueLandmarks(), sf::Color::Black, 3);
   optimizeAndRender(window, landmark_readings, odom, ground_truth, w.trueLandmarks());
 
   return 0;

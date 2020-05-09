@@ -82,7 +82,7 @@ void drawRobot(sf::RenderWindow &window, const transform_t &tf, sf::Color c) {
   window.draw(shape);
 }
 
-void _drawPoints(sf::RenderWindow &window, const points_t &ps, sf::Color c, int radius_px) {
+void drawPoints(sf::RenderWindow &window, const points_t &ps, sf::Color c, int radius_px) {
   for (point_t p : ps) {
     if (p(2) == 0) continue;
     sf::CircleShape circle(radius_px);
@@ -110,7 +110,7 @@ void drawObstacles(sf::RenderWindow &window, const obstacles_t &obss) {
   }
 }
 
-void _drawTraj(sf::RenderWindow &window, const trajectory_t &traj, sf::Color c) {
+void drawTraj(sf::RenderWindow &window, const trajectory_t &traj, sf::Color c) {
   for (size_t t = 0; t < traj.size(); t++) {
     if (t>0) {
       drawLine(window, toPose(traj[t-1], 0), toPose(traj[t], 0), c);

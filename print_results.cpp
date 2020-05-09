@@ -80,8 +80,8 @@ void printResults(sf::RenderWindow &window, Graph &g, const trajectory_t &true_t
 
   trajectory_t smoothed_traj = toTraj(g.solution(), pose_size, T);
   points_t smoothed_lms = toLandmarks(g.solution(), T*pose_size, lm_size);
-  _drawPoints(window, smoothed_lms, sf::Color::Green, 3);
-  _drawTraj(window, smoothed_traj, sf::Color::Green);
+  drawPoints(window, smoothed_lms, sf::Color::Green, 3);
+  drawTraj(window, smoothed_traj, sf::Color::Green);
   display(window);
   int c = 0;
   while (c != -2) {
