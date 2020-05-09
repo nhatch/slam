@@ -1,12 +1,10 @@
-
+#include <Eigen/LU>
+#include <X11/Xlib.h>
 #include "graph.h"
 #include "factors.h"
-#include "world.h"
-#include "world_ui.h"
+#include "utils.h"
 #include "slam_utils.h"
-#include "print_results.h"
 #include "constants.h"
-#include <unistd.h>
 using namespace NavSim;
 
 extern const bool IS_2D { false };
@@ -36,36 +34,8 @@ Graph smooth(const values& x0, const traj_points_t &readings) {
   return graph;
 }
 
-void optimizeAndRender(WorldUI &ui) {
-  const traj_points_t readings = ui.world.landmarks();
-  values x0 = toVector(ui.world.odom(), readings[0]);
-  Graph g = smooth(x0, readings);
-  printResults(ui, g);
-}
-
 int main() {
-  constexpr int T = 10;
-
-  World w;
-  w.addDefaultLandmarks();
-  WorldUI ui(w);
-
-  ui.goForwardTSteps(T);
-  ui.drawTraj(w.odom(), false, sf::Color::Blue);
-  optimizeAndRender(ui);
-  ui.show();
-
-  int c;
-  while ((c = ui.pollKeyPress()) != -2) {
-    if (c != -1) {
-      ui.drawTraj(w.odom(), false, sf::Color::Blue);
-      if (c == 6) { // 'g'
-        optimizeAndRender(ui);
-      }
-      ui.show();
-    }
-    usleep(10*1000);
-  }
-
+  XInitThreads();
+  collectDataAndRunSLAM(&smooth);
   return 0;
 }

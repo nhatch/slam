@@ -2,6 +2,7 @@
 #include "utils.h"
 #include "constants.h"
 #include "graphics.h"
+#include <Eigen/LU>
 #include <unistd.h>
 #include <iostream>
 
@@ -133,7 +134,7 @@ transform_t World::readOdom() {
 points_t World::readLandmarks() {
   points_t landmark_readings;
   transform_t tf = current_transform_truth_;
-  point_t robot_location = tf.inverse()*point_t(0,0,1);
+  point_t robot_location = tf.inverse() * point_t(0,0,1);
   for (point_t lm : landmarks_) {
     point_t reading = tf * lm;
     double dist = (robot_location - lm).norm();

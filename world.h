@@ -3,7 +3,6 @@
 
 #include <vector>
 #include <Eigen/Core>
-#include <Eigen/LU>
 #include <thread>
 #include "utils.h"
 #include "graphics.h"

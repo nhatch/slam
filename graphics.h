@@ -6,7 +6,6 @@
 #include <SFML/Graphics.hpp>
 
 void drawObstacles(sf::RenderWindow &window, const obstacles_t &obss);
-// Underscore to differentiate from WorldUI::drawTraj. TODO clean this up
 void drawTraj(sf::RenderWindow &window, const trajectory_t &traj, sf::Color c);
 void drawRobot(sf::RenderWindow &window, const transform_t &tf, sf::Color c);
 void drawPoints(sf::RenderWindow &window, const points_t &ps, sf::Color c, int radius_px);
