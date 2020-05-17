@@ -41,6 +41,7 @@ const double PLAN_RESOLUTION = ROBOT_LENGTH; // m
 const double SEARCH_RADIUS_INCREMENT = ROBOT_LENGTH*3;
 const double GPS_WAYPOINT_RADIUS = ROBOT_LENGTH * 1.5;
 const double LANDMARK_WAYPOINT_RADIUS = ROBOT_LENGTH * 1.3;
+const double EPS = 3.0; // heuristic weight for weighted A*
 
 /* State estimation */
 

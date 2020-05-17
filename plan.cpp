@@ -87,7 +87,8 @@ class NodeCompare
 public:
   bool operator() (const Node *lhs, const Node *rhs)
   {
-    return (lhs->acc_cost + lhs->heuristic_to_goal) > (rhs->acc_cost + rhs->heuristic_to_goal);
+    return (lhs->acc_cost + EPS*(lhs->heuristic_to_goal)) >
+           (rhs->acc_cost + EPS*(rhs->heuristic_to_goal));
   }
 };
 
