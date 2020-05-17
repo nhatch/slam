@@ -10,7 +10,7 @@ void world_interface_init() {
   world.start();
   // Sleep to avoid situation where we're trying to launch two SFML windows
   // simultaneously (which seems to sometimes cause deadlock??)
-  usleep(100 * 1000);
+  usleep(300 * 1000);
 }
 
 // TODO clean this up. Right now we measure sensor data

@@ -10,6 +10,7 @@
 class World {
 public:
   World();
+  ~World();
 
   /* Obstacles trigger lidar hits and block landmarks from view.
    * If the robot hits an obstacle, this is reported to std::cout. */
@@ -41,6 +42,7 @@ private:
   transform_t current_transform_truth_;
   transform_t current_transform_odom_;
   std::thread spin_thread_;
+  bool done_;
 
   void spinSim();
   void renderReadings(sf::RenderWindow &window);

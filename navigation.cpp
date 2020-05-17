@@ -56,11 +56,11 @@ int main()
   int iter = 0;
   bool done = false;
   point_t waypoint;
-  transform_t plan_odom = readOdom();
-  points_t lidar_hits = readLidarScan();
-  points_t landmarks = readLandmarks();
-  plan_t plan = act(lidar_hits, landmarks, &waypoint);
-  drawPlan(plan_window, plan_odom, plan, waypoint, lidar_hits, landmarks);
+  transform_t plan_odom;
+  points_t lidar_hits;
+  points_t landmarks;
+  plan_t plan;
+
   while (true) {
     while ((c = pollWindowEvent(plan_window)) != -1) {
       switch (c) {

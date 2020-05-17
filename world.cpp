@@ -17,8 +17,13 @@ World::World() : obstacles_({}), landmarks_({}),
                     cmd_vel_x_(0), cmd_vel_theta_(0),
                     current_transform_truth_(toTransform({0,0,0})),
                     current_transform_odom_(toTransform({0,0,0})),
-                    spin_thread_()
+                    spin_thread_(), done_(false)
 {
+}
+
+World::~World() {
+  done_ = true;
+  if (spin_thread_.joinable()) spin_thread_.join();
 }
 
 void World::addObstacle(const obstacle_t &obs) {
@@ -58,7 +63,7 @@ void World::spinSim() {
   sf::RenderWindow window(sf::VideoMode(WINDOW_WIDTH_PX, WINDOW_WIDTH_PX), "Simulator visualization");
   const double SIM_HZ = 30;
   const double dt = 1/SIM_HZ;
-  while (true) {
+  while (!done_) {
     int c = 0;
     while (c != -1)
     {
