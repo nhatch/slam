@@ -8,8 +8,6 @@
 #include "constants.h"
 using namespace NavSim;
 
-extern const bool IS_2D { true };
-
 Graph smooth(const values &x0, const traj_points_t &readings) {
   int T = (int) readings.size()-1;
   int nLandmarks = (int) readings[0].size();

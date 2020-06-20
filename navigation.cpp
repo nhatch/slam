@@ -11,7 +11,6 @@
 #include <Eigen/LU>
 
 using namespace NavSim;
-extern const bool IS_2D { true };
 const double CONTROL_HZ = MAX_SPEED / PLAN_RESOLUTION;
 const double REFRESH_HZ = 30;
 const int REFRESH_PER_CONTROL = REFRESH_HZ / CONTROL_HZ;

@@ -4,7 +4,7 @@
 #include <Eigen/Core>
 #include <vector>
 
-extern const bool IS_2D;
+extern bool IS_2D;
 
 /* Obstacles are specifed as a list of 2D vertices. Must be convex.
  * Do not repeat the starting vertex at the end. */
