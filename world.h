@@ -16,9 +16,12 @@ public:
    * If the robot hits an obstacle, this is reported to std::cout. */
   void addObstacle(const obstacle_t &obs);
   void addLandmark(double x, double y);
+  void addPost(double x, double y);
+  void addGate(double x, double y, double theta, double width);
 
   /* A simple set of obstacles/landmarks which can be used as a basic example. */
   void addDefaultObstacles();
+  void addURCObstacles();
   void addDefaultLandmarks();
 
   void setCmdVel(double d_theta, double d_x);

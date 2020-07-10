@@ -5,8 +5,7 @@
 World world;
 
 void world_interface_init() {
-  world.addDefaultObstacles();
-  world.addLandmark(20, 3);
+  world.addURCObstacles();
   world.start();
   // Sleep to avoid situation where we're trying to launch two SFML windows
   // simultaneously (which seems to sometimes cause deadlock??)

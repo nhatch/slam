@@ -46,7 +46,7 @@ int main()
   XInitThreads();
   world_interface_init();
   sf::RenderWindow plan_window(sf::VideoMode(WINDOW_WIDTH_PX, WINDOW_WIDTH_PX), "Planning visualization");
-  setGoal({13, 6, 1});
+  setGoal({200, 0, 1});
   std::cout << "Type 'q' to quit, 'wasd' to move around, 'r' to toggle autonomous mode.\n";
 
   bool autonomous = false;

@@ -37,6 +37,35 @@ void World::addLandmark(double x, double y) {
   landmarks_.push_back(lm);
 }
 
+void World::addPost(double x, double y) {
+  addLandmark(x,y);
+  /* It would make sense to put an obstacle here so you don't crash into the landmark,
+   * but the current perception code would mean that the landmark would be impossible to observe. */
+  //obstacle_t obs(4,2);
+  //double w = 0.02; // Posts are square, 4cm on a side
+  //obs << x+w,y+w,  x-w,y+w,  x-w,y-w,  x+w,y-w;
+  //addObstacle(obs); // meh
+}
+
+void World::addGate(double x, double y, double theta, double width) {
+  double x1 = x + sin(theta)*width/2;
+  double y1 = y - cos(theta)*width/2;
+  double x2 = x - sin(theta)*width/2;
+  double y2 = y + cos(theta)*width/2;
+  addPost(x1, y1);
+  addPost(x2, y2);
+}
+
+void World::addURCObstacles() {
+  addPost(200, 0);
+  addPost(100, 200);
+  addPost(-100, 200);
+  addGate(-200, 0, M_PI, 3.0);
+  addGate(-100, -200, M_PI, 2.0);
+  addGate(100, -200, 1./2.*M_PI, 2.0);
+  addGate(-5, 5, 3./4.*M_PI, 2.0);
+}
+
 void World::addDefaultObstacles() {
   obstacle_t o1(3,2);
   obstacle_t o2(4,2);
