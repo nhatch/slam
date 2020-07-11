@@ -14,22 +14,24 @@ const int THETA_DIVISIONS = 8;
 int theta = 0;
 bool tag_visible = false;
 point_t gps_goal;
+int goal_id;
 double waypoint_radius = GPS_WAYPOINT_RADIUS;
 double search_radius = 0.0;
 
-void setGoal(const point_t &goal)
+void setGoal(const URCLeg &leg)
 {
-  gps_goal = goal;
+  gps_goal = leg.approx_GPS;
+  goal_id = leg.left_post_id;
 }
 
 point_t nextWaypoint(const points_t &lms)
 {
   point_t robot_goal;
-  if (lms[0](2) != 0.)
+  if (lms[(size_t)goal_id](2) != 0.)
   {
     tag_visible = true;
     waypoint_radius = LANDMARK_WAYPOINT_RADIUS;
-    robot_goal = lms[0];
+    robot_goal = lms[(size_t)goal_id];
     //robot_goal(0) -= 0.3; // Don't crash into the AR tag
   }
   else

@@ -17,7 +17,8 @@ World::World() : obstacles_({}), landmarks_({}),
                     cmd_vel_x_(0), cmd_vel_theta_(0),
                     current_transform_truth_(toTransform({0,0,0})),
                     current_transform_odom_(toTransform({0,0,0})),
-                    spin_thread_(), done_(false)
+                    spin_thread_(), done_(false),
+                    legs_({})
 {
 }
 
@@ -30,40 +31,45 @@ void World::addObstacle(const obstacle_t &obs) {
   obstacles_.push_back(obs);
 }
 
-void World::addLandmark(double x, double y) {
+int World::addLandmark(double x, double y) {
   if (!IS_2D) y = 0.0;
   point_t lm;
   lm << x, y, 1;
   landmarks_.push_back(lm);
-}
-
-void World::addPost(double x, double y) {
-  addLandmark(x,y);
   /* It would make sense to put an obstacle here so you don't crash into the landmark,
    * but the current perception code would mean that the landmark would be impossible to observe. */
   //obstacle_t obs(4,2);
   //double w = 0.02; // Posts are square, 4cm on a side
   //obs << x+w,y+w,  x-w,y+w,  x-w,y-w,  x+w,y-w;
   //addObstacle(obs); // meh
+  return landmarks_.size()-1; // The ID of the new landmark
 }
 
-void World::addGate(double x, double y, double theta, double width) {
+void World::addPost(double x, double y, double gps_x, double gps_y) {
+  int id = addLandmark(x,y);
+  URCLeg leg {id, -1, {gps_x, gps_y, 1}};
+  legs_.push_back(leg);
+}
+
+void World::addGate(double x, double y, double theta, double width, double gps_x, double gps_y) {
   double x1 = x + sin(theta)*width/2;
   double y1 = y - cos(theta)*width/2;
   double x2 = x - sin(theta)*width/2;
   double y2 = y + cos(theta)*width/2;
-  addPost(x1, y1);
-  addPost(x2, y2);
+  int right_id = addLandmark(x1, y1);
+  int left_id = addLandmark(x2, y2);
+  URCLeg leg {left_id, right_id, {gps_x, gps_y, 1}};
+  legs_.push_back(leg);
 }
 
 void World::addURCObstacles() {
-  addPost(200, 0);
-  addPost(100, 200);
-  addPost(-100, 200);
-  addGate(-200, 0, M_PI, 3.0);
-  addGate(-100, -200, M_PI, 2.0);
-  addGate(100, -200, 1./2.*M_PI, 2.0);
-  addGate(-5, 5, 3./4.*M_PI, 2.0);
+  addPost(200, 0, 200, 0);
+  addPost(100, 200, 100, 200);
+  addPost(-97, 202, -100, 200); // Leg 3: GPS is off by 5 meters
+  addGate(-200, 0, M_PI, 3.0, -200, 0);
+  addGate(-101, -209, M_PI, 2.0, -100, -200);
+  addGate(100, -200, 1./2.*M_PI, 2.0, 100, -200);
+  addGate(-10, 10, 3./4.*M_PI, 2.0, -2, 5);
 }
 
 void World::addDefaultObstacles() {
@@ -214,6 +220,13 @@ transform_t World::readGPS() {
   noise << stdn()*GPS_POS_STD, stdn()*GPS_POS_STD, stdn()*GPS_THETA_STD;
   p += noise;
   return toTransform(p);
+}
+
+URCLeg World::getLeg(int index) {
+  if (index < 0 || index >= (int)legs_.size()) {
+    return URCLeg {-1, -1, {0,0,0}};
+  }
+  return legs_[(size_t) index];
 }
 
 const points_t World::trueLandmarks() {

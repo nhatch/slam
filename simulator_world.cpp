@@ -33,3 +33,7 @@ transform_t readGPS() {
 transform_t readOdom() {
   return world.readOdom();
 }
+
+URCLeg getLeg(int index) {
+  return world.getLeg(index);
+}

@@ -20,6 +20,12 @@ using point_t = Eigen::Vector3d; // x, y, 1 (or 0, 0, 0 to represent "no data")
 using points_t = std::vector<point_t>;
 using traj_points_t = std::vector<points_t>; // points_t for each time along a trajectory
 
+struct URCLeg {
+  int left_post_id;
+  int right_post_id; // This will be -1 for legs that are just single posts
+  point_t approx_GPS;
+};
+
 points_t transformReadings(const points_t &ps, const transform_t &tf);
 trajectory_t transformTraj(const trajectory_t &traj, const transform_t &tf);
 

@@ -15,9 +15,9 @@ public:
   /* Obstacles trigger lidar hits and block landmarks from view.
    * If the robot hits an obstacle, this is reported to std::cout. */
   void addObstacle(const obstacle_t &obs);
-  void addLandmark(double x, double y);
-  void addPost(double x, double y);
-  void addGate(double x, double y, double theta, double width);
+  int addLandmark(double x, double y);
+  void addPost(double x, double y, double gps_x, double gps_y);
+  void addGate(double x, double y, double theta, double width, double gps_x, double gps_y);
 
   /* A simple set of obstacles/landmarks which can be used as a basic example. */
   void addDefaultObstacles();
@@ -30,6 +30,7 @@ public:
   points_t readLandmarks();
   transform_t readGPS();
   transform_t readOdom();
+  URCLeg getLeg(int index);
 
   /* Ground truth */
   const points_t trueLandmarks();
@@ -46,6 +47,7 @@ private:
   transform_t current_transform_odom_;
   std::thread spin_thread_;
   bool done_;
+  std::vector<URCLeg> legs_;
 
   void spinSim();
   void renderReadings(MyWindow &window);
