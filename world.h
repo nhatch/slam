@@ -48,7 +48,7 @@ private:
   bool done_;
 
   void spinSim();
-  void renderReadings(sf::RenderWindow &window);
+  void renderReadings(MyWindow &window);
   void moveRobot(double d_theta, double d_x);
 };
 

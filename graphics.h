@@ -2,14 +2,24 @@
 #define SLAM_GRAPHICS_H
 
 #include "utils.h"
-#include "world.h"
 #include <SFML/Graphics.hpp>
 
-void drawObstacles(sf::RenderWindow &window, const obstacles_t &obss);
-void drawTraj(sf::RenderWindow &window, const trajectory_t &traj, sf::Color c);
-void drawRobot(sf::RenderWindow &window, const transform_t &tf, sf::Color c);
-void drawPoints(sf::RenderWindow &window, const points_t &ps, sf::Color c, int radius_px);
-void display(sf::RenderWindow &window);
-int pollWindowEvent(sf::RenderWindow &window);
+class MyWindow {
+public:
+  MyWindow(const char *name);
+  void drawObstacles(const obstacles_t &obss);
+  void drawTraj(const trajectory_t &traj, sf::Color c);
+  void drawRobot(const transform_t &tf, sf::Color c);
+  void drawPoints(const points_t &ps, sf::Color c, int radius_px);
+  void display();
+  int pollWindowEvent();
+
+private:
+  sf::RenderWindow sf_window_;
+  sf::Vector2f toWindowFrame(const point_t &p);
+  sf::Vector2f toWindowFrame(const point_t &p, double vertOffset);
+  void drawLine(const point_t &l1, const point_t &l2, sf::Color c);
+  double vertOffset(sf::Color c);
+};
 
 #endif

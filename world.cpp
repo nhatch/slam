@@ -89,31 +89,31 @@ void World::addDefaultLandmarks() {
 }
 
 void World::spinSim() {
-  sf::RenderWindow window(sf::VideoMode(WINDOW_WIDTH_PX, WINDOW_WIDTH_PX), "Simulator visualization");
+  MyWindow window("Simulator visualization");
   const double SIM_HZ = 30;
   const double dt = 1/SIM_HZ;
   while (!done_) {
     int c = 0;
     while (c != -1)
     {
-      c = pollWindowEvent(window); // We ignore these events.
+      c = window.pollWindowEvent(); // We ignore these events.
     }
     moveRobot(cmd_vel_theta_ * dt, cmd_vel_x_ * dt);
-    drawObstacles(window, obstacles_);
-    drawPoints(window, landmarks_, TRUTH_COLOR, 4);
+    window.drawObstacles(obstacles_);
+    window.drawPoints(landmarks_, TRUTH_COLOR, 4);
     renderReadings(window);
-    drawRobot(window, current_transform_truth_, TRUTH_COLOR);
-    display(window);
+    window.drawRobot(current_transform_truth_, TRUTH_COLOR);
+    window.display();
     usleep(1000 * 1000 / SIM_HZ);
   }
 }
 
-void World::renderReadings(sf::RenderWindow &window) {
+void World::renderReadings(MyWindow &window) {
   transform_t tf = current_transform_truth_;
   points_t lidar = readLidar();
-  drawPoints(window, transformReadings(lidar, tf), LIDAR_COLOR, 3);
+  window.drawPoints(transformReadings(lidar, tf), LIDAR_COLOR, 3);
   points_t lms = readLandmarks();
-  drawPoints(window, transformReadings(lms, tf), LANDMARK_COLOR, 4);
+  window.drawPoints(transformReadings(lms, tf), LANDMARK_COLOR, 4);
 }
 
 void World::start() {

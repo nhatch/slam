@@ -1,5 +1,4 @@
 
-#include <SFML/Graphics.hpp>
 #include <unistd.h>
 #include <Eigen/Core>
 #include <Eigen/LU>
@@ -56,17 +55,17 @@ void collectDataAndRunSLAM(Graph (*smooth)(const values &x0, const traj_points_t
   }
   w.setCmdVel(0.0, 0.0);
 
-  sf::RenderWindow window(sf::VideoMode(WINDOW_WIDTH_PX, WINDOW_WIDTH_PX), "SLAM visualization");
-  display(window);
-  drawTraj(window, odom, sf::Color::Blue);
-  drawPoints(window, landmark_readings[0], sf::Color::Blue, 3);
-  drawTraj(window, ground_truth, sf::Color::Black);
-  drawPoints(window, w.trueLandmarks(), sf::Color::Black, 3);
-  display(window);
-  drawTraj(window, odom, sf::Color::Blue);
-  drawPoints(window, landmark_readings[0], sf::Color::Blue, 3);
-  drawTraj(window, ground_truth, sf::Color::Black);
-  drawPoints(window, w.trueLandmarks(), sf::Color::Black, 3);
+  MyWindow window("SLAM visualization");
+  window.display();
+  window.drawTraj(odom, sf::Color::Blue);
+  window.drawPoints(landmark_readings[0], sf::Color::Blue, 3);
+  window.drawTraj(ground_truth, sf::Color::Black);
+  window.drawPoints(w.trueLandmarks(), sf::Color::Black, 3);
+  window.display();
+  window.drawTraj(odom, sf::Color::Blue);
+  window.drawPoints(landmark_readings[0], sf::Color::Blue, 3);
+  window.drawTraj(ground_truth, sf::Color::Black);
+  window.drawPoints(w.trueLandmarks(), sf::Color::Black, 3);
 
   values x0 = toVector(odom, landmark_readings[0]);
   Graph g = smooth(x0, landmark_readings);

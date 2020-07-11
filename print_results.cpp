@@ -1,6 +1,5 @@
 
 #include <iostream>
-#include <SFML/Graphics.hpp>
 #include <unistd.h>
 #include "graph.h"
 #include "slam_utils.h"
@@ -53,7 +52,7 @@ trajectory_t toTraj(const values &x, int pose_size, int T) {
   return tfs;
 }
 
-void printResults(sf::RenderWindow &window, Graph &g, const trajectory_t &true_trajectory, const points_t &true_landmarks) {
+void printResults(MyWindow &window, Graph &g, const trajectory_t &true_trajectory, const points_t &true_landmarks) {
   int pose_size(1), lm_size(1);
   if (IS_2D) {
     pose_size = 3;
@@ -80,12 +79,12 @@ void printResults(sf::RenderWindow &window, Graph &g, const trajectory_t &true_t
 
   trajectory_t smoothed_traj = toTraj(g.solution(), pose_size, T);
   points_t smoothed_lms = toLandmarks(g.solution(), T*pose_size, lm_size);
-  drawPoints(window, smoothed_lms, sf::Color::Green, 3);
-  drawTraj(window, smoothed_traj, sf::Color::Green);
-  display(window);
+  window.drawPoints(smoothed_lms, sf::Color::Green, 3);
+  window.drawTraj(smoothed_traj, sf::Color::Green);
+  window.display();
   int c = 0;
   while (c != -2) {
-    while ((c = pollWindowEvent(window)) != -1 && c != -2) {};
+    while ((c = window.pollWindowEvent()) != -1 && c != -2) {};
     usleep(100 * 1000);
   };
 }

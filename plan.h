@@ -4,7 +4,6 @@
 
 #include "utils.h"
 #include <Eigen/Core>
-#include <SFML/Graphics.hpp>
 
 // Sequence of controls. Each control is a (x distance, theta distance) pair.
 using plan_t = Eigen::Matrix<double, Eigen::Dynamic, 2>;

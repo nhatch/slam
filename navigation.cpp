@@ -15,7 +15,7 @@ const double CONTROL_HZ = MAX_SPEED / PLAN_RESOLUTION;
 const double REFRESH_HZ = 30;
 const int REFRESH_PER_CONTROL = REFRESH_HZ / CONTROL_HZ;
 
-void drawPlan(sf::RenderWindow &plan_window, const transform_t &plan_odom,
+void drawPlan(MyWindow &plan_window, const transform_t &plan_odom,
     const plan_t &p, const point_t &goal, const points_t &lidar_hits,
     const points_t &landmarks)
 {
@@ -33,19 +33,19 @@ void drawPlan(sf::RenderWindow &plan_window, const transform_t &plan_odom,
   }
   transform_t base = toTransform({WINDOW_CENTER_X,WINDOW_CENTER_Y,M_PI/2});
   transform_t plan_base = plan_odom * readOdom().inverse() * base;
-  drawTraj(plan_window, transformTraj(traj, plan_base), sf::Color::Red);
-  drawPoints(plan_window, transformReadings({goal}, plan_base), sf::Color::Green, 10);
-  drawPoints(plan_window, transformReadings(lidar_hits, plan_base), sf::Color::Red, 3);
-  drawPoints(plan_window, transformReadings(landmarks, plan_base), sf::Color::Blue, 4);
-  drawRobot(plan_window, base, sf::Color::Black);
-  display(plan_window);
+  plan_window.drawTraj(transformTraj(traj, plan_base), sf::Color::Red);
+  plan_window.drawPoints(transformReadings({goal}, plan_base), sf::Color::Green, 10);
+  plan_window.drawPoints(transformReadings(lidar_hits, plan_base), sf::Color::Red, 3);
+  plan_window.drawPoints(transformReadings(landmarks, plan_base), sf::Color::Blue, 4);
+  plan_window.drawRobot(base, sf::Color::Black);
+  plan_window.display();
 }
 
 int main()
 {
   XInitThreads();
   world_interface_init();
-  sf::RenderWindow plan_window(sf::VideoMode(WINDOW_WIDTH_PX, WINDOW_WIDTH_PX), "Planning visualization");
+  MyWindow plan_window("Planning visualization");
   setGoal({200, 0, 1});
   std::cout << "Type 'q' to quit, 'wasd' to move around, 'r' to toggle autonomous mode.\n";
 
@@ -61,7 +61,7 @@ int main()
   plan_t plan;
 
   while (true) {
-    while ((c = pollWindowEvent(plan_window)) != -1) {
+    while ((c = plan_window.pollWindowEvent()) != -1) {
       switch (c) {
         case 22:
         case 73:
