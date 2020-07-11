@@ -16,6 +16,10 @@ public:
 
 private:
   sf::RenderWindow sf_window_;
+  double window_width_;
+  double window_center_x_;
+  double window_center_y_;
+
   sf::Vector2f toWindowFrame(const point_t &p);
   sf::Vector2f toWindowFrame(const point_t &p, double vertOffset);
   void drawLine(const point_t &l1, const point_t &l2, sf::Color c);

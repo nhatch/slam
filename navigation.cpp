@@ -31,7 +31,7 @@ void drawPlan(MyWindow &plan_window, const transform_t &plan_odom,
     trans = toTransformRotateFirst(x, 0, theta) * trans;
     traj.push_back(trans);
   }
-  transform_t base = toTransform({WINDOW_CENTER_X,WINDOW_CENTER_Y,M_PI/2});
+  transform_t base = toTransform({DEFAULT_WINDOW_CENTER_X,DEFAULT_WINDOW_CENTER_Y,M_PI/2});
   transform_t plan_base = plan_odom * readOdom().inverse() * base;
   plan_window.drawTraj(transformTraj(traj, plan_base), sf::Color::Red);
   plan_window.drawPoints(transformReadings({goal}, plan_base), sf::Color::Green, 10);

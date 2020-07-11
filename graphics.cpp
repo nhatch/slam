@@ -7,17 +7,20 @@
 
 using namespace NavSim;
 
-const double scale_x = double(WINDOW_WIDTH_PX) / WINDOW_WIDTH;
-const double scale_y = -double(WINDOW_WIDTH_PX) / WINDOW_WIDTH;
-const double offset_x = double(WINDOW_WIDTH_PX) / 2;
-const double offset_y = double(WINDOW_WIDTH_PX) / 2;
-
 sf::Vector2f MyWindow::toWindowFrame(const point_t &p) {
-  return sf::Vector2f((p(0)-WINDOW_CENTER_X)*scale_x + offset_x, (p(1)-WINDOW_CENTER_Y)*scale_y + offset_y);
+  double scale_x = double(DEFAULT_WINDOW_WIDTH_PX) / window_width_;
+  double scale_y = -double(DEFAULT_WINDOW_WIDTH_PX) / window_width_;
+  double offset_x = double(DEFAULT_WINDOW_WIDTH_PX) / 2;
+  double offset_y = double(DEFAULT_WINDOW_WIDTH_PX) / 2;
+  return sf::Vector2f((p(0)-window_center_x_)*scale_x + offset_x, (p(1)-window_center_y_)*scale_y + offset_y);
 }
 
 MyWindow::MyWindow(const char *name) :
-  sf_window_(sf::VideoMode(WINDOW_WIDTH_PX, WINDOW_WIDTH_PX), name) {
+  sf_window_(sf::VideoMode(DEFAULT_WINDOW_WIDTH_PX, DEFAULT_WINDOW_WIDTH_PX), name),
+  window_width_(DEFAULT_WINDOW_WIDTH),
+  window_center_x_(DEFAULT_WINDOW_CENTER_X),
+  window_center_y_(DEFAULT_WINDOW_CENTER_Y)
+{
 }
 
 // Useful for 1D visualizations, which are too cluttered with everything on top of each other
