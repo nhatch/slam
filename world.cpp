@@ -62,14 +62,73 @@ void World::addGate(double x, double y, double theta, double width, double gps_x
   legs_.push_back(leg);
 }
 
+double randf() {
+  return double(std::rand())/RAND_MAX;
+}
+
 void World::addURCObstacles() {
   addPost(200, 0, 200, 0);
   addPost(100, 200, 100, 200);
   addPost(-97, 202, -100, 200); // Leg 3: GPS is off by 5 meters
   addGate(-200, 0, M_PI, 3.0, -200, 0);
   addGate(-101, -209, M_PI, 2.0, -100, -200);
+
+  // Leg 6: The path is strewn with obstacles
   addGate(100, -200, 1./2.*M_PI, 2.0, 100, -200);
+  size_t seed = 0;
+  std::srand(seed);
+  int n_obstacles = 64;
+  int obs_verts = 5;
+  double o_x(100), o_y(-200), obs_field_size(150), min_o(0.5), max_o(10.0);
+  for (int i=0; i < n_obstacles; i++) {
+    obstacle_t o(obs_verts,2);
+    double d_x = (randf()-0.5)*obs_field_size;
+    double d_y = (randf()-0.5)*obs_field_size;
+
+    // Ensure the obstacle doesn't cover the gate
+    double norm = sqrt(d_x*d_x + d_y*d_y);
+    if (norm < max_o+2) {
+      d_x = d_x*max_o/norm;
+      d_y = d_y*max_o/norm;
+    }
+
+    for (int j=0; j<obs_verts; j++) {
+      double theta = 2*M_PI * j / obs_verts;
+      double dist = randf()*(max_o-min_o) + min_o;
+      o(j,0) = o_x+d_x + cos(theta)*dist;
+      o(j,1) = o_y+d_y + sin(theta)*dist;
+    }
+    std::cout << o << std::endl;
+    addObstacle(o);
+  }
+
+
+  // Leg 7: Gate hidden by obstacles; search required
   addGate(-10, 10, 3./4.*M_PI, 2.0, -2, 5);
+  obstacle_t o1(3,2);
+  obstacle_t o2(4,2);
+  obstacle_t o3(3,2);
+  obstacle_t o4(4,2);
+  obstacle_t o5(3,2);
+  obstacle_t o6(4,2);
+  obstacle_t o7(4,2);
+  obstacle_t o8(3,2);
+  o1 << -12.5, 9,    -12, 15,    -14, 13;
+  o2 << -12.5, 14,    0, 14,    1, 15,    -13,16;
+  o3 << 0, 15,        -1, 7,    1, 7;
+  o4 << -11, 2,     0, 8,   0, 9,   -10, 3.5;
+  o5 << -10, 2.5,   -15, 8,   -20, 2;
+  o6 << -7, -4,   -6, -8,   -4, -9,   -4.5, -3.5;
+  o7 << -11, -4,   -11, -5,   -10, -5,   -10, -4;
+  o8 << 12, 12,   14, 13,   13, 16;
+  addObstacle(o1);
+  addObstacle(o2);
+  addObstacle(o3);
+  addObstacle(o4);
+  addObstacle(o5);
+  addObstacle(o6);
+  addObstacle(o7);
+  addObstacle(o8);
 }
 
 void World::addDefaultObstacles() {

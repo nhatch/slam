@@ -2,6 +2,7 @@
 #include <chrono>
 #include <Eigen/LU>
 #include "utils.h"
+#include "constants.h"
 #include <iostream>
 
 extern bool IS_2D { true };
@@ -24,10 +25,21 @@ trajectory_t transformTraj(const trajectory_t &traj, const transform_t &tf) {
   return tf_traj;
 }
 
+// Computational optimization. With lots of obstacles things get expensive.
+// To guarantee this is valid, don't make any obstacles larger than
+// LIDAR_MAX_RANGE in diameter.
+bool inRange(const point_t &p, const obstacle_t &obs) {
+  point_t op;
+  op << obs(0,0), obs(0,1), p(2);
+  return ((p-op).norm() < 2*NavSim::LIDAR_MAX_RANGE);
+}
+
 bool collides(const transform_t &tf, const obstacles_t &obss)
 {
+  pose_t p = toPose(tf,0);
   for (const obstacle_t &obs : obss)
   {
+    if (!inRange(p, obs)) continue;
     int n = obs.rows();
     bool inside = true;
     for(int i = 0; i < n; i++) {
@@ -77,6 +89,7 @@ double obstacleIntersection(const point_t &r0, const point_t &r1, const obstacle
   double min_t = 2.0;
   for (const obstacle_t &obs : obss)
   {
+    if (!inRange(r0, obs)) continue;
     int n = obs.rows();
     for(int i = 0; i < n; i++)
     {

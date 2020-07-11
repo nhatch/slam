@@ -46,7 +46,7 @@ int main()
   XInitThreads();
   world_interface_init();
   MyWindow plan_window("Planning visualization");
-  URCLeg leg = getLeg(4);
+  URCLeg leg = getLeg(5);
   setGoal(leg);
   std::cout << "Type 'q' to quit, 'wasd' to move around, 'r' to toggle autonomous mode.\n";
 
