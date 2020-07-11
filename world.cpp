@@ -99,6 +99,7 @@ void World::spinSim() {
       c = window.pollWindowEvent(); // We ignore these events.
     }
     moveRobot(cmd_vel_theta_ * dt, cmd_vel_x_ * dt);
+    window.setOrigin(toPose(current_transform_truth_, 0.0));
     window.drawObstacles(obstacles_);
     window.drawPoints(landmarks_, TRUTH_COLOR, 4);
     renderReadings(window);

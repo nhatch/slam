@@ -7,6 +7,11 @@
 
 using namespace NavSim;
 
+void MyWindow::setOrigin(const pose_t &o) {
+  window_center_x_ = o(0);
+  window_center_y_ = o(1);
+}
+
 sf::Vector2f MyWindow::toWindowFrame(const point_t &p) {
   double scale_x = double(DEFAULT_WINDOW_WIDTH_PX) / window_width_;
   double scale_y = -double(DEFAULT_WINDOW_WIDTH_PX) / window_width_;
@@ -45,6 +50,11 @@ int MyWindow::pollWindowEvent() {
         return code;
       case sf::Event::KeyReleased:
         return -3;
+      case sf::Event::MouseWheelMoved:
+        window_width_ *= exp(-0.25*event.mouseWheel.delta);
+        if (window_width_ < 2.0) window_width_ = 2.0;
+        if (window_width_ > 1000.0) window_width_ = 1000.0;
+        return -4;
       default:
         return -4; // unhandled event type
     }

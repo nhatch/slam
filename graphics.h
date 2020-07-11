@@ -12,6 +12,7 @@ public:
   void drawRobot(const transform_t &tf, sf::Color c);
   void drawPoints(const points_t &ps, sf::Color c, int radius_px);
   void display();
+  void setOrigin(const pose_t &o);
   int pollWindowEvent();
 
 private:
