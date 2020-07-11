@@ -98,7 +98,6 @@ void World::addURCObstacles() {
       o(j,0) = o_x+d_x + cos(theta)*dist;
       o(j,1) = o_y+d_y + sin(theta)*dist;
     }
-    std::cout << o << std::endl;
     addObstacle(o);
   }
 
