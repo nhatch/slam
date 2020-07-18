@@ -5,6 +5,7 @@
 #include <Eigen/LU>
 #include <unistd.h>
 #include <iostream>
+#include "time.h"
 
 using namespace NavSim;
 
@@ -67,30 +68,30 @@ double randf() {
 }
 
 void World::addURCObstacles() {
-  addPost(200, 0, 200, 0);
-  addPost(100, 200, 100, 200);
-  addPost(-97, 202, -100, 200); // Leg 3: GPS is off by 5 meters
-  addGate(-200, 0, M_PI, 3.0, -200, 0);
-  addGate(-101, -209, M_PI, 2.0, -100, -200);
+  // For URC, the robot is expected to travel like 2 km, but this is very
+  // boring in simulation. So we reduce the scale for development purposes.
+  const double SCALE = 0.25;
+
+  addPost(200*SCALE, 0, 200*SCALE, 0);
+  addPost(100*SCALE, 200*SCALE, 100*SCALE, 200*SCALE);
+  addPost(-100*SCALE+3, 200*SCALE+4, -100*SCALE, 200*SCALE); // Leg 3: GPS is off by 5 meters
+  addGate(-200*SCALE, 0, M_PI, 3.0, -200*SCALE, 0);
+  addGate(-100*SCALE-1, -200*SCALE-9, M_PI, 2.0, -100*SCALE, -200*SCALE);
 
   // Leg 6: The path is strewn with obstacles
-  addGate(100, -200, 1./2.*M_PI, 2.0, 100, -200);
-  size_t seed = 0;
+  addGate(100*SCALE, -200*SCALE, 1./2.*M_PI, 2.0, 100*SCALE, -200*SCALE);
+  size_t seed = 2; // This seed seems to be best for difficult-but-still-possible obstacles
   std::srand(seed);
-  int n_obstacles = 64;
+  int n_obstacles = 256 * SCALE * SCALE;
   int obs_verts = 5;
-  double o_x(100), o_y(-200), obs_field_size(150), min_o(0.5), max_o(10.0);
+  double o_x(100*SCALE), o_y(-200*SCALE), r_out(150*SCALE), min_o(0.5), max_o(10.0);
+  double r_in(max_o+2.0);
   for (int i=0; i < n_obstacles; i++) {
     obstacle_t o(obs_verts,2);
-    double d_x = (randf()-0.5)*obs_field_size;
-    double d_y = (randf()-0.5)*obs_field_size;
-
-    // Ensure the obstacle doesn't cover the gate
-    double norm = sqrt(d_x*d_x + d_y*d_y);
-    if (norm < max_o+2) {
-      d_x = d_x*max_o/norm;
-      d_y = d_y*max_o/norm;
-    }
+    double theta = randf() * 2 * M_PI;
+    double rad = sqrt(randf()*(r_out*r_out-r_in*r_in) + r_in*r_in);
+    double d_x = cos(theta)*rad;
+    double d_y = sin(theta)*rad;
 
     for (int j=0; j<obs_verts; j++) {
       double theta = 2*M_PI * j / obs_verts;
@@ -182,6 +183,7 @@ void World::renderReadings(MyWindow &window) {
 }
 
 void World::start() {
+  std::srand(time(NULL));
   spin_thread_ = std::thread( [this] {spinSim();} );
 }
 
