@@ -1,8 +1,6 @@
 Use SLAM for state estimation in real-time navigation
-Implement some kind of *efficient* graph-based optimizer
+Use a more efficient graph-based optimizer (standard variable elimination w/ Levenberg-Marquardt)
 Read a paper to verify that this is actually how smoothing-based SLAM is implemented
   (in particular, understand why the Hessian of the potential gives the "variance")
 Change 1D factor interface to match 2D
-Implement partial visibility of landmarks (e.g. obstruction by obstacles)
-Change animation delays to reflect actual action execution time
 Allow click to set goal

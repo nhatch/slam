@@ -40,7 +40,7 @@ Graph smooth(const values &x0, const traj_points_t &readings) {
       graph.add(new OdomFactor2D(t2, t1, odom_cov_inv, om2-om1));
     }
   }
-  graph.solve(x0, 0.0001, 10000, 1.0);
+  graph.solve(x0);
   return graph;
 }
 

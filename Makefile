@@ -6,7 +6,7 @@ SFML=-lsfml-graphics -lsfml-window -lsfml-system -pthread -lX11
 SLAM_DEPS=$(GRAPH_DEPS) $(SIMULATOR_DEPS) print_results.o slam_utils.o
 NAV_DEPS=$(SIMULATOR_DEPS) plan.o search.o
 
-target: 2D 1D nav graph
+target: 2D 1D nav test_graph
 
 2D: 2D_slam.o $(SLAM_DEPS)
 	$(CC) 2D_slam.o $(SLAM_DEPS) $(SFML) -o 2D.out
@@ -17,8 +17,8 @@ target: 2D 1D nav graph
 nav: navigation.o $(NAV_DEPS)
 	$(CC) -g navigation.o $(NAV_DEPS) $(SFML) -o nav.out
 
-graph: test_graph.o $(GRAPH_DEPS)
-	$(CC) test_graph.o $(GRAPH_DEPS) -o graph.out
+test_graph: test_graph.o $(GRAPH_DEPS)
+	$(CC) test_graph.o $(GRAPH_DEPS) -o test_graph.out
 
 %.o: %.cpp %.h
 	$(CC) $(CFLAGS) -g -c -o $@ $<

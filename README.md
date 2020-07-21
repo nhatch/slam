@@ -2,7 +2,7 @@ A planar navigation simulator (SLAM and A-Star search) with visualization.
 
 There are two projects here:
 
-First, a factor-graph based Simultaneous Localization and Mapping solver. This implementation does not address data association or loop closure issues. The optimizer is simply gradient descent, and it uses dense Jacobians. At some point I may try to speed up the optimization by taking advantage of sparsity in the graph.
+First, a factor-graph based Simultaneous Localization and Mapping solver. This implementation does not address data association or loop closure issues. The optimizer is simply Newton's Method, and it uses dense Jacobians. At some point I may try to speed up the optimization by taking advantage of sparsity in the graph.
 
 Second, a planning and control algorithm. The control is kinematic but has a _lot_ of noise. The goal location also has a lot of noise; we imagine it to be specified as GPS coordinates, and the robot has a bad magnetometer and GPS receiver. The planner is A-Star, with replanning at every timestep.
 

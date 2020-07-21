@@ -39,9 +39,12 @@ void Graph::solve(const values &x0, double alpha, int maxiters, double tol) {
   int N = x0.size();
   while (error > tol && i < maxiters) {
     values grad = values::Zero(N);
-    for (auto f : _factors)
+    hessian hess = hessian::Zero(N,N);
+    for (auto f : _factors) {
       grad += f->gradient_at(x);
-    x -= alpha * grad;
+      hess += f->hessian_at(x);
+    }
+    x -= alpha * (hess.inverse() * grad);
     error = sqrt(grad.transpose() * grad);
     i += 1;
     if (i%100 == 0)

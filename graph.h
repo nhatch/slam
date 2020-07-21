@@ -30,7 +30,7 @@ public:
 
   void add(AbstractFactor *f);
   double eval(const values &x);
-  void solve(const values &x0, double alpha=0.01, int maxiters=10000, double tol=0.001);
+  void solve(const values &x0, double alpha=1.0, int maxiters=1000, double tol=1e-10);
   values x0();
   values solution();
   hessian covariance();

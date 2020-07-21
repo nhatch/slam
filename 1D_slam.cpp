@@ -28,7 +28,7 @@ Graph smooth(const values& x0, const traj_points_t &readings) {
     if (t>1)
       graph.add(new OdomFactor(t-2, t-1, sqrt(SLAM_VAR), x0(t-1)-x0(t-2)));
   }
-  graph.solve(x0, 0.001, 100000, 0.1);
+  graph.solve(x0);
   return graph;
 }
 
