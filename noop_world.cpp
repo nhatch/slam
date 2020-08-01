@@ -22,3 +22,7 @@ transform_t readGPS() {
 transform_t readOdom() {
   return toTransform({0,0,0});
 }
+
+URCLeg getLeg(int /*id*/) {
+  return URCLeg { -1, -1, {0.,0.,0.}};
+}

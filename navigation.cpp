@@ -7,7 +7,6 @@
 #include <iostream>
 #include <stdio.h>
 #include <unistd.h>
-#include <X11/Xlib.h>
 #include <Eigen/LU>
 
 using namespace NavSim;
@@ -43,7 +42,6 @@ void drawPlan(MyWindow &plan_window, const transform_t &plan_odom,
 
 int main()
 {
-  XInitThreads();
   world_interface_init();
   MyWindow plan_window("Planning visualization");
   URCLeg leg = getLeg(5);

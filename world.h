@@ -48,6 +48,7 @@ private:
   std::thread spin_thread_;
   bool done_;
   std::vector<URCLeg> legs_;
+  MyWindow window_;
 
   void spinSim();
   void renderReadings(MyWindow &window);

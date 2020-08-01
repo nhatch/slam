@@ -14,12 +14,25 @@ So far the SLAM solver is not used for state estimation in the planning algorith
  * [Eigen](http://eigen.tuxfamily.org)
  * [SFML](https://www.sfml-dev.org/tutorials/2.5/)
 
-On Ubuntu, you can install these via
+On Ubuntu, you might be able to install these via
 
 ```
 sudo apt-get install libeigen3-dev
 sudo apt-get install libsfml-dev
 ```
+
+However, I think we require SFML 2.5, while libsfml-dev on Ubuntu 18.04 is version 2.4.2. So you may have to build SFML from source:
+
+```
+git clone git@github.com:SFML/SFML
+cd SFML
+mkdir build && cd build
+cmake ..
+make
+make install
+```
+
+This may require installing some dependencies. See also this [tutorial](https://www.sfml-dev.org/tutorials/2.5/compile-with-cmake.php).
 
 ## Usage
 

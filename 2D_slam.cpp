@@ -1,6 +1,5 @@
 
 #include <Eigen/LU>
-#include <X11/Xlib.h>
 #include "graph.h"
 #include "factors.h"
 #include "utils.h"
@@ -45,7 +44,6 @@ Graph smooth(const values &x0, const traj_points_t &readings) {
 }
 
 int main() {
-  XInitThreads();
   collectDataAndRunSLAM(&smooth);
   return 0;
 }

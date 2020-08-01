@@ -1,10 +1,10 @@
 CC=g++
 CFLAGS=-pedantic-errors -Wall -Weffc++ -Wextra -Wsign-conversion
-SIMULATOR_DEPS=utils.o graphics.o world.o simulator_world.o
+SIMULATOR_DEPS=utils.o graphics.o world.o
 GRAPH_DEPS=graph.o factors.o
-SFML=-lsfml-graphics -lsfml-window -lsfml-system -pthread -lX11
+SFML=-lsfml-graphics -lsfml-window -lsfml-system -pthread
 SLAM_DEPS=$(GRAPH_DEPS) $(SIMULATOR_DEPS) print_results.o slam_utils.o
-NAV_DEPS=$(SIMULATOR_DEPS) plan.o search.o
+NAV_DEPS=$(SIMULATOR_DEPS) plan.o search.o simulator_world.o
 
 target: 2D 1D nav test_graph
 

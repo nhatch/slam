@@ -19,7 +19,7 @@ World::World() : obstacles_({}), landmarks_({}),
                     current_transform_truth_(toTransform({0,0,0})),
                     current_transform_odom_(toTransform({0,0,0})),
                     spin_thread_(), done_(false),
-                    legs_({})
+                    legs_({}), window_("Simulator visualization")
 {
 }
 
@@ -154,22 +154,21 @@ void World::addDefaultLandmarks() {
 }
 
 void World::spinSim() {
-  MyWindow window("Simulator visualization");
   const double SIM_HZ = 30;
   const double dt = 1/SIM_HZ;
   while (!done_) {
     int c = 0;
     while (c != -1)
     {
-      c = window.pollWindowEvent(); // We ignore these events.
+      c = window_.pollWindowEvent(); // We ignore these events.
     }
     moveRobot(cmd_vel_theta_ * dt, cmd_vel_x_ * dt);
-    window.setOrigin(toPose(current_transform_truth_, 0.0));
-    window.drawObstacles(obstacles_);
-    window.drawPoints(landmarks_, TRUTH_COLOR, 4);
-    renderReadings(window);
-    window.drawRobot(current_transform_truth_, TRUTH_COLOR);
-    window.display();
+    window_.setOrigin(toPose(current_transform_truth_, 0.0));
+    window_.drawObstacles(obstacles_);
+    window_.drawPoints(landmarks_, TRUTH_COLOR, 4);
+    renderReadings(window_);
+    window_.drawRobot(current_transform_truth_, TRUTH_COLOR);
+    window_.display();
     usleep(1000 * 1000 / SIM_HZ);
   }
 }
