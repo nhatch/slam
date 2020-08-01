@@ -44,6 +44,10 @@ void Graph::solve(const values &x0, double alpha, int maxiters, double tol) {
       grad += f->gradient_at(x);
       hess += f->hessian_at(x);
     }
+    for (int j = 0; j < N; j++) {
+      // Presumably we have no factors affecting this variable
+      if (hess(j,j) == 0) hess(j,j) = 0.001; // avoid singular matrix
+    }
     x -= alpha * (hess.inverse() * grad);
     error = sqrt(grad.transpose() * grad);
     i += 1;
@@ -56,6 +60,9 @@ void Graph::solve(const values &x0, double alpha, int maxiters, double tol) {
   hessian hess = hessian::Zero(N,N);
   for (auto f : _factors)
     hess += f->hessian_at(_sol);
+  for (int j = 0; j < N; j++) {
+    if (hess(j,j) == 0) hess(j,j) = 0.001; // Again, avoid singular matrix
+  }
   _sol_cov = hess.inverse();
 }
 

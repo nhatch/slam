@@ -80,25 +80,46 @@ jacobian<2> LandmarkFactor2D::jf(const values &x) {
   return j;
 }
 
+// This is identical to LandmarkFactor2D except for one extra measurement (an angle difference).
+// TODO figure out how to remove all the duplicate code.
 OdomFactor2D::OdomFactor2D(int pose2, int pose1, covariance<3> &sigma_inv, measurement<3> m) : Factor<3>(
     sigma_inv, m
-    ), _pose1(pose1), _pose2(pose2) { }
+    ), _pose2(pose2), _pose1(pose1) { }
 
 measurement<3> OdomFactor2D::f(const values &x) {
-  if (_pose1 >= 0)
-    return measurement<3> { x(_pose2) - x(_pose1), x(_pose2+1) -x(_pose1+1), x(_pose2+2)-x(_pose1+2) };
-  else
-    return measurement<3> { x(_pose2), x(_pose2+1), x(_pose2+2) };
+  double px(0), py(0), theta(0);
+  if (_pose1 >= 0) {
+    px = x(_pose1);
+    py = x(_pose1+1);
+    theta = x(_pose1+2);
+  }
+  return measurement<3> {
+    (x(_pose2) - px) * cos(theta)    + (x(_pose2+1) - py) * sin(theta),
+    (x(_pose2) - px) * (-sin(theta)) + (x(_pose2+1) - py) * cos(theta),
+    x(_pose2+2) - theta
+  };
 }
 
 jacobian<3> OdomFactor2D::jf(const values &x) {
   jacobian<3> j = jacobian<3>::Zero(x.size(), 3);
-  j(_pose2,0)   = 1;
-  j(_pose2+1,1) = 1;
+  double px(0), py(0), theta(0);
+  if (_pose1 >= 0) {
+    px = x(_pose1);
+    py = x(_pose1+1);
+    theta = x(_pose1+2);
+  }
+  j(_pose2+0,0) = cos(theta);
+  j(_pose2+1,0) = sin(theta);
+  j(_pose2+0,1) = -sin(theta);
+  j(_pose2+1,1) = cos(theta);
   j(_pose2+2,2) = 1;
   if (_pose1 >= 0) {
-    j(_pose1,0)   = -1;
-    j(_pose1+1,1) = -1;
+    j(_pose1+0,0)   = -cos(theta);
+    j(_pose1+1,0)   = -sin(theta);
+    j(_pose1+2,0)   = (x(_pose2) - px) * (-sin(theta)) + (x(_pose2+1) - py) * cos(theta);
+    j(_pose1+0,1)   = sin(theta);
+    j(_pose1+1,1)   = -cos(theta);
+    j(_pose1+2,1)   = (x(_pose2) - px) * (-cos(theta)) + (x(_pose2+1) - py) * (-sin(theta));
     j(_pose1+2,2) = -1;
   }
   return j;

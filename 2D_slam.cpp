@@ -14,8 +14,8 @@ Graph smooth(const values &x0, const traj_points_t &readings) {
   covariance<3> odom_cov = covariance<3>::Zero();
   // TODO what are the right numbers here? Should y be correlated with theta?
   odom_cov << SLAM_VAR, 0, 0,
-              0, SLAM_VAR, 0,
-              0, 0, SLAM_VAR;
+              0, SLAM_VAR, SLAM_VAR/2.0,
+              0, SLAM_VAR/2.0, SLAM_VAR;
   covariance<3> odom_cov_inv = odom_cov.inverse();
   covariance<2> sensor_cov = covariance<2>::Zero();
   sensor_cov << SLAM_VAR, 0,
@@ -36,7 +36,8 @@ Graph smooth(const values &x0, const traj_points_t &readings) {
       measurement<3> om1 = measurement<3>::Zero();
       if (t1 >= 0)
         om1 = x0.block(t1,0,3,1);
-      graph.add(new OdomFactor2D(t2, t1, odom_cov_inv, om2-om1));
+      pose_t diff = toPose(toTransform(om2) * toTransform(om1).inverse(), 0.0);
+      graph.add(new OdomFactor2D(t2, t1, odom_cov_inv, diff));
     }
   }
   graph.solve(x0);

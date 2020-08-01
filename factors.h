@@ -70,7 +70,7 @@ public:
 };
 
 class OdomFactor2D : public Factor<3> {
-  int _pose1, _pose2;
+  int _pose2, _pose1;
 
 public:
   OdomFactor2D(int pose2, int pose1, covariance<3> &sigma_inv, measurement<3> m);
