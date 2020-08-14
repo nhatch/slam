@@ -5,7 +5,7 @@
 #include "constants.h"
 #include <iostream>
 
-extern bool IS_2D { true };
+bool IS_2D { true };
 
 points_t transformReadings(const points_t &ps, const transform_t &tf) {
   transform_t tf_inv = tf.inverse();

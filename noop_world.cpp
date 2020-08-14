@@ -4,7 +4,8 @@
 void world_interface_init() {
 }
 
-void setCmdVel(double /*dtheta*/, double /*dx*/) {
+bool setCmdVel(double /*dtheta*/, double /*dx*/) {
+  return true;
 }
 
 points_t readLidarScan() {

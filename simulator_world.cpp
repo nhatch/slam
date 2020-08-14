@@ -12,10 +12,9 @@ void world_interface_init() {
   usleep(300 * 1000);
 }
 
-// TODO clean this up. Right now we measure sensor data
-// iff we set the cmd_vel.
-void setCmdVel(double dtheta, double dx) {
+bool setCmdVel(double dtheta, double dx) {
   world.setCmdVel(dtheta, dx);
+  return true;
 }
 
 points_t readLidarScan() {
