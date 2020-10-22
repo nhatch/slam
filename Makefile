@@ -20,6 +20,9 @@ nav: navigation.o $(NAV_DEPS)
 test_graph: test_graph.o $(GRAPH_DEPS)
 	$(CC) test_graph.o $(GRAPH_DEPS) -o test_graph.out
 
+icp_test: test/icp_test.o icp.o utils.o
+	$(CC) test/icp_test.o icp.o utils.o -o icp_test.out
+
 %.o: %.cpp %.h
 	$(CC) $(CFLAGS) -g -c -o $@ $<
 
