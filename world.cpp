@@ -5,7 +5,9 @@
 #include <Eigen/LU>
 #include <unistd.h>
 #include <iostream>
-#include "time.h"
+#include <time.h>
+#include <sys/time.h>
+#include <ctime>
 
 using namespace NavSim;
 
@@ -154,9 +156,11 @@ void World::addDefaultLandmarks() {
 }
 
 void World::spinSim() {
-  const double SIM_HZ = 30;
+  const double SIM_HZ = 30.;
   const double dt = 1/SIM_HZ;
+  struct timeval tp0, tp_start;
   while (!done_) {
+    gettimeofday(&tp_start, NULL);
     int c = 0;
     while (c != -1)
     {
@@ -169,7 +173,12 @@ void World::spinSim() {
     renderReadings(window_);
     window_.drawRobot(current_transform_truth_, TRUTH_COLOR);
     window_.display();
-    usleep(1000 * 1000 / SIM_HZ);
+    gettimeofday(&tp0, NULL);
+    long elapsedUsecs = (tp0.tv_sec - tp_start.tv_sec) * 1000 * 1000 + (tp0.tv_usec - tp_start.tv_usec);
+    long desiredUsecs = 1000 * 1000 / SIM_HZ;
+    if (desiredUsecs - elapsedUsecs > 0) {
+      usleep(desiredUsecs - elapsedUsecs);
+    }
   }
 }
 
