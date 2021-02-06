@@ -10,5 +10,6 @@ using plan_t = Eigen::Matrix<double, Eigen::Dynamic, 2>;
 using action_t = Eigen::Vector2d;
 
 plan_t getPlan(const points_t &lidar_scan, const point_t &goal, double goal_radius);
+double planCostFromIndex(plan_t &plan, int idx);
 
 #endif

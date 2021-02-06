@@ -169,3 +169,13 @@ plan_t getPlan(const points_t &lidar_hits, const point_t &goal, double goal_radi
 
   return plan;
 }
+
+double planCostFromIndex(plan_t &plan, int idx) {
+  double cost = 0;
+  for (int i = idx; i < plan.rows(); i++) {
+    action_t action = plan.row(i);
+    cost += abs(action(1)) + RADIAN_COST * abs(action(0));
+  }
+  return cost;
+}
+
