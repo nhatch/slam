@@ -27,11 +27,11 @@ trajectory_t transformTraj(const trajectory_t &traj, const transform_t &tf) {
 
 // Computational optimization. With lots of obstacles things get expensive.
 // To guarantee this is valid, don't make any obstacles larger than
-// LIDAR_MAX_RANGE in diameter.
+// OBSTACLE_MAX_SIZE in diameter.
 bool inRange(const point_t &p, const obstacle_t &obs) {
   point_t op;
   op << obs(0,0), obs(0,1), p(2);
-  return ((p-op).norm() < 2*NavSim::LIDAR_MAX_RANGE);
+  return ((p-op).norm() < 2*NavSim::OBSTACLE_MAX_SIZE);
 }
 
 bool collides(const transform_t &tf, const obstacles_t &obss)
