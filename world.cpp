@@ -262,7 +262,7 @@ points_t World::readLidar() {
   points_t hits({});
   for(int j = 0; j < LIDAR_RESOLUTION; j++)
   {
-    double angle = j * 2 * M_PI / LIDAR_RESOLUTION;
+    double angle = LIDAR_FOV_DIR - (LIDAR_FOV / 2.0) + (j * LIDAR_FOV / LIDAR_RESOLUTION);
     point_t r0, r1;
     r0 << 0, 0, 1;
     r1 << LIDAR_MAX_RANGE*cos(angle), LIDAR_MAX_RANGE*sin(angle), 1;
