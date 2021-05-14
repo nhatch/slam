@@ -2,6 +2,8 @@
 #ifndef _SIMULATOR_CONSTANTS_H_
 #define _SIMULATOR_CONSTANTS_H_
 
+#include <cmath>
+
 namespace NavSim {
 
 /* Robot footprint */
