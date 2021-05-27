@@ -49,6 +49,7 @@ private:
   bool done_;
   std::vector<URCLeg> legs_;
   MyWindow window_;
+  struct timeval last_gps_reading_;
 
   void spinSim();
   void renderReadings(MyWindow &window);
