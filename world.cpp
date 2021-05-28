@@ -11,6 +11,8 @@
 
 using namespace NavSim;
 
+constexpr long GPS_UPDATE_PERIOD_USECS = 1000 * 1000;
+
 const sf::Color TRUTH_COLOR(0,0,0,128);
 const sf::Color ODOM_COLOR(0,0,255,128);
 const sf::Color LIDAR_COLOR(255,0,0,128);
@@ -155,6 +157,13 @@ void World::addDefaultLandmarks() {
   addLandmark(0.1*scale, 1*scale);
 }
 
+long getElapsedUsecs(const struct timeval &tp_start) {
+  struct timeval tp0;
+  gettimeofday(&tp0, NULL);
+  long elapsed = (tp0.tv_sec - tp_start.tv_sec) * 1000 * 1000 + (tp0.tv_usec - tp_start.tv_usec);
+  return elapsed;
+}
+
 void World::spinSim() {
   const double SIM_HZ = 30.;
   const double dt = 1/SIM_HZ;
@@ -173,9 +182,8 @@ void World::spinSim() {
     renderReadings(window_);
     window_.drawRobot(current_transform_truth_, TRUTH_COLOR);
     window_.display();
-    gettimeofday(&tp0, NULL);
-    long elapsedUsecs = (tp0.tv_sec - tp_start.tv_sec) * 1000 * 1000 + (tp0.tv_usec - tp_start.tv_usec);
     long desiredUsecs = 1000 * 1000 / SIM_HZ;
+    long elapsedUsecs = getElapsedUsecs(tp_start);
     if (desiredUsecs - elapsedUsecs > 0) {
       usleep(desiredUsecs - elapsedUsecs);
     }
@@ -192,6 +200,7 @@ void World::renderReadings(MyWindow &window) {
 
 void World::start() {
   std::srand(time(NULL));
+  gettimeofday(&last_gps_reading_, NULL);
   spin_thread_ = std::thread( [this] {spinSim();} );
 }
 
@@ -260,14 +269,15 @@ points_t World::readLandmarks() {
 
 points_t World::readLidar() {
   points_t hits({});
+  transform_t tf_inv = current_transform_truth_.inverse();
+  point_t r0({0,0,1});
+  point_t robot_location = tf_inv * r0;
   for(int j = 0; j < LIDAR_RESOLUTION; j++)
   {
     double angle = LIDAR_FOV_DIR - (LIDAR_FOV / 2.0) + (j * LIDAR_FOV / LIDAR_RESOLUTION);
-    point_t r0, r1;
-    r0 << 0, 0, 1;
+    point_t r1;
     r1 << LIDAR_MAX_RANGE*cos(angle), LIDAR_MAX_RANGE*sin(angle), 1;
-    transform_t tf_inv = current_transform_truth_.inverse();
-    double t = obstacleIntersection(tf_inv*r0, tf_inv*r1, obstacles_);
+    double t = obstacleIntersection(robot_location, tf_inv*r1, obstacles_);
     double dist = t*LIDAR_MAX_RANGE;
     if (dist < LIDAR_MAX_RANGE && dist > LIDAR_MIN_RANGE)
     {
@@ -279,14 +289,26 @@ points_t World::readLidar() {
       }
     }
   }
+  // Assume landmarks are thin vertical obstacles, hence would be hit by lidar
+  points_t lms = readLandmarks();
+  for (point_t lm : lms) {
+    if (lm(2) != 0 && (lm - r0).norm() < LIDAR_MAX_RANGE) {
+      hits.push_back(lm);
+    }
+  }
   return hits;
 }
 
 transform_t World::readGPS() {
+  long elapsed = getElapsedUsecs(last_gps_reading_);
+  if (elapsed < GPS_UPDATE_PERIOD_USECS) return transform_t::Zero();
+  gettimeofday(&last_gps_reading_, NULL);
+
   pose_t p = toPose(current_transform_truth_, 0.);
   pose_t noise;
   noise << stdn()*GPS_POS_STD, stdn()*GPS_POS_STD, stdn()*GPS_THETA_STD;
   p += noise;
+  p[2] = 0.0; // no heading information
   return toTransform(p);
 }
 
