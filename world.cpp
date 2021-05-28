@@ -301,7 +301,7 @@ points_t World::readLidar() {
 
 transform_t World::readGPS() {
   long elapsed = getElapsedUsecs(last_gps_reading_);
-  if (elapsed < GPS_UPDATE_PERIOD_USECS) return toTransform({0,0,0});
+  if (elapsed < GPS_UPDATE_PERIOD_USECS) return transform_t::Zero();
   gettimeofday(&last_gps_reading_, NULL);
 
   pose_t p = toPose(current_transform_truth_, 0.);
