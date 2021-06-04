@@ -20,6 +20,11 @@ transform_t readGPS() {
   return toTransform({0,0,0});
 }
 
+point_t gpsToMeters(double lon, double lat)
+{
+  return {lon, lat, 1.0};
+}
+
 transform_t readOdom() {
   return toTransform({0,0,0});
 }
