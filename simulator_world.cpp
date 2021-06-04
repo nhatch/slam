@@ -29,6 +29,11 @@ transform_t readGPS() {
   return world.readGPS();
 }
 
+point_t gpsToMeters(double lon, double lat)
+{
+  return {lon, lat, 1.0};
+}
+
 transform_t readOdom() {
   return world.readOdom();
 }
