@@ -258,6 +258,10 @@ points_t World::readLandmarks() {
     double dist = (robot_location - lm).norm();
     corrupt(reading, dist);
     double t = obstacleIntersection(robot_location, lm, obstacles_);
+	double angle = atan2(reading.y(), reading.x());
+	if (abs(angle) > LANDMARK_HALF_FOV) {
+      reading = point_t::Zero();
+	}
     // t < 1.0 indicates there's an obstacle between the landmark and the robot
     if (dist > LANDMARK_MAX_RANGE || t < 0.999999) {
       reading *= 0; // (0,0,0) indicates no data
