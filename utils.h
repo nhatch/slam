@@ -62,6 +62,7 @@ transform_t toTransformRotateFirst(double x, double y, double theta);
 // The parameters of toTransformRotateFirst are not a robot pose
 // (rotation and translation operations do not commute).
 pose_t toPose(const transform_t &trf, double prev_theta);
+double nearestHeadingBranch(double theta, double prev_theta);
 
 transform_t toTransform(const pose_t &pose);
 

@@ -17,8 +17,8 @@ const double OBSTACLE_MAX_SIZE = ROBOT_LENGTH * 15; // m. used for efficient cal
 /* Sensors and actuators */
 // I define a lot of these constants in terms of ROBOT_LENGTH to make it easy to change the scale
 
-const double LANDMARK_MAX_RANGE = ROBOT_LENGTH * 15; // m
 const double LANDMARK_HALF_FOV = 60 * M_PI / 180.0; // radians, half of the landmark fov
+const double LANDMARK_MAX_RANGE = ROBOT_LENGTH * 5; // m
 const double LIDAR_MAX_RANGE = ROBOT_LENGTH * 5.6; // m
 const double LIDAR_MIN_RANGE = ROBOT_LENGTH; // m
 const int LIDAR_RESOLUTION = 100; // number of scans in the lidar fov
@@ -26,7 +26,7 @@ const double LIDAR_FOV = 240.0 * M_PI / 180.0; // rad
 const double LIDAR_FOV_DIR = 0; // radians, gives the direction relative to robot front of fov center
 const double CORRUPTION_STD = 0.04; // std in meters at 1 meter distance
                                     // variance increases for measurements farther from robot
-const double DATA_LOSS_THRESHOLD = -2.0; // if stdn() is less than this, erase data
+const double DATA_LOSS_THRESHOLD = -1.0; // if stdn() is less than this, erase data
 const double GPS_POS_STD = 2.0; // m
 const double GPS_THETA_STD = M_PI/24; // rad (yes, I know this uses a magnetometer, not a GPS)
 const double WHEEL_STD = 0.005; // std in meters for 1 meter distance traveled
