@@ -21,7 +21,8 @@ World::World() : obstacles_({}), landmarks_({}),
                     current_transform_truth_(toTransform({0,0,0})),
                     current_transform_odom_(toTransform({0,0,0})),
                     spin_thread_(), done_(false),
-                    legs_({}), window_("Simulator visualization")
+                    legs_({}), window_("Simulator visualization"),
+                    last_gps_reading_()
 {
 }
 
@@ -158,7 +159,7 @@ void World::addDefaultLandmarks() {
 void World::spinSim() {
   const double SIM_HZ = 30.;
   const double dt = 1/SIM_HZ;
-  struct timeval tp0, tp_start;
+  struct timeval tp_start;
   while (!done_) {
     gettimeofday(&tp_start, NULL);
     int c = 0;
