@@ -17,6 +17,7 @@ private:
   int poseIdx(int pose_id);
   int landmarkIdx(int lm_id);
   void incrementNumPoses();
+  pose_t getPoseEstimate(int pose_id);
 
 public:
   Graph _graph;

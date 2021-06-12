@@ -56,16 +56,26 @@ int FriendlyGraph::landmarkIdx(int lm_id) {
   return lm_id * LM_SIZE;
 }
 
+pose_t FriendlyGraph::getPoseEstimate(int pose_id) {
+  pose_t p = _current_guess.block(poseIdx(pose_id), 0, POSE_SIZE, 1);
+  return p;
+}
+
 void FriendlyGraph::addGPSMeasurement(int pose_id, const transform_t &gps_tf) {
   pose_t gps = toPose(gps_tf, 0); // heading doesn't matter
   _graph.add(new OdomFactor2D(poseIdx(pose_id), -1, _gps_cov_inv, gps));
-  _current_guess.block(poseIdx(pose_id),0,POSE_SIZE,1) = gps;
 }
 
 void FriendlyGraph::addOdomMeasurement(int pose2_id, int pose1_id,
     const transform_t &pose2_tf, const transform_t &pose1_tf) {
-  pose_t diff = toPose(pose2_tf * pose1_tf.inverse(), 0.0);
+  transform_t rel_tf = pose2_tf * pose1_tf.inverse();
+  pose_t diff = toPose(rel_tf, 0.0);
   _graph.add(new OdomFactor2D(poseIdx(pose2_id), poseIdx(pose1_id), _odom_cov_inv, diff));
+  pose_t pose1_est = getPoseEstimate(pose1_id);
+  transform_t new_pose_tf = rel_tf * toTransform(pose1_est);
+  pose_t pose2_est = toPose(new_pose_tf, pose1_est(2));
+  printf("Setting pose2 estimate %f %f %f\n", pose2_est(0), pose2_est(1), pose2_est(2));
+  _current_guess.block(poseIdx(pose2_id),0,POSE_SIZE,1) = pose2_est;
 }
 
 void FriendlyGraph::addLandmarkMeasurement(int pose_id, int lm_id, const point_t &bearing) {
@@ -92,6 +102,7 @@ void FriendlyGraph::addPosePrior(int pose_id, const transform_t &pose_tf,
   covariance<3> prior_cov_inv = prior_cov.inverse();
   pose_t pose = toPose(pose_tf, 0);
   _graph.add(new OdomFactor2D(poseIdx(pose_id), -1, prior_cov_inv, pose));
+  _current_guess.block(poseIdx(pose_id),0,POSE_SIZE,1) = pose;
 }
 
 void FriendlyGraph::solve() {

@@ -44,12 +44,13 @@ void collectDataAndRunSLAM() {
 
   traj_points_t landmark_readings({});
   trajectory_t ground_truth({});
-  trajectory_t odom({});
+  trajectory_t odom_traj({});
   trajectory_t gps_traj({});
 
+  transform_t start_pose_guess = toTransform({13,-1,M_PI*2/3});
 
   FriendlyGraph fg(L);
-  fg.addPosePrior(0, toTransform({0,0,0}), 20.0, 10.0); // uninformative prior
+  fg.addPosePrior(0, start_pose_guess, 3.0, 1.0); // informed prior
   for (int l = 0; l < L; l++) {
     point_t location({0,0,1});
     fg.addLandmarkPrior(l, location, 20.0); // uninformative prior
@@ -71,27 +72,30 @@ void collectDataAndRunSLAM() {
       fg.addOdomMeasurement(pose_id, pose_id-1, odom, prev_odom);
       prev_odom = odom;
     }
-    odom.push_back(prev_odom);
+    odom_traj.push_back(prev_odom);
     transform_t gps = w.readGPS();
     if (gps.norm() != 0.0) {
+      printf("Got a true GPS reading\n");
+      gps_traj.push_back(gps);
       fg.addGPSMeasurement(pose_id, gps);
     }
-    gps_traj.push_back(gps);
 
     ground_truth.push_back(w.readTrueTransform());
-    if (pose_id == 0) w.setCmdVel(0.0, ROBOT_LENGTH*8);
-    usleep(200 * 1000);
+    if (pose_id == 0) w.setCmdVel(0.0, ROBOT_LENGTH);
+    usleep(500 * 1000);
   }
   w.setCmdVel(0.0, 0.0);
 
   MyWindow window("SLAM visualization");
   window.display();
-  window.drawTraj(odom, sf::Color::Blue);
+  window.drawTraj(gps_traj, sf::Color::Red);
+  window.drawTraj(odom_traj, sf::Color::Blue);
   window.drawPoints(landmark_readings[0], sf::Color::Blue, 3);
   window.drawTraj(ground_truth, sf::Color::Black);
   window.drawPoints(w.trueLandmarks(), sf::Color::Black, 3);
   window.display();
-  window.drawTraj(odom, sf::Color::Blue);
+  window.drawTraj(gps_traj, sf::Color::Red);
+  window.drawTraj(odom_traj, sf::Color::Blue);
   window.drawPoints(landmark_readings[0], sf::Color::Blue, 3);
   window.drawTraj(ground_truth, sf::Color::Black);
   window.drawPoints(w.trueLandmarks(), sf::Color::Black, 3);
