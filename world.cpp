@@ -18,7 +18,7 @@ const sf::Color LANDMARK_COLOR(0,0,255);
 
 World::World() : obstacles_({}), landmarks_({}),
                     cmd_vel_x_(0), cmd_vel_theta_(0),
-                    current_transform_truth_(toTransform({0,0,0})),
+                    current_transform_truth_(toTransform({15,0,M_PI})),
                     current_transform_odom_(toTransform({0,0,0})),
                     spin_thread_(), done_(false),
                     legs_({}), window_("Simulator visualization"),

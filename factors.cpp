@@ -40,7 +40,8 @@ jacobian<1> GPSFactor::jf(const values &x) {
   return j;
 }
 
-LandmarkFactor2D::LandmarkFactor2D(int lmPose, int sensorPose, covariance<2> &sigma_inv, measurement<2> m) : Factor<2>(
+LandmarkFactor2D::LandmarkFactor2D(int lmPose, int sensorPose,
+      const covariance<2> &sigma_inv, const measurement<2> m) : Factor<2>(
     sigma_inv, m
     ), _lmPose(lmPose), _sensorPose(sensorPose) { }
 
@@ -82,7 +83,8 @@ jacobian<2> LandmarkFactor2D::jf(const values &x) {
 
 // This is identical to LandmarkFactor2D except for one extra measurement (an angle difference).
 // TODO figure out how to remove all the duplicate code.
-OdomFactor2D::OdomFactor2D(int pose2, int pose1, covariance<3> &sigma_inv, measurement<3> m) : Factor<3>(
+OdomFactor2D::OdomFactor2D(int pose2, int pose1,
+      const covariance<3> &sigma_inv, const measurement<3> m) : Factor<3>(
     sigma_inv, m
     ), _pose2(pose2), _pose1(pose1) { }
 
