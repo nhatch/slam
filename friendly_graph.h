@@ -9,6 +9,7 @@ class FriendlyGraph {
 private:
   int _num_landmarks;
   int _num_poses;
+  values _current_guess;
 
   covariance<3> _odom_cov_inv;
   covariance<2> _sensor_cov_inv;
@@ -17,11 +18,9 @@ private:
   int poseIdx(int pose_id);
   int landmarkIdx(int lm_id);
   void incrementNumPoses();
-  pose_t getPoseEstimate(int pose_id);
 
 public:
   Graph _graph;
-  values _current_guess;
 
   FriendlyGraph(int num_landmarks);
 
@@ -33,6 +32,7 @@ public:
   void addPosePrior(int pose_id, const transform_t &pose_tf,
     double xy_std, double th_std);
 
+  pose_t getPoseEstimate(int pose_id);
   void solve();
 };
 

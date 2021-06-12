@@ -70,6 +70,9 @@ void printResults(MyWindow &window, Graph &g, const trajectory_t &true_trajector
   printRange(g, ground_truth, lm_size*L, ground_truth.size(), pose_size);
   std::cout << std::noshowpos;
 
+  // TODO maybe we should compute error in a more sophisticated way?
+  // E.g. we don't really care about absolute landmark location so much as
+  // location relative to the robot.
   std::cout << std::endl << "Initial error: " << (ground_truth-g.x0()).norm() << std::endl;
   std::cout << "Smoothed error: " << (ground_truth-g.solution()).norm() << std::endl;
   std::cout << "Initial potential: " << g.eval(g.x0()) << std::endl;

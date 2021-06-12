@@ -74,7 +74,6 @@ void FriendlyGraph::addOdomMeasurement(int pose2_id, int pose1_id,
   pose_t pose1_est = getPoseEstimate(pose1_id);
   transform_t new_pose_tf = rel_tf * toTransform(pose1_est);
   pose_t pose2_est = toPose(new_pose_tf, pose1_est(2));
-  printf("Setting pose2 estimate %f %f %f\n", pose2_est(0), pose2_est(1), pose2_est(2));
   _current_guess.block(poseIdx(pose2_id),0,POSE_SIZE,1) = pose2_est;
 }
 

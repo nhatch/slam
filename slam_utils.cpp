@@ -61,10 +61,10 @@ void collectDataAndRunSLAM() {
   w.start();
   transform_t prev_odom = w.readOdom();
   for (int pose_id = 0; pose_id < T+1; pose_id++) {
-    points_t lm_readings = w.readLandmarks();
-    landmark_readings.push_back(lm_readings);
+    points_t lm_reading = w.readLandmarks();
+    landmark_readings.push_back(lm_reading);
     for (int lm_id = 0; lm_id < L; lm_id++) {
-      point_t lm = lm_readings[lm_id];
+      point_t lm = lm_reading[(size_t)lm_id];
       if (lm(2) != 0.0) fg.addLandmarkMeasurement(pose_id, lm_id, lm);
     }
     if (pose_id > 0) {
@@ -72,10 +72,9 @@ void collectDataAndRunSLAM() {
       fg.addOdomMeasurement(pose_id, pose_id-1, odom, prev_odom);
       prev_odom = odom;
     }
-    odom_traj.push_back(prev_odom);
+    odom_traj.push_back(toTransform(fg.getPoseEstimate(pose_id)));
     transform_t gps = w.readGPS();
     if (gps.norm() != 0.0) {
-      printf("Got a true GPS reading\n");
       gps_traj.push_back(gps);
       fg.addGPSMeasurement(pose_id, gps);
     }
@@ -101,7 +100,7 @@ void collectDataAndRunSLAM() {
   window.drawPoints(w.trueLandmarks(), sf::Color::Black, 3);
 
   fg.solve();
-  Graph g = fg._graph;
+  Graph &g = fg._graph;
   printResults(window, g, ground_truth, w.trueLandmarks());
 }
 
