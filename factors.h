@@ -64,7 +64,7 @@ class LandmarkFactor2D : public Factor<2> {
   int _lmPose, _sensorPose;
 
 public:
-  LandmarkFactor2D(int lmPose, int sensorPose, covariance<2> &sigma_inv, measurement<2> m);
+  LandmarkFactor2D(int lmPose, int sensorPose, const covariance<2> &sigma_inv, const measurement<2> m);
   virtual measurement<2> f(const values &x);
   virtual jacobian<2> jf(const values &x);
 };
@@ -73,7 +73,7 @@ class OdomFactor2D : public Factor<3> {
   int _pose2, _pose1;
 
 public:
-  OdomFactor2D(int pose2, int pose1, covariance<3> &sigma_inv, measurement<3> m);
+  OdomFactor2D(int pose2, int pose1, const covariance<3> &sigma_inv, const measurement<3> m);
   virtual measurement<3> f(const values &x);
   virtual jacobian<3> jf(const values &x);
 };

@@ -35,7 +35,7 @@ const double WHEEL_STD = 0.005; // std in meters for 1 meter distance traveled
 /* Graphics */
 
 const int DEFAULT_WINDOW_WIDTH_PX = 600;
-const double DEFAULT_WINDOW_WIDTH = 2*LANDMARK_MAX_RANGE; // m
+const double DEFAULT_WINDOW_WIDTH = 30.0; // m
 const double DEFAULT_WINDOW_CENTER_X = ROBOT_LENGTH*10; // m
 const double DEFAULT_WINDOW_CENTER_Y = 2.0; // m
 

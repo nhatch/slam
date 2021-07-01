@@ -6,6 +6,7 @@
 #include "slam_utils.h"
 #include "utils.h"
 #include "graph.h"
+#include "friendly_graph.h"
 #include "graphics.h"
 #include "world.h"
 #include "constants.h"
@@ -20,55 +21,86 @@ values toVector(const trajectory_t &traj, const points_t &r) {
     pose_size = 3;
     lm_size = 2;
   }
-  // We don't include a variable for T=0 since we *define* that to be the origin
-  int N = pose_size*T+lm_size*L;
+  int N = lm_size*L + pose_size*(T+1);
   values v = values::Zero(N);
   double prev_theta = 0.;
-  for (int i = 0; i < T; i++) {
-    transform_t trf = traj[(size_t)i+1];
-    pose_t p = toPose(trf, prev_theta);
-    v.block(pose_size*i,0,pose_size,1) = p.topRows(pose_size);
-    prev_theta = p(2);
-  }
   for (int i = 0; i < L; i++) {
-    v.block(pose_size*T+lm_size*i, 0, lm_size, 1) = r[(size_t)i].topRows(lm_size);
+    v.block(lm_size*i, 0, lm_size, 1) = r[(size_t)i].topRows(lm_size);
+  }
+  for (int i = 0; i <= T; i++) {
+    transform_t trf = traj[(size_t)i];
+    pose_t p = toPose(trf, prev_theta);
+    v.block(lm_size*L + pose_size*i,0,pose_size,1) = p.topRows(pose_size);
+    prev_theta = p(2);
   }
   return v;
 }
 
-void collectDataAndRunSLAM(Graph (*smooth)(const values &x0, const traj_points_t &readings)) {
+void collectDataAndRunSLAM() {
   constexpr int T = 10;
+  int L = 6;
+  int N = 3*(T+1) + 2*L;
+  values v = values::Zero(N);
 
   traj_points_t landmark_readings({});
   trajectory_t ground_truth({});
-  trajectory_t odom({});
+  trajectory_t odom_traj({});
+  trajectory_t gps_traj({});
+
+  transform_t start_pose_guess = toTransform({13,-1,M_PI*2/3});
+
+  FriendlyGraph fg(L);
+  fg.addPosePrior(0, start_pose_guess, 3.0, 1.0); // informed prior
+  for (int l = 0; l < L; l++) {
+    point_t location({0,0,1});
+    fg.addLandmarkPrior(l, location, 20.0); // uninformative prior
+  }
 
   World w;
   w.addDefaultLandmarks();
   w.start();
-  for (int i = 0; i < T+1; i++) {
-    landmark_readings.push_back(w.readLandmarks());
-    odom.push_back(w.readOdom());
+  transform_t prev_odom = w.readOdom();
+  for (int pose_id = 0; pose_id < T+1; pose_id++) {
+    points_t lm_reading = w.readLandmarks();
+    landmark_readings.push_back(lm_reading);
+    for (int lm_id = 0; lm_id < L; lm_id++) {
+      point_t lm = lm_reading[(size_t)lm_id];
+      if (lm(2) != 0.0) fg.addLandmarkMeasurement(pose_id, lm_id, lm);
+    }
+    if (pose_id > 0) {
+      transform_t odom = w.readOdom();
+      fg.addOdomMeasurement(pose_id, pose_id-1, odom, prev_odom);
+      prev_odom = odom;
+    }
+    odom_traj.push_back(toTransform(fg.getPoseEstimate(pose_id)));
+    transform_t gps = w.readGPS();
+    if (gps.norm() != 0.0) {
+      gps_traj.push_back(gps);
+      fg.addGPSMeasurement(pose_id, gps);
+    }
+
     ground_truth.push_back(w.readTrueTransform());
-    if (i == 0) w.setCmdVel(0.0, ROBOT_LENGTH*8);
-    usleep(200 * 1000);
+    if (pose_id == 0) w.setCmdVel(0.0, ROBOT_LENGTH);
+    usleep(500 * 1000);
   }
   w.setCmdVel(0.0, 0.0);
 
   MyWindow window("SLAM visualization");
   window.display();
-  window.drawTraj(odom, sf::Color::Blue);
+  window.drawTraj(gps_traj, sf::Color::Red);
+  window.drawTraj(odom_traj, sf::Color::Blue);
   window.drawPoints(landmark_readings[0], sf::Color::Blue, 3);
   window.drawTraj(ground_truth, sf::Color::Black);
   window.drawPoints(w.trueLandmarks(), sf::Color::Black, 3);
   window.display();
-  window.drawTraj(odom, sf::Color::Blue);
+  window.drawTraj(gps_traj, sf::Color::Red);
+  window.drawTraj(odom_traj, sf::Color::Blue);
   window.drawPoints(landmark_readings[0], sf::Color::Blue, 3);
   window.drawTraj(ground_truth, sf::Color::Black);
   window.drawPoints(w.trueLandmarks(), sf::Color::Black, 3);
 
-  values x0 = toVector(odom, landmark_readings[0]);
-  Graph g = smooth(x0, landmark_readings);
+  fg.solve();
+  Graph &g = fg._graph;
   printResults(window, g, ground_truth, w.trueLandmarks());
 }
 
