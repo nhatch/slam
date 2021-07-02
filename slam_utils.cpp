@@ -100,7 +100,6 @@ void collectDataAndRunSLAM() {
   window.drawPoints(w.trueLandmarks(), sf::Color::Black, 3);
 
   fg.solve();
-  Graph &g = fg._graph;
-  printResults(window, g, ground_truth, w.trueLandmarks());
+  printResults(window, fg, ground_truth, w.trueLandmarks());
 }
 

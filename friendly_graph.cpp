@@ -108,3 +108,26 @@ void FriendlyGraph::solve() {
   _graph.solve(_current_guess);
   _current_guess = _graph.solution();
 }
+
+points_t FriendlyGraph::getLandmarkLocations() {
+  points_t lms({});
+  for (int i = 0; i < _num_landmarks*LM_SIZE; i += LM_SIZE) {
+    point_t lm ({0, 0, 1});
+    lm.topRows(LM_SIZE) = _current_guess.block(i, 0, LM_SIZE, 1);
+    lms.push_back(lm);
+  }
+  return lms;
+}
+
+trajectory_t FriendlyGraph::getSmoothedTrajectory() {
+  const values &x = _current_guess;
+  trajectory_t tfs({});
+  for (int i = _num_landmarks*LM_SIZE; i < _num_landmarks*LM_SIZE+_num_poses*POSE_SIZE; i += POSE_SIZE) {
+    if (POSE_SIZE == 3) { // 2D
+      tfs.push_back(toTransformRotateFirst(0, 0, x(i+2)) * toTransformRotateFirst(x(i), x(i+1), 0));
+    } else { // 1D
+      tfs.push_back(toTransformRotateFirst(x(i), 0, 0));
+    }
+  }
+  return tfs;
+}

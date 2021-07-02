@@ -34,6 +34,8 @@ public:
 
   pose_t getPoseEstimate(int pose_id);
   void solve();
+  points_t getLandmarkLocations();
+  trajectory_t getSmoothedTrajectory();
 };
 
 #endif
