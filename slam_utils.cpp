@@ -13,7 +13,7 @@
 
 using namespace NavSim;
 
-values toVector(const trajectory_t &traj, const points_t &r, int max_num_poses) {
+values toVector(const trajectory_t &traj, const points_t &r, int max_num_poses, double prev_theta) {
   int num_extra_poses = (int) traj.size() - max_num_poses;
   int L = (int) r.size();
   int pose_size(1), lm_size(1);
@@ -24,7 +24,6 @@ values toVector(const trajectory_t &traj, const points_t &r, int max_num_poses) 
   int N = lm_size*L + pose_size*max_num_poses;
   values v = values::Zero(N);
   printf("Vectorizing trajectory and landmarks to dimension %ld\n", v.size());
-  double prev_theta = 0.;
   for (int i = 0; i < L; i++) {
     v.block(lm_size*i, 0, lm_size, 1) = r[(size_t)i].topRows(lm_size);
   }

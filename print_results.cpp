@@ -44,8 +44,11 @@ void printResults(MyWindow &window, FriendlyGraph &fg,
   std::cout << std::fixed;
 
   std::cout << std::showpos;
-  values ground_truth = toVector(true_trajectory, true_landmarks, fg.getMaxNumPoses());
-  values x0 = toVector(odom_trajectory, prior_landmarks, fg.getMaxNumPoses());
+  double base_pose_theta = g.solution()(lm_size*L + 2);
+  values ground_truth = toVector(true_trajectory, true_landmarks,
+      fg.getMaxNumPoses(), base_pose_theta);
+  values x0 = toVector(odom_trajectory, prior_landmarks,
+      fg.getMaxNumPoses(), base_pose_theta);
   std::cout << std::endl << "Landmark locations:" << std::endl;
   printRange(g, ground_truth, 0, lm_size*L, lm_size);
   std::cout << std::endl << "Trajectory:" << std::endl;
