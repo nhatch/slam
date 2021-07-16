@@ -56,7 +56,13 @@ void collectDataAndRunSLAM() {
   transform_t odom_accumulated_guess = start_pose_guess;
 
   FriendlyGraph fg(L, 10);
-  fg.addPosePrior(0, start_pose_guess, 3.0, 1.0); // informed prior
+  float prior_xy_std = 3.0;
+  float prior_th_std = 1.0;
+  covariance<3> prior_cov = covariance<3>::Zero();
+  prior_cov << prior_xy_std * prior_xy_std, 0, 0,
+               0, prior_xy_std * prior_xy_std, 0,
+               0, 0, prior_th_std * prior_th_std;
+  fg.addPosePrior(0, start_pose_guess, prior_cov); // informed prior
   for (int l = 0; l < L; l++) {
     point_t location({0,0,1});
     fg.addLandmarkPrior(l, location, 20.0); // uninformative prior

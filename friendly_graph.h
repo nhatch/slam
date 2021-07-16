@@ -34,8 +34,7 @@ public:
     const transform_t &pose2_tf, const transform_t &pose1_tf);
   void addLandmarkMeasurement(int pose_id, int lm_id, const point_t &bearing);
   void addLandmarkPrior(int lm_id, point_t location, double xy_std);
-  void addPosePrior(int pose_id, const transform_t &pose_tf,
-    double xy_std, double th_std);
+  void addPosePrior(int pose_id, const transform_t &pose_tf, covariance<3> &cov);
 
   pose_t getPoseEstimate(int pose_id);
   void solve();

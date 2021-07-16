@@ -78,17 +78,13 @@ void FriendlyGraph::trimToMaxNumPoses() {
         base_idx, base_idx, POSE_SIZE, POSE_SIZE);
     values old_guess = _current_guess;
     printf("Trimming. Current uncertainty on base pose: %f %f %f\n",
-        first_pose_cov(0,0), first_pose_cov(1,1), first_pose_cov(2,2));
-    // TODO may want to redo this to use the full covariance, rather than just
-    // these first two numbers
-    double xy_std = sqrt(first_pose_cov(0,0));
-    double th_std = sqrt(first_pose_cov(2,2));
+        sqrt(first_pose_cov(0,0)), sqrt(first_pose_cov(1,1)), sqrt(first_pose_cov(2,2)));
     _graph.shiftIndices(POSE_SIZE, poseIdx(_min_pose_id));
     _min_pose_id += 1;
     _current_guess.conservativeResize(nonincrementingPoseIdx(_max_pose_id));
     _current_guess.block(poseIdx(_min_pose_id), 0, _max_num_poses * POSE_SIZE, 1) =
       old_guess.block(poseIdx(_min_pose_id+1), 0, _max_num_poses * POSE_SIZE, 1);
-    addPosePrior(_min_pose_id, toTransform(first_pose), xy_std, th_std);
+    addPosePrior(_min_pose_id, toTransform(first_pose), first_pose_cov);
   }
 }
 
@@ -129,13 +125,8 @@ void FriendlyGraph::addLandmarkPrior(int lm_id, point_t location, double xy_std)
   _current_guess.block(landmarkIdx(lm_id),0,LM_SIZE,1) = lm;
 }
 
-void FriendlyGraph::addPosePrior(int pose_id, const transform_t &pose_tf,
-    double xy_std, double th_std) {
-  covariance<3> prior_cov = covariance<3>::Zero();
-  prior_cov << xy_std * xy_std, 0, 0,
-               0, xy_std * xy_std, 0,
-               0, 0, th_std * th_std;
-  covariance<3> prior_cov_inv = prior_cov.inverse();
+void FriendlyGraph::addPosePrior(int pose_id, const transform_t &pose_tf, covariance<3> &cov) {
+  covariance<3> prior_cov_inv = cov.inverse();
   pose_t pose = toPose(pose_tf, 0);
   _graph.add(new OdomFactor2D(poseIdx(pose_id), -1, prior_cov_inv, pose));
   _current_guess.block(poseIdx(pose_id),0,POSE_SIZE,1) = pose;
