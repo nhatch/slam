@@ -10,6 +10,14 @@ double AbstractFactor::eval(const values &/*x*/) { assert("abstract eval" && fal
 values AbstractFactor::gradient_at(const values &/*x*/) { assert("abstract grad" && false); }
 hessian AbstractFactor::hessian_at(const values &/*x*/) { assert("abstract hess" && false); }
 
+// Used to handle graph trimming so graph size does not grow arbitrarily.
+// Shifts all factor indices related to robot poses down by `poseSize`. If this
+// moves the index outside the range used for poses, return false.
+// If this returns false, the factor should be removed from the graph.
+bool AbstractFactor::shiftIndices(int /*poseSize*/, int /*firstPoseIdx*/) {
+  assert("abstract shift" && false);
+}
+
 
 Graph::Graph() : _x0(values::Zero(1)), _sol(values::Zero(1)), _sol_cov(hessian::Zero(1,1)),
     _factors({}) {}
@@ -78,3 +86,14 @@ hessian Graph::covariance() {
   return _sol_cov;
 }
 
+void Graph::shiftIndices(int poseSize, int firstPoseIdx) {
+  auto it = _factors.begin();
+  while (it != _factors.end()) {
+    if (!(*it)->shiftIndices(poseSize, firstPoseIdx)) {
+      free(*it);
+      it = _factors.erase(it);
+    } else {
+      ++it;
+    }
+  }
+}

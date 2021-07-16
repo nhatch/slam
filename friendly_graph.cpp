@@ -13,8 +13,9 @@ using namespace NavSim;
 constexpr int LM_SIZE = 2;
 constexpr int POSE_SIZE = 3;
 
-FriendlyGraph::FriendlyGraph(int num_landmarks) :
-    _num_landmarks(num_landmarks), _num_poses(0), _current_guess(LM_SIZE*num_landmarks),
+FriendlyGraph::FriendlyGraph(int num_landmarks, int max_num_poses) :
+    _num_landmarks(num_landmarks), _max_pose_id(0), _min_pose_id(0),
+    _max_num_poses(max_num_poses), _current_guess(LM_SIZE*num_landmarks),
     _odom_cov_inv(), _sensor_cov_inv(), _gps_cov_inv(), _graph()
 {
   covariance<3> odom_cov = covariance<3>::Zero();
@@ -36,24 +37,57 @@ FriendlyGraph::FriendlyGraph(int num_landmarks) :
   _gps_cov_inv = gps_cov.inverse();
 }
 
+int FriendlyGraph::numPoses() {
+  return _max_pose_id - _min_pose_id;
+}
+
+int FriendlyGraph::nonincrementingPoseIdx(int pose_id) {
+  return _num_landmarks * LM_SIZE + (pose_id - _min_pose_id) * POSE_SIZE;
+}
+
 void FriendlyGraph::incrementNumPoses() {
-    _num_poses++;
-    _current_guess.conservativeResize(_num_landmarks * LM_SIZE + _num_poses * POSE_SIZE);
+  _max_pose_id++;
+  _current_guess.conservativeResize(nonincrementingPoseIdx(_max_pose_id));
 }
 
 int FriendlyGraph::poseIdx(int pose_id) {
-  if (pose_id == _num_poses) {
+  if (pose_id == _max_pose_id) {
     incrementNumPoses();
-  } else if (pose_id > _num_poses) {
-    printf("Error: skipped a pose id (given %d, current %d)\n", pose_id, _num_poses);
+  } else if (pose_id > _max_pose_id) {
+    printf("Error: skipped a pose id (given %d, current %d)\n", pose_id, _max_pose_id);
     throw 1;
   }
-  return _num_landmarks * LM_SIZE + pose_id * POSE_SIZE;
+  return nonincrementingPoseIdx(pose_id);
 }
 
 int FriendlyGraph::landmarkIdx(int lm_id) {
   assert(lm_id < _num_landmarks);
   return lm_id * LM_SIZE;
+}
+
+void FriendlyGraph::trimToMaxNumPoses() {
+  if (numPoses() > _max_num_poses) {
+    if (numPoses() != _max_num_poses + 1) {
+      printf("Error: skipped a trim\n");
+      throw 2;
+    }
+    hessian sol_cov = _graph.covariance();
+    int base_idx = poseIdx(_min_pose_id+1);
+    measurement<3> first_pose = getPoseEstimate(_min_pose_id+1);
+    covariance<3> first_pose_cov = sol_cov.block(
+        base_idx, base_idx, POSE_SIZE, POSE_SIZE);
+    values old_guess = _current_guess;
+    printf("Trimming. Current uncertainty on base pose: %f %f %f)\n",
+        first_pose_cov(0,0), first_pose_cov(1,1), first_pose_cov(2,2));
+    double xy_std = first_pose_cov(0,0);
+    double th_std = first_pose_cov(2,2);
+    _graph.shiftIndices(POSE_SIZE, poseIdx(_min_pose_id));
+    _min_pose_id += 1;
+    _current_guess.conservativeResize(poseIdx(_max_pose_id));
+    _current_guess.block(poseIdx(_min_pose_id), 0, _max_num_poses * POSE_SIZE, 1) =
+      old_guess.block(poseIdx(_min_pose_id+1), 0, _max_num_poses * POSE_SIZE, 1);
+    addPosePrior(_min_pose_id, toTransform(first_pose), xy_std, th_std);
+  }
 }
 
 pose_t FriendlyGraph::getPoseEstimate(int pose_id) {
@@ -107,6 +141,7 @@ void FriendlyGraph::addPosePrior(int pose_id, const transform_t &pose_tf,
 void FriendlyGraph::solve() {
   _graph.solve(_current_guess);
   _current_guess = _graph.solution();
+  trimToMaxNumPoses();
 }
 
 points_t FriendlyGraph::getLandmarkLocations() {
@@ -122,7 +157,7 @@ points_t FriendlyGraph::getLandmarkLocations() {
 trajectory_t FriendlyGraph::getSmoothedTrajectory() {
   const values &x = _current_guess;
   trajectory_t tfs({});
-  for (int i = _num_landmarks*LM_SIZE; i < _num_landmarks*LM_SIZE+_num_poses*POSE_SIZE; i += POSE_SIZE) {
+  for (int i = poseIdx(_min_pose_id); i < poseIdx(_max_pose_id); i += POSE_SIZE) {
     if (POSE_SIZE == 3) { // 2D
       tfs.push_back(toTransformRotateFirst(0, 0, x(i+2)) * toTransformRotateFirst(x(i), x(i+1), 0));
     } else { // 1D
@@ -131,3 +166,4 @@ trajectory_t FriendlyGraph::getSmoothedTrajectory() {
   }
   return tfs;
 }
+

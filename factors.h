@@ -48,6 +48,7 @@ public:
   OdomFactor(int idx1, int idx2, double sigma, double m);
   virtual measurement<1> f(const values &x);
   virtual jacobian<1> jf(const values &x);
+  virtual bool shiftIndices(int poseSize, int firstPoseIdx);
 };
 
 
@@ -58,6 +59,7 @@ public:
   GPSFactor(int idx, double sigma, double m);
   virtual measurement<1> f(const values &x);
   virtual jacobian<1> jf(const values &x);
+  virtual bool shiftIndices(int poseSize, int firstPoseIdx);
 };
 
 class LandmarkFactor2D : public Factor<2> {
@@ -67,6 +69,7 @@ public:
   LandmarkFactor2D(int lmPose, int sensorPose, const covariance<2> &sigma_inv, const measurement<2> m);
   virtual measurement<2> f(const values &x);
   virtual jacobian<2> jf(const values &x);
+  virtual bool shiftIndices(int poseSize, int firstPoseIdx);
 };
 
 class OdomFactor2D : public Factor<3> {
@@ -76,6 +79,7 @@ public:
   OdomFactor2D(int pose2, int pose1, const covariance<3> &sigma_inv, const measurement<3> m);
   virtual measurement<3> f(const values &x);
   virtual jacobian<3> jf(const values &x);
+  virtual bool shiftIndices(int poseSize, int firstPoseIdx);
 };
 
 #endif

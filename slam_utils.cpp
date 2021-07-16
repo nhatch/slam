@@ -49,7 +49,7 @@ void collectDataAndRunSLAM() {
 
   transform_t start_pose_guess = toTransform({13,-1,M_PI*2/3});
 
-  FriendlyGraph fg(L);
+  FriendlyGraph fg(L, 10);
   fg.addPosePrior(0, start_pose_guess, 3.0, 1.0); // informed prior
   for (int l = 0; l < L; l++) {
     point_t location({0,0,1});

@@ -14,6 +14,8 @@ public:
   virtual double eval(const values &/*x*/);
   virtual values gradient_at(const values &/*x*/);
   virtual hessian hessian_at(const values &/*x*/);
+  // Used for trimming so the graph doesn't grow without bound
+  virtual bool shiftIndices(int poseSize, int firstPoseIdx);
 };
 
 class Graph {
@@ -34,6 +36,7 @@ public:
   values x0();
   values solution();
   hessian covariance();
+  void shiftIndices(int poseSize, int firstPoseIdx);
 };
 
 #endif
