@@ -12,6 +12,11 @@ using namespace NavSim;
 
 constexpr int LM_SIZE = 2;
 constexpr int POSE_SIZE = 3;
+constexpr float CAMERA_VAR = 0.3 * 0.3;
+// The variance of odom measurements will depend on how far the robot traveled.
+// A WHEEL_NOISE_RATE of 0.05 means that when we rotate a wheel through a distance
+// of 1 meter, the standard deviation of the true distance rotated will be 5 cm.
+constexpr float WHEEL_NOISE_RATE = 0.05;
 
 FriendlyGraph::FriendlyGraph(int num_landmarks, int max_num_poses) :
     _num_landmarks(num_landmarks), _max_pose_id(0), _min_pose_id(0),
@@ -20,13 +25,13 @@ FriendlyGraph::FriendlyGraph(int num_landmarks, int max_num_poses) :
 {
   covariance<3> odom_cov = covariance<3>::Zero();
   // TODO what are the right numbers here? Should y be correlated with theta?
-  odom_cov << SLAM_VAR, 0, 0,
-              0, SLAM_VAR, SLAM_VAR/2.0,
-              0, SLAM_VAR/2.0, SLAM_VAR;
+  odom_cov << WHEEL_NOISE_RATE, 0, 0,
+              0, WHEEL_NOISE_RATE, WHEEL_NOISE_RATE/2.0,
+              0, WHEEL_NOISE_RATE/2.0, WHEEL_NOISE_RATE;
   _odom_cov_inv = odom_cov.inverse();
   covariance<2> sensor_cov = covariance<2>::Zero();
-  sensor_cov << SLAM_VAR, 0,
-                0, SLAM_VAR;
+  sensor_cov << CAMERA_VAR, 0,
+                0, CAMERA_VAR;
   _sensor_cov_inv = sensor_cov.inverse();
   // GPS has no heading measurements
   // which we represent using a large covariance
@@ -103,7 +108,12 @@ void FriendlyGraph::addOdomMeasurement(int pose2_id, int pose1_id,
     const transform_t &pose2_tf, const transform_t &pose1_tf) {
   transform_t rel_tf = pose2_tf * pose1_tf.inverse();
   pose_t diff = toPose(rel_tf, 0.0);
-  _graph.add(new OdomFactor2D(poseIdx(pose2_id), poseIdx(pose1_id), _odom_cov_inv, diff));
+  float lin_dist = diff(0);
+  // Turning introduces more noise than going in a straight line
+  float ang_dist = ROBOT_WHEEL_BASE * diff(2) * 4;
+  float noise_distance_sq = lin_dist*lin_dist + ang_dist*ang_dist;
+  _graph.add(new OdomFactor2D(poseIdx(pose2_id), poseIdx(pose1_id),
+        noise_distance_sq * _odom_cov_inv, diff));
   pose_t pose1_est = getPoseEstimate(pose1_id);
   transform_t new_pose_tf = rel_tf * toTransform(pose1_est);
   pose_t pose2_est = toPose(new_pose_tf, pose1_est(2));

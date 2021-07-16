@@ -200,7 +200,9 @@ void World::renderReadings(MyWindow &window) {
 }
 
 void World::start() {
-  std::srand(time(NULL));
+  unsigned int seed = time(NULL);
+  printf("World simulator seed: %d\n", seed);
+  std::srand(seed);
   gettimeofday(&last_gps_reading_, NULL);
   spin_thread_ = std::thread( [this] {spinSim();} );
 }
