@@ -6,6 +6,8 @@
 #include "utils.h"
 #include "graphics.h"
 
-void printResults(MyWindow &window, FriendlyGraph &fg, const trajectory_t &true_trajectory, const points_t &true_landmarks);
+void printResults(MyWindow &window, FriendlyGraph &fg,
+    const trajectory_t &true_trajectory, const points_t &true_landmarks,
+    const trajectory_t &odom_trajectory, const points_t &prior_landmarks);
 
 #endif

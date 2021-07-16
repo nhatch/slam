@@ -77,13 +77,13 @@ void FriendlyGraph::trimToMaxNumPoses() {
     covariance<3> first_pose_cov = sol_cov.block(
         base_idx, base_idx, POSE_SIZE, POSE_SIZE);
     values old_guess = _current_guess;
-    printf("Trimming. Current uncertainty on base pose: %f %f %f)\n",
+    printf("Trimming. Current uncertainty on base pose: %f %f %f\n",
         first_pose_cov(0,0), first_pose_cov(1,1), first_pose_cov(2,2));
     double xy_std = first_pose_cov(0,0);
     double th_std = first_pose_cov(2,2);
     _graph.shiftIndices(POSE_SIZE, poseIdx(_min_pose_id));
     _min_pose_id += 1;
-    _current_guess.conservativeResize(poseIdx(_max_pose_id));
+    _current_guess.conservativeResize(nonincrementingPoseIdx(_max_pose_id));
     _current_guess.block(poseIdx(_min_pose_id), 0, _max_num_poses * POSE_SIZE, 1) =
       old_guess.block(poseIdx(_min_pose_id+1), 0, _max_num_poses * POSE_SIZE, 1);
     addPosePrior(_min_pose_id, toTransform(first_pose), xy_std, th_std);
@@ -91,6 +91,7 @@ void FriendlyGraph::trimToMaxNumPoses() {
 }
 
 pose_t FriendlyGraph::getPoseEstimate(int pose_id) {
+  assert("bad pose id" && pose_id >= _min_pose_id && pose_id < _max_pose_id);
   pose_t p = _current_guess.block(poseIdx(pose_id), 0, POSE_SIZE, 1);
   return p;
 }
@@ -138,10 +139,11 @@ void FriendlyGraph::addPosePrior(int pose_id, const transform_t &pose_tf,
   _current_guess.block(poseIdx(pose_id),0,POSE_SIZE,1) = pose;
 }
 
+// Guarantee: after solve(), _graph.solution() == _current_guess
 void FriendlyGraph::solve() {
+  trimToMaxNumPoses();
   _graph.solve(_current_guess);
   _current_guess = _graph.solution();
-  trimToMaxNumPoses();
 }
 
 points_t FriendlyGraph::getLandmarkLocations() {
@@ -157,7 +159,7 @@ points_t FriendlyGraph::getLandmarkLocations() {
 trajectory_t FriendlyGraph::getSmoothedTrajectory() {
   const values &x = _current_guess;
   trajectory_t tfs({});
-  for (int i = poseIdx(_min_pose_id); i < poseIdx(_max_pose_id); i += POSE_SIZE) {
+  for (int i = poseIdx(_min_pose_id); i < nonincrementingPoseIdx(_max_pose_id); i += POSE_SIZE) {
     if (POSE_SIZE == 3) { // 2D
       tfs.push_back(toTransformRotateFirst(0, 0, x(i+2)) * toTransformRotateFirst(x(i), x(i+1), 0));
     } else { // 1D
@@ -165,5 +167,9 @@ trajectory_t FriendlyGraph::getSmoothedTrajectory() {
     }
   }
   return tfs;
+}
+
+int FriendlyGraph::getMaxNumPoses() const {
+  return _max_num_poses;
 }
 

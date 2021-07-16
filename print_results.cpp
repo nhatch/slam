@@ -29,7 +29,9 @@ void printRange(Graph &g, values ground_truth, int start, int end, int size) {
   }
 }
 
-void printResults(MyWindow &window, FriendlyGraph &fg, const trajectory_t &true_trajectory, const points_t &true_landmarks) {
+void printResults(MyWindow &window, FriendlyGraph &fg,
+    const trajectory_t &true_trajectory, const points_t &true_landmarks,
+    const trajectory_t &odom_trajectory, const points_t &prior_landmarks) {
   Graph &g = fg._graph;
   int pose_size(1), lm_size(1);
   if (IS_2D) {
@@ -42,7 +44,8 @@ void printResults(MyWindow &window, FriendlyGraph &fg, const trajectory_t &true_
   std::cout << std::fixed;
 
   std::cout << std::showpos;
-  values ground_truth = toVector(true_trajectory, true_landmarks);
+  values ground_truth = toVector(true_trajectory, true_landmarks, fg.getMaxNumPoses());
+  values x0 = toVector(odom_trajectory, prior_landmarks, fg.getMaxNumPoses());
   std::cout << std::endl << "Landmark locations:" << std::endl;
   printRange(g, ground_truth, 0, lm_size*L, lm_size);
   std::cout << std::endl << "Trajectory:" << std::endl;
@@ -52,9 +55,9 @@ void printResults(MyWindow &window, FriendlyGraph &fg, const trajectory_t &true_
   // TODO maybe we should compute error in a more sophisticated way?
   // E.g. we don't really care about absolute landmark location so much as
   // location relative to the robot.
-  std::cout << std::endl << "Initial error: " << (ground_truth-g.x0()).norm() << std::endl;
+  std::cout << std::endl << "Initial error: " << (ground_truth-x0).norm() << std::endl;
   std::cout << "Smoothed error: " << (ground_truth-g.solution()).norm() << std::endl;
-  std::cout << "Initial potential: " << g.eval(g.x0()) << std::endl;
+  std::cout << "Initial potential: " << g.eval(x0) << std::endl;
   std::cout << "Smoothed potential: " << g.eval(g.solution()) << std::endl;
   std::cout << "Ground truth potential: " << g.eval(ground_truth) << std::endl;
 

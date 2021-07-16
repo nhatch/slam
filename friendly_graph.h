@@ -41,6 +41,7 @@ public:
   void solve();
   points_t getLandmarkLocations();
   trajectory_t getSmoothedTrajectory();
+  int getMaxNumPoses() const;
 
 };
 
