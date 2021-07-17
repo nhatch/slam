@@ -12,32 +12,28 @@ using namespace NavSim;
 
 constexpr int LM_SIZE = 2;
 constexpr int POSE_SIZE = 3;
-constexpr float CAMERA_VAR = 0.3 * 0.3;
-// The variance of odom measurements will depend on how far the robot traveled.
-// A WHEEL_NOISE_RATE of 0.05 means that when we rotate a wheel through a distance
-// of 1 meter, the standard deviation of the true distance rotated will be 5 cm.
-constexpr float WHEEL_NOISE_RATE = 0.05;
 
-FriendlyGraph::FriendlyGraph(int num_landmarks, int max_num_poses) :
+FriendlyGraph::FriendlyGraph(int num_landmarks, int max_num_poses,
+      float camera_std, float gps_xy_std, float wheel_noise_rate) :
     _num_landmarks(num_landmarks), _max_pose_id(0), _min_pose_id(0),
     _max_num_poses(max_num_poses), _current_guess(LM_SIZE*num_landmarks),
     _odom_cov_inv(), _sensor_cov_inv(), _gps_cov_inv(), _graph()
 {
   covariance<3> odom_cov = covariance<3>::Zero();
   // TODO what are the right numbers here? Should y be correlated with theta?
-  odom_cov << WHEEL_NOISE_RATE, 0, 0,
-              0, WHEEL_NOISE_RATE, WHEEL_NOISE_RATE/2.0,
-              0, WHEEL_NOISE_RATE/2.0, WHEEL_NOISE_RATE;
+  odom_cov << wheel_noise_rate, 0, 0,
+              0, wheel_noise_rate, wheel_noise_rate/2.0,
+              0, wheel_noise_rate/2.0, wheel_noise_rate;
   _odom_cov_inv = odom_cov.inverse();
   covariance<2> sensor_cov = covariance<2>::Zero();
-  sensor_cov << CAMERA_VAR, 0,
-                0, CAMERA_VAR;
+  sensor_cov << camera_std * camera_std, 0,
+                0, camera_std * camera_std;
   _sensor_cov_inv = sensor_cov.inverse();
   // GPS has no heading measurements
   // which we represent using a large covariance
   covariance<3> gps_cov = covariance<3>::Zero();
-  gps_cov << 3.0 * 3.0, 0, 0,
-             0, 3.0 * 3.0, 0,
+  gps_cov << gps_xy_std * gps_xy_std, 0, 0,
+             0, gps_xy_std * gps_xy_std, 0,
              0, 0, 50.0 * 50.0;
   _gps_cov_inv = gps_cov.inverse();
 }

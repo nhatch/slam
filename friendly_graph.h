@@ -34,8 +34,18 @@ public:
    * max_num_poses: To prevent the pose graph from growing arbitrarily over time,
    *                we automatically trim the oldest poses once we get enough newer ones.
    *                This parameter specifies the maximum number of poses in the graph.
+   *
+   * camera_std:    Standard deviation of landmark distance measurements, in meters
+   *
+   * gps_xy_std:    Standard deviation of GPS (x,y) measurements, in meters
+   *
+   * wheel_noise_rate:
+   *      The variance of odom measurements will depend on how far the robot traveled.
+   *      A WHEEL_NOISE_RATE of 0.05 means that when we rotate a wheel through a distance
+   *      of 1 meter, the standard deviation of the true distance rotated will be 5 cm.
    */
-  FriendlyGraph(int num_landmarks, int max_num_poses);
+  FriendlyGraph(int num_landmarks, int max_num_poses,
+      float camera_std, float gps_xy_std, float wheel_noise_rate);
 
   void addGPSMeasurement(int pose_id, const transform_t &gps_tf);
   void addOdomMeasurement(int pose2_id, int pose1_id,

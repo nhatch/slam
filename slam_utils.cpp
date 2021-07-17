@@ -55,7 +55,7 @@ void collectDataAndRunSLAM() {
   transform_t start_pose_guess = toTransform({13,-1,M_PI*2/3});
   transform_t odom_accumulated_guess = start_pose_guess;
 
-  FriendlyGraph fg(L, 10);
+  FriendlyGraph fg(L, 10, 0.3, 3.0, 0.05);
   float prior_xy_std = 3.0;
   float prior_th_std = 1.0;
   covariance<3> prior_cov = covariance<3>::Zero();
