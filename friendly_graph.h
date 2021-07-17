@@ -27,6 +27,14 @@ private:
 public:
   Graph _graph;
 
+  /* num_landmarks: Currently we require you to pre-specify how many landmarks
+   *                will be considered in the pose graph. TODO: Make it possible to
+   *                add more landmarks over time.
+   *
+   * max_num_poses: To prevent the pose graph from growing arbitrarily over time,
+   *                we automatically trim the oldest poses once we get enough newer ones.
+   *                This parameter specifies the maximum number of poses in the graph.
+   */
   FriendlyGraph(int num_landmarks, int max_num_poses);
 
   void addGPSMeasurement(int pose_id, const transform_t &gps_tf);
@@ -39,6 +47,9 @@ public:
   pose_t getPoseEstimate(int pose_id);
   void solve();
   points_t getLandmarkLocations();
+  /* This method will return the smoothed trajectory (assuming you've already called
+   * `solve()`). Note that the length of this trajectory will be at most `max_num_poses`
+   * (the oldest poses are discarded). */
   trajectory_t getSmoothedTrajectory();
   int getMaxNumPoses() const;
 

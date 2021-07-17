@@ -66,7 +66,10 @@ double nearestHeadingBranch(double theta, double prev_theta);
 
 transform_t toTransform(const pose_t &pose);
 
-// One sample from a standard normal distribution
+// One sample from a standard normal distribution.
+// The thread_id is used to choose which random number generator to use.
+// This is important when trying to rerun a particular random seed; each thread
+// needs its own dedicated sequence of random numbers.
 double stdn(int thread_id);
 // Returns the random seed used for the stdn() function
 long getNormalSeed();
