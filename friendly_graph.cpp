@@ -113,7 +113,7 @@ void FriendlyGraph::addOdomMeasurement(int pose2_id, int pose1_id,
   float ang_dist = ROBOT_WHEEL_BASE * diff(2) * 4;
   float noise_distance_sq = lin_dist*lin_dist + ang_dist*ang_dist;
   _graph.add(new OdomFactor2D(poseIdx(pose2_id), poseIdx(pose1_id),
-        noise_distance_sq * _odom_cov_inv, diff));
+        _odom_cov_inv / noise_distance_sq, diff));
   pose_t pose1_est = getPoseEstimate(pose1_id);
   transform_t new_pose_tf = rel_tf * toTransform(pose1_est);
   pose_t pose2_est = toPose(new_pose_tf, pose1_est(2));
