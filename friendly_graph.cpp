@@ -82,8 +82,8 @@ void FriendlyGraph::trimToMaxNumPoses() {
     covariance<3> first_pose_cov = sol_cov.block(
         base_idx, base_idx, POSE_SIZE, POSE_SIZE);
     values old_guess = _current_guess;
-    printf("Trimming. Current uncertainty on base pose: %f %f %f\n",
-        sqrt(first_pose_cov(0,0)), sqrt(first_pose_cov(1,1)), sqrt(first_pose_cov(2,2)));
+    //printf("Trimming. Current uncertainty on base pose: %f %f %f\n",
+    //    sqrt(first_pose_cov(0,0)), sqrt(first_pose_cov(1,1)), sqrt(first_pose_cov(2,2)));
     _graph.shiftIndices(POSE_SIZE, poseIdx(_min_pose_id));
     _min_pose_id += 1;
     _current_guess.conservativeResize(nonincrementingPoseIdx(_max_pose_id));
