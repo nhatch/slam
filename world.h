@@ -26,8 +26,9 @@ public:
 
   void setCmdVel(double d_theta, double d_x);
 
-  points_t readLidar();
-  points_t readLandmarks();
+  /* Clients should use the default thread_id (i.e. 0) */
+  points_t readLidar(int thread_id = 0);
+  points_t readLandmarks(int thread_id = 0);
   transform_t readGPS();
   transform_t readOdom();
   URCLeg getLeg(int index);

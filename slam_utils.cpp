@@ -37,7 +37,7 @@ values toVector(const trajectory_t &traj, const points_t &r, int max_num_poses, 
 }
 
 void collectDataAndRunSLAM() {
-  constexpr int T = 30;
+  constexpr int T = 20;
   points_t prior_landmarks({
       {0,0,1},
       {0,0,1},
@@ -95,7 +95,9 @@ void collectDataAndRunSLAM() {
     ground_truth.push_back(w.readTrueTransform());
     if (pose_id == 0) w.setCmdVel(0.0, ROBOT_LENGTH);
     fg.solve();
-    usleep(500 * 1000);
+    // Make this "relatively prime" with 1000 * 1000 to avoid randomness
+    // due to context switching. (Less randomness == good for debugging.)
+    usleep(498 * 1000);
   }
   w.setCmdVel(0.0, 0.0);
 

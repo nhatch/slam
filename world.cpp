@@ -13,6 +13,8 @@ using namespace NavSim;
 
 constexpr long GPS_UPDATE_PERIOD_USECS = 1000 * 1000;
 
+constexpr int SPIN_THREAD = 1; // must be nonzero. zero refers to the main/client thread
+
 const sf::Color TRUTH_COLOR(0,0,0,128);
 const sf::Color ODOM_COLOR(0,0,255,128);
 const sf::Color LIDAR_COLOR(255,0,0,128);
@@ -193,15 +195,15 @@ void World::spinSim() {
 
 void World::renderReadings(MyWindow &window) {
   transform_t tf = current_transform_truth_;
-  points_t lidar = readLidar();
+  points_t lidar = readLidar(SPIN_THREAD);
   window.drawPoints(transformReadings(lidar, tf), LIDAR_COLOR, 3);
-  points_t lms = readLandmarks();
+  points_t lms = readLandmarks(SPIN_THREAD);
   window.drawPoints(transformReadings(lms, tf), LANDMARK_COLOR, 4);
 }
 
 void World::start() {
-  unsigned int seed = time(NULL);
-  printf("World simulator seed: %d\n", seed);
+  long seed = getNormalSeed();
+  printf("World simulator seed: %ld\n", seed);
   std::srand(seed);
   gettimeofday(&last_gps_reading_, NULL);
   spin_thread_ = std::thread( [this] {spinSim();} );
@@ -212,18 +214,19 @@ void World::setCmdVel(double d_theta, double d_x) {
   cmd_vel_x_ = d_x;
 }
 
+// This should only be called from the spin thread for random seed reproducibility
 void World::moveRobot(double d_theta, double d_x) {
   double noisy_x(0.), noisy_theta(0.);
   if (IS_2D) {
     double d_r = d_x + 0.5*ROBOT_WHEEL_BASE*d_theta;
     double d_l = d_x - 0.5*ROBOT_WHEEL_BASE*d_theta;
     // Larger distance means more noise
-    double noisy_r = d_r + stdn() * WHEEL_STD * sqrt(abs(d_r));
-    double noisy_l = d_l + stdn() * WHEEL_STD * sqrt(abs(d_l));
+    double noisy_r = d_r + stdn(SPIN_THREAD) * WHEEL_STD * sqrt(abs(d_r));
+    double noisy_l = d_l + stdn(SPIN_THREAD) * WHEEL_STD * sqrt(abs(d_l));
     noisy_x = 0.5*(noisy_r + noisy_l);
     noisy_theta = (noisy_r - noisy_l) / ROBOT_WHEEL_BASE;
   } else {
-    noisy_x = d_x + stdn() * WHEEL_STD * sqrt(abs(d_x));
+    noisy_x = d_x + stdn(SPIN_THREAD) * WHEEL_STD * sqrt(abs(d_x));
   }
   current_transform_truth_ = toTransformRotateFirst(noisy_x, 0., noisy_theta) * current_transform_truth_;
   if (collides(current_transform_truth_, obstacles_)) {
@@ -234,12 +237,12 @@ void World::moveRobot(double d_theta, double d_x) {
 
 // Currently this treats landmarks and lidar hits the same;
 // presumably in the real world they should have different noise models.
-void corrupt(point_t &p, double dist) {
+void corrupt(point_t &p, double dist, int thread_id) {
   // Add noise that increases with distance
-  p(0) += stdn() * CORRUPTION_STD * sqrt(dist);
-  if (IS_2D) p(1) += stdn() * CORRUPTION_STD * sqrt(dist);
+  p(0) += stdn(thread_id) * CORRUPTION_STD * sqrt(dist);
+  if (IS_2D) p(1) += stdn(thread_id) * CORRUPTION_STD * sqrt(dist);
   // Sometimes completely erase the data
-  if (stdn() < DATA_LOSS_THRESHOLD) {
+  if (stdn(thread_id) < DATA_LOSS_THRESHOLD) {
     p *= 0;
   }
 }
@@ -252,19 +255,19 @@ transform_t World::readOdom() {
   return current_transform_odom_;
 }
 
-points_t World::readLandmarks() {
+points_t World::readLandmarks(int thread_id) {
   points_t landmark_readings;
   transform_t tf = current_transform_truth_;
   point_t robot_location = tf.inverse() * point_t(0,0,1);
   for (point_t lm : landmarks_) {
     point_t reading = tf * lm;
     double dist = (robot_location - lm).norm();
-    corrupt(reading, dist);
+    corrupt(reading, dist, thread_id);
     double t = obstacleIntersection(robot_location, lm, obstacles_);
-	double angle = atan2(reading.y(), reading.x());
-	if (abs(angle) > LANDMARK_HALF_FOV) {
+    double angle = atan2(reading.y(), reading.x());
+    if (abs(angle) > LANDMARK_HALF_FOV) {
       reading = point_t::Zero();
-	}
+    }
     // t < 1.0 indicates there's an obstacle between the landmark and the robot
     if (dist > LANDMARK_MAX_RANGE || t < 0.999999) {
       reading *= 0; // (0,0,0) indicates no data
@@ -274,7 +277,7 @@ points_t World::readLandmarks() {
   return landmark_readings;
 }
 
-points_t World::readLidar() {
+points_t World::readLidar(int thread_id) {
   points_t hits({});
   transform_t tf_inv = current_transform_truth_.inverse();
   point_t r0({0,0,1});
@@ -290,14 +293,14 @@ points_t World::readLidar() {
     {
       point_t hit;
       hit << dist*cos(angle), dist*sin(angle), 1;
-      corrupt(hit, dist);
+      corrupt(hit, dist, thread_id);
       if (hit(2) != 0.0) {
         hits.push_back(hit);
       }
     }
   }
   // Assume landmarks are thin vertical obstacles, hence would be hit by lidar
-  points_t lms = readLandmarks();
+  points_t lms = readLandmarks(thread_id);
   for (point_t lm : lms) {
     if (lm(2) != 0 && (lm - r0).norm() < LIDAR_MAX_RANGE) {
       hits.push_back(lm);
@@ -313,7 +316,7 @@ transform_t World::readGPS() {
 
   pose_t p = toPose(current_transform_truth_, 0.);
   pose_t noise;
-  noise << stdn()*GPS_POS_STD, stdn()*GPS_POS_STD, stdn()*GPS_THETA_STD;
+  noise << stdn(0)*GPS_POS_STD, stdn(0)*GPS_POS_STD, stdn(0)*GPS_THETA_STD;
   p += noise;
   p[2] = 0.0; // no heading information
   return toTransform(p);

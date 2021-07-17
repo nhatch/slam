@@ -67,6 +67,8 @@ double nearestHeadingBranch(double theta, double prev_theta);
 transform_t toTransform(const pose_t &pose);
 
 // One sample from a standard normal distribution
-double stdn();
+double stdn(int thread_id);
+// Returns the random seed used for the stdn() function
+long getNormalSeed();
 
 #endif

@@ -157,10 +157,23 @@ transform_t toTransform(const pose_t &pose) {
   return toTransformRotateFirst(0, 0, pose(2)) * toTransformRotateFirst(pose(0), pose(1), 0);
 }
 
+/* Using two generators allows us to rerun random seeds for two-threaded programs.
+ * There still might be some variation due to the dependence of the robot position
+ * on when exactly each context switch occurs.
+ *
+ * For programs with more threads, a more sophisticated solution will be necessary.
+ */
 std::normal_distribution<double> stdn_dist(0.0, 1.0);
-unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
-std::default_random_engine generator(seed);
+//long seed = std::chrono::system_clock::now().time_since_epoch().count();
+long seed = 1626474823108702150;
+std::default_random_engine main_generator(seed);
+std::default_random_engine spin_generator(seed);
 
-double stdn() {
-  return stdn_dist(generator);
+long getNormalSeed() {
+  return seed;
+}
+
+double stdn(int thread_id) {
+  if (thread_id == 0) return stdn_dist(main_generator);
+  else return stdn_dist(spin_generator);
 }
