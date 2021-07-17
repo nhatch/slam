@@ -37,7 +37,7 @@ values toVector(const trajectory_t &traj, const points_t &r, int max_num_poses, 
 }
 
 void collectDataAndRunSLAM() {
-  constexpr int T = 20;
+  constexpr int T = 30;
   points_t prior_landmarks({
       {0,0,1},
       {0,0,1},

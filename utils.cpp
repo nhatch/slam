@@ -164,8 +164,8 @@ transform_t toTransform(const pose_t &pose) {
  * For programs with more threads, a more sophisticated solution will be necessary.
  */
 std::normal_distribution<double> stdn_dist(0.0, 1.0);
-//long seed = std::chrono::system_clock::now().time_since_epoch().count();
-long seed = 1626474823108702150;
+long seed = std::chrono::system_clock::now().time_since_epoch().count();
+//long seed = 1626474823108702150;
 std::default_random_engine main_generator(seed);
 std::default_random_engine spin_generator(seed);
 
