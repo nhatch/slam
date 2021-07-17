@@ -22,9 +22,8 @@ public:
   Factor(const covariance<D> &sigma_inv, const measurement<D> &measurement) :
       _sigma_inv(sigma_inv), _measurement(measurement) {}
 
-  // To be implemented by subclasses
-  virtual measurement<D> f(const values &/*x*/) { assert("abstract f" && false); }
-  virtual jacobian<D> jf(const values &/*x*/) { assert("abstract jf" && false); }
+  virtual measurement<D> f(const values &/*x*/) = 0;
+  virtual jacobian<D> jf(const values &/*x*/) = 0;
 
   virtual double eval(const values &x) {
     measurement<D> diff = f(x) - _measurement;
