@@ -26,8 +26,11 @@ public:
 
   void setCmdVel(double d_theta, double d_x);
 
-  points_t readLidar();
-  points_t readLandmarks();
+  /* The thread_id is used to choose which random number generator to use.
+   * This is useful for debugging when trying to rerun a particular random seed.
+   * If you're not worried about random reproducibility, just use the default (0). */
+  points_t readLidar(int thread_id = 0);
+  points_t readLandmarks(int thread_id = 0);
   transform_t readGPS();
   transform_t readOdom();
   URCLeg getLeg(int index);

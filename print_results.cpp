@@ -1,6 +1,7 @@
 
 #include <iostream>
 #include <unistd.h>
+#include "print_results.h"
 #include "graph.h"
 #include "slam_utils.h"
 #include "graphics.h"
@@ -28,42 +29,26 @@ void printRange(Graph &g, values ground_truth, int start, int end, int size) {
   }
 }
 
-points_t toLandmarks(const values &x, int start, int lm_size, int L) {
-  points_t lms({});
-  for (int i = start; i < start + L*lm_size; i += lm_size) {
-    point_t lm ({0, 0, 1});
-    lm.topRows(lm_size) = x.block(i, 0, lm_size, 1);
-    lms.push_back(lm);
-  }
-  return lms;
-}
-
-trajectory_t toTraj(const values &x, int start, int pose_size, int T) {
-  trajectory_t tfs({});
-  for (int i = start; i <= start+T*pose_size; i += pose_size) {
-    if (pose_size == 3) { // 2D
-      tfs.push_back(toTransformRotateFirst(0, 0, x(i+2)) * toTransformRotateFirst(x(i), x(i+1), 0));
-    } else { // 1D
-      tfs.push_back(toTransformRotateFirst(x(i), 0, 0));
-    }
-  }
-  return tfs;
-}
-
-void printResults(MyWindow &window, Graph &g, const trajectory_t &true_trajectory, const points_t &true_landmarks) {
+void printResults(MyWindow &window, FriendlyGraph &fg,
+    const trajectory_t &true_trajectory, const points_t &true_landmarks,
+    const trajectory_t &odom_trajectory, const points_t &prior_landmarks) {
+  Graph &g = fg._graph;
   int pose_size(1), lm_size(1);
   if (IS_2D) {
     pose_size = 3;
     lm_size = 2;
   }
-  int T = true_trajectory.size() - 1;
   int L = true_landmarks.size();
 
   std::cout.precision(3);
   std::cout << std::fixed;
 
   std::cout << std::showpos;
-  values ground_truth = toVector(true_trajectory, true_landmarks);
+  double base_pose_theta = g.solution()(lm_size*L + 2);
+  values ground_truth = toVector(true_trajectory, true_landmarks,
+      fg.getMaxNumPoses(), base_pose_theta);
+  values x0 = toVector(odom_trajectory, prior_landmarks,
+      fg.getMaxNumPoses(), base_pose_theta);
   std::cout << std::endl << "Landmark locations:" << std::endl;
   printRange(g, ground_truth, 0, lm_size*L, lm_size);
   std::cout << std::endl << "Trajectory:" << std::endl;
@@ -73,14 +58,14 @@ void printResults(MyWindow &window, Graph &g, const trajectory_t &true_trajector
   // TODO maybe we should compute error in a more sophisticated way?
   // E.g. we don't really care about absolute landmark location so much as
   // location relative to the robot.
-  std::cout << std::endl << "Initial error: " << (ground_truth-g.x0()).norm() << std::endl;
+  std::cout << std::endl << "Initial error: " << (ground_truth-x0).norm() << std::endl;
   std::cout << "Smoothed error: " << (ground_truth-g.solution()).norm() << std::endl;
-  std::cout << "Initial potential: " << g.eval(g.x0()) << std::endl;
+  std::cout << "Initial potential: " << g.eval(x0) << std::endl;
   std::cout << "Smoothed potential: " << g.eval(g.solution()) << std::endl;
   std::cout << "Ground truth potential: " << g.eval(ground_truth) << std::endl;
 
-  points_t smoothed_lms = toLandmarks(g.solution(), 0, lm_size, L);
-  trajectory_t smoothed_traj = toTraj(g.solution(), lm_size*L, pose_size, T);
+  points_t smoothed_lms = fg.getLandmarkLocations();
+  trajectory_t smoothed_traj = fg.getSmoothedTrajectory();
   window.drawPoints(smoothed_lms, sf::Color::Green, 3);
   window.drawTraj(smoothed_traj, sf::Color::Green);
   window.display();

@@ -6,10 +6,6 @@
 #include <vector>
 
 AbstractFactor::~AbstractFactor() {}
-double AbstractFactor::eval(const values &/*x*/) { assert("abstract eval" && false); }
-values AbstractFactor::gradient_at(const values &/*x*/) { assert("abstract grad" && false); }
-hessian AbstractFactor::hessian_at(const values &/*x*/) { assert("abstract hess" && false); }
-
 
 Graph::Graph() : _x0(values::Zero(1)), _sol(values::Zero(1)), _sol_cov(hessian::Zero(1,1)),
     _factors({}) {}
@@ -78,3 +74,14 @@ hessian Graph::covariance() {
   return _sol_cov;
 }
 
+void Graph::shiftIndices(int poseSize, int firstPoseIdx) {
+  auto it = _factors.begin();
+  while (it != _factors.end()) {
+    if (!(*it)->shiftIndices(poseSize, firstPoseIdx)) {
+      free(*it);
+      it = _factors.erase(it);
+    } else {
+      ++it;
+    }
+  }
+}

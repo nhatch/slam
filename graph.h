@@ -11,9 +11,14 @@ using hessian = Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic>;
 class AbstractFactor {
 public:
   virtual ~AbstractFactor();
-  virtual double eval(const values &/*x*/);
-  virtual values gradient_at(const values &/*x*/);
-  virtual hessian hessian_at(const values &/*x*/);
+  virtual double eval(const values &/*x*/) = 0;
+  virtual values gradient_at(const values &/*x*/) = 0;
+  virtual hessian hessian_at(const values &/*x*/) = 0;
+  // Used to handle graph trimming so graph size does not grow arbitrarily.
+  // Shifts all factor indices related to robot poses down by `poseSize`. If this
+  // moves the index outside the range used for poses, return false.
+  // If this returns false, the factor should be removed from the graph.
+  virtual bool shiftIndices(int poseSize, int firstPoseIdx) = 0;
 };
 
 class Graph {
@@ -34,6 +39,7 @@ public:
   values x0();
   values solution();
   hessian covariance();
+  void shiftIndices(int poseSize, int firstPoseIdx);
 };
 
 #endif

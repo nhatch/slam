@@ -26,6 +26,12 @@ jacobian<1> OdomFactor::jf(const values &x) {
   return j;
 }
 
+bool OdomFactor::shiftIndices(int poseSize, int firstPoseIdx) {
+  _idx1 -= poseSize;
+  _idx2 -= poseSize;
+  return (_idx1 >= firstPoseIdx && _idx2 >= firstPoseIdx);
+}
+
 GPSFactor::GPSFactor(int idx, double sigma, double m) : Factor<1>(
     covariance<1> { 1/sigma/sigma }, measurement<1> { m }
   ), _idx(idx) { }
@@ -38,6 +44,11 @@ jacobian<1> GPSFactor::jf(const values &x) {
   jacobian<1> j = jacobian<1>::Zero(x.size(), 1);
   j(_idx) = 1;
   return j;
+}
+
+bool GPSFactor::shiftIndices(int poseSize, int firstPoseIdx) {
+  _idx -= poseSize;
+  return _idx >= firstPoseIdx;
 }
 
 LandmarkFactor2D::LandmarkFactor2D(int lmPose, int sensorPose,
@@ -79,6 +90,14 @@ jacobian<2> LandmarkFactor2D::jf(const values &x) {
     j(_sensorPose+2,1)   = (x(_lmPose) - px) * (-cos(theta)) + (x(_lmPose+1) - py) * (-sin(theta));
   }
   return j;
+}
+
+bool LandmarkFactor2D::shiftIndices(int poseSize, int firstPoseIdx) {
+  if (_sensorPose >= 0) {
+    _sensorPose -= poseSize;
+    return _sensorPose >= firstPoseIdx;
+  }
+  return true;
 }
 
 // This is identical to LandmarkFactor2D except for one extra measurement (an angle difference).
@@ -127,3 +146,12 @@ jacobian<3> OdomFactor2D::jf(const values &x) {
   return j;
 }
 
+bool OdomFactor2D::shiftIndices(int poseSize, int firstPoseIdx) {
+  _pose2 -= poseSize;
+  if (_pose1 >= 0) {
+    _pose1 -= poseSize;
+    return _pose1 >= firstPoseIdx && _pose2 >= firstPoseIdx;
+  } else {
+    return _pose2 >= firstPoseIdx;
+  }
+}

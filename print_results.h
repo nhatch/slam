@@ -2,10 +2,12 @@
 #ifndef PRINT_RESULTS_H
 #define PRINT_RESULTS_H
 
-#include "graph.h"
+#include "friendly_graph.h"
 #include "utils.h"
 #include "graphics.h"
 
-void printResults(MyWindow &window, Graph &g, const trajectory_t &true_trajectory, const points_t &true_landmarks);
+void printResults(MyWindow &window, FriendlyGraph &fg,
+    const trajectory_t &true_trajectory, const points_t &true_landmarks,
+    const trajectory_t &odom_trajectory, const points_t &prior_landmarks);
 
 #endif
