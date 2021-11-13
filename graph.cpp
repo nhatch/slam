@@ -48,9 +48,8 @@ void Graph::solve(const values &x0, double alpha, int maxiters, double tol) {
     error = sqrt(grad.transpose() * grad);
     i += 1;
     if (i%100 == 0)
-      std::cout << "Iteration " << i << ": " << error << std::endl;
+      std::cout << "Graph::solve Iteration " << i << ": " << error << std::endl;
   }
-  std::cout << "MAP took " << i << " iterations." << std::endl;
   _sol = x;
 
   hessian hess = hessian::Zero(N,N);
